@@ -1,0 +1,1 @@
+hltGetConfiguration /online/collisions/2017/2e34/v2.0/HLT/V16 --full --offline --data --process MYHLT --globaltag 92X_dataRun2_HLT_v4  --no-output --max-events -1 --l1-emulator "uGT" > hlt_Phlegyas_online_v16_reEmul_uGT.py

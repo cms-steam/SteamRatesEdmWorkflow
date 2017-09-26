@@ -1,0 +1,1 @@
+/afs/cern.ch/user/g/gennai/bin/cmsBatch.py 1 hlt_tmp_silvio.py -o OUTPUT_Phlegyas_online_v16_reEmul_uGT_HLTPhysics4 -q 1nw -r /afs/cern.ch/user/g/gennai/Run2/HLT2017/Phlegyas/CMSSW_9_2_5_patch2/src/OUTPUT_Phlegyas_online_v16_reEmul_uGT_HLTPhysics4/outputHLT_2e34_Phlegyas_online.root
