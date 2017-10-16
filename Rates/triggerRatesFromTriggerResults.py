@@ -2,14 +2,14 @@ import ROOT
 from DataFormats.FWLite import Handle, Events
 import math
 import json
-from files3 import fileInputNames
+from filesInput import fileInputNames
 from aux import physicsStreamOK
 from aux import scoutingStreamOK
 from aux import datasets_for_corr as good_datasets
 
 #list of input files
 filesInput = fileInputNames
-json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/JSON/json_STEAM_2017C_301567.txt' #"json.txt"
+json_file = 'json.txt'
 
 
 
