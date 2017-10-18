@@ -2,14 +2,14 @@ import ROOT
 from DataFormats.FWLite import Handle, Events
 import math
 import json
-from filesInput import fileInputNames
+from files3 import fileInputNames
 from aux import physicsStreamOK
 from aux import scoutingStreamOK
 from aux import datasets_for_corr as good_datasets
 
 #list of input files
 filesInput = fileInputNames
-json_file = 'json.txt'
+json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Xudong_HLTv4/json_HLTPhysicsL1v4_2p0e34.txt'
 
 
 
@@ -52,7 +52,7 @@ def check_json(runNo_in, LS):
 #Dataset
 from Menu_HLT import groupMap as triggersGroupMap
 from Menu_HLT import datasetMap as  triggersDatasetMap
-from Menu_HLT import streamsMap as  triggersStreamMap
+from Menu_HLT import streamMap as  triggersStreamMap
 
 
 
@@ -122,19 +122,19 @@ for inputfile in filesInput:
                 if not (name.startswith("HLT_") or name.startswith("DST_")): continue
                 myPaths.append(name)
                 triggerKey = name.rstrip("0123456789")
-                if not name in triggersDatasetMap: continue
-                datasets.update({str(triggerKey):triggersDatasetMap[name]})
-                groups.update({str(triggerKey):triggersGroupMap[name]})
+                if not triggerKey in triggersDatasetMap: continue
+                datasets.update({str(triggerKey):triggersDatasetMap[triggerKey]})
+                groups.update({str(triggerKey):triggersGroupMap[triggerKey]})
                 if not (name in triggerList) :triggerList.append(name)
-                for dataset in triggersDatasetMap[name]:
+                for dataset in triggersDatasetMap[triggerKey]:
                     if not dataset in primaryDatasetList: primaryDatasetCounts.update({str(dataset):0}) 
                     if not dataset in primaryDatasetList: primaryDatasetList.append(dataset)
-                for group in triggersGroupMap[name]:
+                for group in triggersGroupMap[triggerKey]:
                     if not group in groupList: groupCounts.update({str(group):0}) 
                     if not group in groupList: groupCountsShared.update({str(group):0}) 
                     if not group in groupList: groupCountsPure.update({str(group):0}) 
                     if not group in groupList: groupList.append(group)
-                for stream in triggersStreamMap[name]:
+                for stream in triggersStreamMap[triggerKey]:
                     if not stream in streamList:
                         streamCounts.update({str(stream):0})
                         streamList.append(stream)
@@ -154,7 +154,8 @@ for inputfile in filesInput:
                 datasetDatasetCorrMatrix[dataset1] = aux_dic
                 aux_dic={}
                 for trigger in myPaths:
-                    aux_dic[trigger] = 0
+                    triggerKey = trigger.rstrip("0123456789")
+                    aux_dic[triggerKey] = 0
                 triggerDatasetCorrMatrix[dataset1] = aux_dic
 
 
@@ -192,8 +193,8 @@ for inputfile in filesInput:
                             if group not in myGroupFired: 
                                 myGroupFired.append(group)
                                 groupCounts[group] = groupCounts[group] + 1
-                    if triggerName in triggersStreamMap.keys():
-                        for stream in triggersStreamMap[triggerName]:
+                    if triggerKey in triggersStreamMap.keys():
+                        for stream in triggersStreamMap[triggerKey]:
                             if streamCountsBool[stream] == False:
                                 streamCountsBool[stream] = True
                                 streamCounts[stream] += 1
@@ -204,8 +205,8 @@ for inputfile in filesInput:
 
                     if kPassedEvent == False:
                         #We only want to count physics streams in the total rate
-                        if physicsStreamOK(triggerName): nPassed_Physics += 1
-                        if scoutingStreamOK(triggerName): nPassed_Scouting += 1
+                        if physicsStreamOK(triggerKey): nPassed_Physics += 1
+                        if scoutingStreamOK(triggerKey): nPassed_Scouting += 1
                         kPassedEvent = True
 
             iPath = iPath+1        
@@ -216,7 +217,8 @@ for inputfile in filesInput:
                 datasetDatasetCorrMatrix[dataset1][dataset2] += 1
             for trigger in myPaths:
                 if not triggerCountsBool[trigger]: continue
-                triggerDatasetCorrMatrix[dataset1][trigger] += 1
+                triggerKey = trigger.rstrip("0123456789")
+                triggerDatasetCorrMatrix[dataset1][triggerKey] += 1
 
         if len(myGroupFired) == 1:
             groupCountsPure[myGroupFired[0]] = groupCountsPure[myGroupFired[0]] + 1            
@@ -243,8 +245,7 @@ for inputfile in filesInput:
 nu_LHC = 11245
 n_bunch = 1909
 zerobias_scaling = nu_LHC*n_bunch/(nLS*23.31)
-scalingFactor = 1.#1.8e34/1.67e33 * 10./23.31 #1.8e34/7.96e33 * 400./23.31
-#scalingFactor = scalingFactor*1./nLS
+scalingFactor = 1.5e34/1.3e34 * 580./(nLS*23.31)
 
 
 print nLS
@@ -299,22 +300,22 @@ for i in range(0,len(myPaths)):
     if triggerKey in groups.keys():
         for group in groups[triggerKey]:
             group_string = group_string + group + " "
-    if physicsStreamOK(trigger):
+    if physicsStreamOK(triggerKey):
         physics_path_file.write('{}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger], round(myPassedEvents[trigger]*scalingFactor, 2)))
         physics_path_file.write('\n')
-    if scoutingStreamOK(trigger):
+    if scoutingStreamOK(triggerKey):
         scouting_path_file.write('{}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger], round(myPassedEvents[trigger]*scalingFactor, 2)))
         scouting_path_file.write('\n')
 
 
-    triggerDataset_file.write(trigger)
+    triggerDataset_file.write(triggerKey)
     j = 0
-    triggerDataset_histo.GetYaxis().SetBinLabel(i+1, trigger)
+    triggerDataset_histo.GetYaxis().SetBinLabel(i+1, triggerKey)
     for dataset in primaryDatasetList:
         j += 1
-        if (myPassedEvents[trigger] > 0): triggerDatasetCorrMatrix[dataset][trigger] = triggerDatasetCorrMatrix[dataset][trigger]*scalingFactor #/myPassedEvents[trigger]
-        triggerDataset_file.write(", " + str(round(triggerDatasetCorrMatrix[dataset][trigger], 2)))
-        triggerDataset_histo.SetBinContent(j, i, round(triggerDatasetCorrMatrix[dataset][trigger], 2))
+        if (myPassedEvents[trigger] > 0): triggerDatasetCorrMatrix[dataset][triggerKey] = triggerDatasetCorrMatrix[dataset][triggerKey]*scalingFactor #/myPassedEvents[trigger]
+        triggerDataset_file.write(", " + str(round(triggerDatasetCorrMatrix[dataset][triggerKey], 2)))
+        triggerDataset_histo.SetBinContent(j, i, round(triggerDatasetCorrMatrix[dataset][triggerKey], 2))
     triggerDataset_file.write("\n")
     
 
@@ -330,8 +331,9 @@ for key in primaryDatasetList:
     isScoutingDataset = False
 
     for trigger in myPaths:
-        if physicsStreamOK(trigger) and (key in triggersDatasetMap[trigger]): isPhysicsDataset = True
-        if scoutingStreamOK(trigger) and (key in triggersDatasetMap[trigger]): isScoutingDataset = True
+        triggerKey = trigger.rstrip("0123456789")
+        if physicsStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isPhysicsDataset = True
+        if scoutingStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isScoutingDataset = True
     if isPhysicsDataset:
         physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(round(primaryDatasetCounts[key]*scalingFactor, 2)))
         physics_dataset_file.write('\n')
