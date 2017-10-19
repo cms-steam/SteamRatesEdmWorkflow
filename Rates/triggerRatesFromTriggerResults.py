@@ -3,12 +3,14 @@ from DataFormats.FWLite import Handle, Events
 import math
 import json
 from files3 import fileInputNames
-from aux import streamOK
-
+from aux import physicsStreamOK
+from aux import scoutingStreamOK
+from aux import datasets_for_corr as good_datasets
 
 #list of input files
 filesInput = fileInputNames
-json_file = "/afs/cern.ch/user/n/ndaci/public/STEAM/JSON/json_STEAM_2017C_301567.txt"
+json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Xudong_HLTv4/json_HLTPhysicsL1v4_2p0e34.txt'
+
 
 
 #auxiliary functions
@@ -50,7 +52,7 @@ def check_json(runNo_in, LS):
 #Dataset
 from Menu_HLT import groupMap as triggersGroupMap
 from Menu_HLT import datasetMap as  triggersDatasetMap
-#from Menu_HLT import streamsMap as  triggersStreamMap
+from Menu_HLT import streamMap as  triggersStreamMap
 
 
 
@@ -65,28 +67,10 @@ groupCountsShared = {}
 groupCountsPure = {}
 groups = {}
 
-#streamList=[]
+streamList = []
+streamCounts = {}
 
 root_file=ROOT.TFile("corr_histos.root","RECREATE")
-
-# Fill triggerList and groupList and primaryDatasetList
-#also removing the version number from the trigger
-for trigger in triggersDatasetMap.keys():
-    #if trigger[:-1] in triggersToRemove: continue
-    triggerKey = trigger.rstrip("0123456789")
-    datasets.update({str(triggerKey):triggersDatasetMap[trigger]})
-    groups.update({str(triggerKey):triggersGroupMap[trigger]})
-    if not (trigger in triggerList) :triggerList.append(trigger)
-    for dataset in triggersDatasetMap[trigger]:
-        if not dataset in primaryDatasetList: primaryDatasetCounts.update({str(dataset):0}) 
-        if not dataset in primaryDatasetList: primaryDatasetList.append(dataset)
-    for group in triggersGroupMap[trigger]:
-        if not group in groupList: groupCounts.update({str(group):0}) 
-        if not group in groupList: groupCountsShared.update({str(group):0}) 
-        if not group in groupList: groupCountsPure.update({str(group):0}) 
-        if not group in groupList: groupList.append(group)
-
-
 
 #Handles and labels
 triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults::MYHLT")
@@ -94,7 +78,8 @@ triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults::
 
 #Looping over the inputfiles
 n = 0
-nPassed = 0
+nPassed_Physics = 0
+nPassed_Scouting = 0
 
 #List of triggers
 myPaths = []
@@ -129,13 +114,33 @@ for inputfile in filesInput:
             nLS = nLS +1
             runAndLsList.append(runstr)
 
+        #initializing stuff
         if n<1:
             for name in names.triggerNames():
-                #prin tname
                 name = str(name)
                 if ("HLTriggerFirstPath" in name) or ("HLTriggerFinalPath" in name): continue
                 if not (name.startswith("HLT_") or name.startswith("DST_")): continue
                 myPaths.append(name)
+                triggerKey = name.rstrip("0123456789")
+                if not triggerKey in triggersDatasetMap: continue
+                datasets.update({str(triggerKey):triggersDatasetMap[triggerKey]})
+                groups.update({str(triggerKey):triggersGroupMap[triggerKey]})
+                if not (name in triggerList) :triggerList.append(name)
+                for dataset in triggersDatasetMap[triggerKey]:
+                    if not dataset in primaryDatasetList: primaryDatasetCounts.update({str(dataset):0}) 
+                    if not dataset in primaryDatasetList: primaryDatasetList.append(dataset)
+                for group in triggersGroupMap[triggerKey]:
+                    if not group in groupList: groupCounts.update({str(group):0}) 
+                    if not group in groupList: groupCountsShared.update({str(group):0}) 
+                    if not group in groupList: groupCountsPure.update({str(group):0}) 
+                    if not group in groupList: groupList.append(group)
+                for stream in triggersStreamMap[triggerKey]:
+                    if not stream in streamList:
+                        streamCounts.update({str(stream):0})
+                        streamList.append(stream)
+                
+
+
             #inizialize the number of passed events
             for i in range(len(myPaths)):
                 myPassedEvents[myPaths[i]]=0
@@ -149,7 +154,8 @@ for inputfile in filesInput:
                 datasetDatasetCorrMatrix[dataset1] = aux_dic
                 aux_dic={}
                 for trigger in myPaths:
-                    aux_dic[trigger] = 0
+                    triggerKey = trigger.rstrip("0123456789")
+                    aux_dic[triggerKey] = 0
                 triggerDatasetCorrMatrix[dataset1] = aux_dic
 
 
@@ -162,37 +168,36 @@ for inputfile in filesInput:
         kPassedEvent = False
         datasetsCountsBool = primaryDatasetCounts.fromkeys(primaryDatasetCounts.keys(),False)
         groupCountsBool = groupCounts.fromkeys(groupCounts.keys(),False)
+        streamCountsBool = streamCounts.fromkeys(streamCounts.keys(),False)
+        triggerCountsBool = {}
+        for i in range(0, len(myPaths)):
+            triggerCountsBool[myPaths[i]] = False
         myGroupFired = []
-        datasetPairsBool = {}
-        for dataset1 in primaryDatasetList:
-            aux_dic ={}
-            for dataset2 in primaryDatasetList:
-                aux_dic[dataset2] = False
-            datasetPairsBool[dataset1] = aux_dic
-
         for triggerName in myPaths:
             index = names.triggerIndex(triggerName)
             if checkTriggerIndex(triggerName,index,names.triggerNames()):
                 #checking if the event has been accepted by a given trigger
                 if triggerBits.product().accept(index):
                     myPassedEvents[triggerName]=myPassedEvents[triggerName]+1 
+                    triggerCountsBool[triggerName] = True
                     #we loop over the dictionary keys to see if the paths is in that key, and in case we increase the counter
                     triggerKey = triggerName.rstrip("0123456789")
                     if triggerKey in datasets.keys():
                         for dataset in datasets[triggerKey]:
-                            triggerDatasetCorrMatrix[dataset][triggerName] += 1
                             if datasetsCountsBool[dataset] == False :
                                 datasetsCountsBool[dataset] = True
                                 primaryDatasetCounts[dataset] = primaryDatasetCounts[dataset] + 1
-                            for dataset2 in datasets[triggerKey]:
-                                if not datasetPairsBool[dataset][dataset2]:
-                                    datasetPairsBool[dataset][dataset2] = True
-                                    datasetDatasetCorrMatrix[dataset][dataset2] += 1
                     if triggerKey in groups.keys():
                         for group in groups[triggerKey]:
+                            if not physicsStreamOK(triggerName): continue
                             if group not in myGroupFired: 
                                 myGroupFired.append(group)
                                 groupCounts[group] = groupCounts[group] + 1
+                    if triggerKey in triggersStreamMap.keys():
+                        for stream in triggersStreamMap[triggerKey]:
+                            if streamCountsBool[stream] == False:
+                                streamCountsBool[stream] = True
+                                streamCounts[stream] += 1
 
                         
 
@@ -200,13 +205,23 @@ for inputfile in filesInput:
 
                     if kPassedEvent == False:
                         #We only want to count physics streams in the total rate
-                        if streamOK(triggerName): nPassed = nPassed + 1
+                        if physicsStreamOK(triggerKey): nPassed_Physics += 1
+                        if scoutingStreamOK(triggerKey): nPassed_Scouting += 1
                         kPassedEvent = True
 
             iPath = iPath+1        
+        for dataset1 in primaryDatasetList:
+            if not datasetsCountsBool[dataset1]: continue
+            for dataset2 in primaryDatasetList:
+                if not datasetsCountsBool[dataset2]: continue
+                datasetDatasetCorrMatrix[dataset1][dataset2] += 1
+            for trigger in myPaths:
+                if not triggerCountsBool[trigger]: continue
+                triggerKey = trigger.rstrip("0123456789")
+                triggerDatasetCorrMatrix[dataset1][triggerKey] += 1
 
         if len(myGroupFired) == 1:
-            groupCountsPure[group] = groupCountsPure[group] + 1            
+            groupCountsPure[myGroupFired[0]] = groupCountsPure[myGroupFired[0]] + 1            
 
         for group in myGroupFired:
             groupCountsShared[group] = groupCountsShared[group] + 1./len(myGroupFired)
@@ -217,10 +232,8 @@ for inputfile in filesInput:
 
 
 
-
 #Printing output
 
-print nLS, n, nPassed
 #for run 296786
 #scalingFactor = round((3352./23.31)*250*(55./46)*(2544./973.)/float(n) ,2)
 
@@ -229,28 +242,41 @@ print nLS, n, nPassed
 
 #for run 297674
 #scalingFactor = round((8.6*75*107)/float(n) ,2)
-scalingFactor = 1.0e34/7.96e33 * 400./23.31
-scalingFactor = scalingFactor*1./nLS
+nu_LHC = 11245
+n_bunch = 1909
+zerobias_scaling = nu_LHC*n_bunch/(nLS*23.31)
+scalingFactor = 1.5e34/1.3e34 * 580./(nLS*23.31)
 
-totalRate = float(nPassed)*scalingFactor
+
+print nLS
+print scalingFactor
+
+physics_path_file = open('output.path.physics.csv', 'w')
+physics_path_file.write("Path, Groups, Counts, Rates (Hz)\n")
+physics_path_file.write("N_LS, , , " + str(nLS)+"\n")
+physics_path_file.write("N_processed, , , " + str(n)+"\n")
+totalRate = float(nPassed_Physics)*scalingFactor
+physics_path_file.write("Total Physics Rate (Hz), , , " + str(totalRate)+"\n")
+physics_path_file.write('\n')
 
 
-path_file = open('output.path.csv', 'w')
-triggerDataset_file = open('output.trigger_dataset_corr.csv', 'w')
-datasetDataset_file = open('output.dataset_dataset_corr.csv', 'w')
-triggerDataset_file.write("Trigger-Dataset correlations\n")
-datasetDataset_file.write("Dataset-Dataset correlations\n")
 
-path_file.write("Path, Groups, Counts, Rates (Hz)\n")
-path_file.write("Total Rate (Hz), , , " + str(totalRate))
-path_file.write('\n')
-
+scouting_path_file = open('output.path.scouting.csv', 'w')
+scouting_path_file.write("Path, Groups, Counts, Rates (Hz)\n")
+totalRate = float(nPassed_Scouting)*scalingFactor
+scouting_path_file.write("Total Scouting Rate (Hz), , , " + str(totalRate))
+scouting_path_file.write('\n')
 
 
 
 #2d histograms for the correlation matrices
 triggerDataset_histo=ROOT.TH2F("trigger_dataset_corr","Trigger-Dataset Correlations",len(primaryDatasetList),0,len(primaryDatasetList),len(myPaths),0,len(myPaths))
 datasetDataset_histo=ROOT.TH2F("dataset_dataset_corr","Dataset-Dataset Correlations",len(primaryDatasetList),0,len(primaryDatasetList),len(primaryDatasetList),0,len(primaryDatasetList))
+
+triggerDataset_file = open('output.trigger_dataset_corr.csv', 'w')
+datasetDataset_file = open('output.dataset_dataset_corr.csv', 'w')
+triggerDataset_file.write("Trigger-Dataset correlations\n")
+datasetDataset_file.write("Dataset-Dataset correlations\n")
 
 
 i = 0
@@ -274,29 +300,46 @@ for i in range(0,len(myPaths)):
     if triggerKey in groups.keys():
         for group in groups[triggerKey]:
             group_string = group_string + group + " "
-    path_file.write('{}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger], round(myPassedEvents[trigger]*scalingFactor, 2)))
-    path_file.write('\n')
+    if physicsStreamOK(triggerKey):
+        physics_path_file.write('{}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger], round(myPassedEvents[trigger]*scalingFactor, 2)))
+        physics_path_file.write('\n')
+    if scoutingStreamOK(triggerKey):
+        scouting_path_file.write('{}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger], round(myPassedEvents[trigger]*scalingFactor, 2)))
+        scouting_path_file.write('\n')
 
 
-    triggerDataset_file.write(trigger)
+    triggerDataset_file.write(triggerKey)
     j = 0
-    triggerDataset_histo.GetYaxis().SetBinLabel(i+1, trigger)
+    triggerDataset_histo.GetYaxis().SetBinLabel(i+1, triggerKey)
     for dataset in primaryDatasetList:
         j += 1
-        if (myPassedEvents[trigger] > 0): triggerDatasetCorrMatrix[dataset][trigger] = triggerDatasetCorrMatrix[dataset][trigger]*scalingFactor #/myPassedEvents[trigger]
-        triggerDataset_file.write(", " + str(round(triggerDatasetCorrMatrix[dataset][trigger], 2)))
-        triggerDataset_histo.SetBinContent(j, i, round(triggerDatasetCorrMatrix[dataset][trigger], 2))
+        if (myPassedEvents[trigger] > 0): triggerDatasetCorrMatrix[dataset][triggerKey] = triggerDatasetCorrMatrix[dataset][triggerKey]*scalingFactor #/myPassedEvents[trigger]
+        triggerDataset_file.write(", " + str(round(triggerDatasetCorrMatrix[dataset][triggerKey], 2)))
+        triggerDataset_histo.SetBinContent(j, i, round(triggerDatasetCorrMatrix[dataset][triggerKey], 2))
     triggerDataset_file.write("\n")
     
 
 
-dataset_file = open('output.dataset.csv', 'w')
+physics_dataset_file = open('output.dataset.physics.csv', 'w')
+scouting_dataset_file = open('output.dataset.scouting.csv', 'w')
 
-dataset_file.write("Dataset, Counts, Rates (Hz)\n")
+physics_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
+scouting_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
 i = 0
 for key in primaryDatasetList:
-    dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(round(primaryDatasetCounts[key]*scalingFactor, 2)))
-    dataset_file.write('\n')
+    isPhysicsDataset = False
+    isScoutingDataset = False
+
+    for trigger in myPaths:
+        triggerKey = trigger.rstrip("0123456789")
+        if physicsStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isPhysicsDataset = True
+        if scoutingStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isScoutingDataset = True
+    if isPhysicsDataset:
+        physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(round(primaryDatasetCounts[key]*scalingFactor, 2)))
+        physics_dataset_file.write('\n')
+    if isScoutingDataset:
+        scouting_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(round(primaryDatasetCounts[key]*scalingFactor, 2)))
+        scouting_dataset_file.write('\n')
 
     i += 1
     datasetDataset_file.write(key)
@@ -316,6 +359,11 @@ for key in groupCounts.keys():
     group_file.write(str(key) + ", " + str(groupCounts[key]) +", " + str(round(groupCounts[key]*scalingFactor, 2)) + ", " + str(groupCountsPure[key]) +", " + str(round(groupCountsPure[key]*scalingFactor, 2)) + ", " + str(groupCountsShared[key]) +", " + str(round(groupCountsShared[key]*scalingFactor, 2)))
     group_file.write('\n')
 
+
+stream_file = open('output.stream.csv','w')
+stream_file.write('Streams, Counts, Rates (Hz)\n')
+for stream in streamCounts.keys():
+    stream_file.write(str(stream) + ", " + str(streamCounts[stream]) +", " + str(round(streamCounts[stream]*scalingFactor, 2)) + "\n")
 
 #Save histos
 root_file.cd()

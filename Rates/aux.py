@@ -21,7 +21,7 @@ datasets_for_corr=[
 "SingleMuon",
 ]
 
-def streamOK(triggerName):
+def physicsStreamOK(triggerName):
     result=False
     if triggerName in triggersStreamMap.keys():
         for stream in triggersStreamMap[triggerName]:
@@ -29,9 +29,15 @@ def streamOK(triggerName):
                 result = True
     return result
 
+def scoutingStreamOK(triggerName):
+    result=False
+    if triggerName in triggersStreamMap.keys():
+        for stream in triggersStreamMap[triggerName]:
+            if (stream.startswith("Scouting")):
+                result = True
+    return result
+
 def datasetOK(dataset):
     result=False
     if dataset in datasets_for_corr: result=True
     return result
-
-streamOK("HLT_ZeroBias_part1_v6")
