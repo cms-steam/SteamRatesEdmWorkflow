@@ -1,0 +1,2 @@
+Produce HLT CMSSW configuration file using the hltGetConfiguration command and specific customizations.
+See: https://twiki.cern.ch/twiki/bin/view/CMS/StrategyforTriggerEvolutionAndMonitoring

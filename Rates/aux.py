@@ -41,5 +41,3 @@ def datasetOK(dataset):
     result=False
     if dataset in datasets_for_corr: result=True
     return result
-
-
