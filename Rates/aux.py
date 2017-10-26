@@ -1,4 +1,4 @@
-from Menu_HLT import streamsMap as triggersStreamMap
+from Menu_HLT import streamMap as triggersStreamMap
 #from Menu_HLT import datasetMap as triggersDatasetMap
 
 datasets_for_corr=[
