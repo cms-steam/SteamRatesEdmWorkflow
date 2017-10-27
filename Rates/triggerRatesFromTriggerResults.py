@@ -1,14 +1,21 @@
-import ROOT,math,json
+import ROOT
 from DataFormats.FWLite import Handle, Events
-from aux import physicsStreamOK,scoutingStreamOK
+import math
+import json
+from filesInput import fileInputNames
+from aux import physicsStreamOK
+from aux import scoutingStreamOK
 from aux import datasets_for_corr as good_datasets
 
-# inputs
-from filesInput import fileInputNames
+#list of input files
 filesInput = fileInputNames
-json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Xudong_HLTv4/json_HLTPhysicsL1v4_2p0e34.txt'
+json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Xudong_HLTv4/json_HLTPhysicsL1v4_Fill6304_Run305186_1p6e34.txt'
+
+
 
 #auxiliary functions
+
+
 def checkTriggerIndex(name,index, names):
     if not 'firstTriggerError' in globals():
         global firstTriggerError
@@ -85,13 +92,9 @@ nLS = 0
 triggerDatasetCorrMatrix = {}
 datasetDatasetCorrMatrix = {}
 
-nFiles = len(filesInput)
-iFile  = 0
+
 
 for inputfile in filesInput:
-
-    print "Processing file #",iFile,"/",nFiles
-    iFile += 1
 
     events = Events (inputfile)
 
@@ -242,7 +245,7 @@ for inputfile in filesInput:
 nu_LHC = 11245
 n_bunch = 1909
 zerobias_scaling = nu_LHC*n_bunch/(nLS*23.31)
-scalingFactor = 1.5e34/1.34e34 * 580./(nLS*23.31)
+scalingFactor = 1.5e34/1.216e34 * 1160./(nLS*23.31)
 
 
 print nLS
@@ -351,7 +354,7 @@ for key in primaryDatasetList:
 
 
 group_file = open('output.group.csv','w')
-group_file.write('Groups, Counts, Rates (Hz), Pure Counts, Pure Rates (Hz), Pure+Shared Counts, Pure+Shared Rates (Hz)\n')
+group_file.write('Groups, Counts, Rates (Hz), Pure Counts, Pure Rates (Hz), Shared Counts, Shared Rates (Hz)\n')
 for key in groupCounts.keys():
     group_file.write(str(key) + ", " + str(groupCounts[key]) +", " + str(round(groupCounts[key]*scalingFactor, 2)) + ", " + str(groupCountsPure[key]) +", " + str(round(groupCountsPure[key]*scalingFactor, 2)) + ", " + str(groupCountsShared[key]) +", " + str(round(groupCountsShared[key]*scalingFactor, 2)))
     group_file.write('\n')
