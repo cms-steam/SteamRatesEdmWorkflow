@@ -136,14 +136,14 @@ for i in range(0,tD_histo.GetNbinsX()):
 
     #Fill plots with only the "interesting" datasets and paths
     jjj=0
-    for jj in range(1,tD_histo.GetNbinsY()):
+    for jj in range(1,tD_histo.GetNbinsY()+1):
             trigger = tD_histo.GetYaxis().GetBinLabel(jj)
             if not trigger in triggerList: continue
             jjj+=1
 
-            n = nbinsY//max_y_entries + 1
+            n = nbinsY//max_y_entries
             nn = (jjj-1)//max_y_entries
-            inumber=icount-(n-(nn+1))
+            inumber=icount - n + nn
             jnumber=jjj-nn*max_y_entries
             #print icount, inumber, jnumber
 
@@ -153,7 +153,6 @@ for i in range(0,tD_histo.GetNbinsX()):
                 if not datasetOK(dataset2): continue
                 iii+=1
                 triggerDataset_histo[inumber].GetXaxis().SetBinLabel(iii, dataset2)
-                #print icount, inumber, jnumber, dataset2
 
                 triggerDataset_histo[inumber].GetYaxis().SetBinLabel(jnumber, trigger)
                 bin_content = tD_histo.GetBinContent(ii, jj)
@@ -161,6 +160,7 @@ for i in range(0,tD_histo.GetNbinsX()):
 
 
 for icount in range(0, len(triggerDataset_histo)):            
+    print triggerDataset_histo[icount].GetName()
     left_margin=0.35
     height=0.25*900+0.75*900*triggerDataset_histo[icount].GetNbinsY()/max_y_entries
     bottom_margin=0.15*900/height
@@ -198,7 +198,6 @@ for k in range(1,dD_histo.GetNbinsX()+1):
         bin_content=dD_histo.GetBinContent(k,l)
         datasetDataset_histo.SetBinContent(kk, ll, bin_content)
                             
-
 datasetDataset_histo.SetMarkerColor(color)
 datasetDataset_histo.SetMarkerSize(0.7)
 datasetDataset_histo.GetYaxis().SetLabelSize(0.022)

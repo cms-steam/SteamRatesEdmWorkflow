@@ -9,7 +9,7 @@ from aux import datasets_for_corr as good_datasets
 
 #list of input files
 filesInput = fileInputNames
-json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Xudong_HLTv4/json_HLTPhysicsL1v4_Fill6304_Run305186_1p6e34.txt'
+json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Xudong_HLTv4/json_HLTPhysicsL1v4_2p0e34.txt'
 
 
 
@@ -284,8 +284,6 @@ for dataset in primaryDatasetList:
     i += 1
     triggerDataset_file.write(", " + dataset)
     datasetDataset_file.write(", " + dataset)
-    triggerDataset_histo.GetXaxis().SetBinLabel(i, dataset)
-    datasetDataset_histo.GetXaxis().SetBinLabel(i, dataset)
 triggerDataset_file.write("\n")
 datasetDataset_file.write("\n")
 
@@ -312,10 +310,11 @@ for i in range(0,len(myPaths)):
     j = 0
     triggerDataset_histo.GetYaxis().SetBinLabel(i+1, triggerKey)
     for dataset in primaryDatasetList:
-        j += 1
         if (myPassedEvents[trigger] > 0): triggerDatasetCorrMatrix[dataset][triggerKey] = triggerDatasetCorrMatrix[dataset][triggerKey]*scalingFactor #/myPassedEvents[trigger]
         triggerDataset_file.write(", " + str(round(triggerDatasetCorrMatrix[dataset][triggerKey], 2)))
-        triggerDataset_histo.SetBinContent(j, i, round(triggerDatasetCorrMatrix[dataset][triggerKey], 2))
+        triggerDataset_histo.GetXaxis().SetBinLabel(j+1, dataset)
+        triggerDataset_histo.SetBinContent(j+1, i+1, round(triggerDatasetCorrMatrix[dataset][triggerKey], 2))
+        j += 1
     triggerDataset_file.write("\n")
     
 
@@ -349,6 +348,7 @@ for key in primaryDatasetList:
         j += 1
         if (primaryDatasetCounts[key] > 0): datasetDatasetCorrMatrix[key2][key] = datasetDatasetCorrMatrix[key2][key]*scalingFactor #/primaryDatasetCounts[key]
         datasetDataset_file.write(", " + str(round(datasetDatasetCorrMatrix[key2][key],2)))
+        datasetDataset_histo.GetXaxis().SetBinLabel(j, key2)
         datasetDataset_histo.SetBinContent(j, i, round(datasetDatasetCorrMatrix[key2][key], 2))
     datasetDataset_file.write("\n")
 
