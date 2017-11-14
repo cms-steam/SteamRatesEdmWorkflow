@@ -6,6 +6,7 @@ from filesInput import fileInputNames
 from aux import physicsStreamOK
 from aux import scoutingStreamOK
 from aux import datasets_for_corr as good_datasets
+from aux import makeIncreasingList
 
 #list of input files
 filesInput = fileInputNames
@@ -288,11 +289,13 @@ triggerDataset_file.write("\n")
 datasetDataset_file.write("\n")
 
 
+sorted_trigger_list = makeIncreasingList(myPassedEvents)
+print myPassedEvents
+print sorted_trigger_list
 
-
-for i in range(0,len(myPaths)):
-    #print myPaths[i], myPassedEvents[i], myPassedEvents[i]*scalingFactor 
-    trigger = myPaths[i]
+for i in range(0,len(sorted_trigger_list)):
+    #print sorted_trigger_list[i], myPassedEvents[i], myPassedEvents[i]*scalingFactor 
+    trigger = sorted_trigger_list[i]
     triggerKey = trigger.rstrip("0123456789")
     group_string = ""
     if triggerKey in groups.keys():
@@ -310,7 +313,8 @@ for i in range(0,len(myPaths)):
     j = 0
     triggerDataset_histo.GetYaxis().SetBinLabel(i+1, triggerKey)
     for dataset in primaryDatasetList:
-        if (myPassedEvents[trigger] > 0): triggerDatasetCorrMatrix[dataset][triggerKey] = triggerDatasetCorrMatrix[dataset][triggerKey]*scalingFactor #/myPassedEvents[trigger]
+        if (myPassedEvents[trigger] > 0):
+            triggerDatasetCorrMatrix[dataset][triggerKey] = triggerDatasetCorrMatrix[dataset][triggerKey]*scalingFactor #/myPassedEvents[trigger]
         triggerDataset_file.write(", " + str(round(triggerDatasetCorrMatrix[dataset][triggerKey], 2)))
         triggerDataset_histo.GetXaxis().SetBinLabel(j+1, dataset)
         triggerDataset_histo.SetBinContent(j+1, i+1, round(triggerDatasetCorrMatrix[dataset][triggerKey], 2))
@@ -329,7 +333,7 @@ for key in primaryDatasetList:
     isPhysicsDataset = False
     isScoutingDataset = False
 
-    for trigger in myPaths:
+    for trigger in sorted_trigger_list:
         triggerKey = trigger.rstrip("0123456789")
         if physicsStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isPhysicsDataset = True
         if scoutingStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isScoutingDataset = True

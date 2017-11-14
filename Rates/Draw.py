@@ -120,14 +120,15 @@ for i in range(0,tD_histo.GetNbinsX()):
             nbinsY += 1
             triggerList.append(trigger)
     if (nbinsY <= 0): continue
+    n = nbinsY//max_y_entries + 1
+    equi_div = nbinsY//n + 1
     if (nbinsY > max_y_entries):
-        n = nbinsY//max_y_entries + 1
         for nn in range(0,n):
             nnbinsY = 1
             if (nn == n-1):
-                nnbinsY = nbinsY-max_y_entries*nn
+                nnbinsY = nbinsY-equi_div*nn
             else:
-                nnbinsY = max_y_entries
+                nnbinsY = equi_div
             triggerDataset_histo.append(ROOT.TH2F("tD_"+dataset+str(nn),"Trigger-Dataset Overlap Rates (Hz)",len(good_datasets),0,len(good_datasets),nnbinsY,0,nnbinsY))
             icount+=1
     else:
@@ -142,10 +143,9 @@ for i in range(0,tD_histo.GetNbinsX()):
             jjj+=1
 
             n = nbinsY//max_y_entries
-            nn = (jjj-1)//max_y_entries
+            nn = (jjj-1)//equi_div
             inumber=icount - n + nn
-            jnumber=jjj-nn*max_y_entries
-            #print icount, inumber, jnumber
+            jnumber=jjj-nn*equi_div
 
             iii=0
             for ii in range(1,tD_histo.GetNbinsX()+1):

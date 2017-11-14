@@ -41,3 +41,20 @@ def datasetOK(dataset):
     result=False
     if dataset in datasets_for_corr: result=True
     return result
+
+
+def makeIncreasingList(map_in):
+    sorted_list = []
+    mmap = map_in.copy()
+    while len(mmap) > 0:
+        mmin = 9000000000
+        min_key = ""
+        for key in mmap:
+            if mmap[key] <= mmin:
+                mmin = mmap[key]
+                min_key = key
+        sorted_list.append(min_key)
+        del mmap[min_key]
+
+    return sorted_list
+    
