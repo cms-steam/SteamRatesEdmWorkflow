@@ -1,3 +1,7 @@
+import os
+import math
+import shlex
+import subprocess
 from Menu_HLT import streamMap as triggersStreamMap
 #from Menu_HLT import datasetMap as triggersDatasetMap
 
@@ -20,6 +24,26 @@ datasets_for_corr=[
 "MuonEG",
 "SingleMuon",
 ]
+
+#Dictionary relating rates output files with their directories
+mergeNames = {
+"output.path.physics"         : "PathPhysics",
+"output.path.scouting"        : "PathScouting",
+"output.dataset.physics"      : "DatasetPhysics",
+"output.dataset.scouting"     : "DatasetScouting",
+"output.group"                : "Group",
+"output.stream"               : "Stream",
+"output.dataset_dataset_corr" : "DatasetDatasetCorr",
+"output.trigger_dataset_corr" : "TriggerDatasetCorr",
+}
+
+
+def runCommand(commandLine):
+    #sys.stdout.write("%s\n" % commandLine)
+    args = shlex.split(commandLine)
+    retVal = subprocess.Popen(args, stdout = subprocess.PIPE)
+    return retVal
+
 
 def physicsStreamOK(triggerName):
     result=False
