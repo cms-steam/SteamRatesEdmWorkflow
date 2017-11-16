@@ -10,6 +10,9 @@ from aux import datasetOK
 from aux import datasets_for_corr as good_datasets
 import matplotlib.pyplot as plt
 import csv
+import os
+
+os.system("mkdir Figures")
 
 #Pie charts
 group_label=[]
@@ -18,7 +21,7 @@ group_pure=[]
 group_pureplusshared=[]
 colors=[]
 basic_colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'lightsalmon']
-with open("output.group.csv") as group_file:
+with open("Results/output.group.csv") as group_file:
     reader=csv.reader(group_file, delimiter=',')
     skip = True #skip 1st line
     pureplusshared_count = 0
@@ -34,7 +37,7 @@ with open("output.group.csv") as group_file:
     others_pureplusshared_count = 0
 
 n=0
-with open("output.group.csv") as group_file:
+with open("Results/output.group.csv") as group_file:
     reader=csv.reader(group_file, delimiter=',')
     for row in reader:
         if skip:
@@ -63,19 +66,19 @@ colors.append(basic_colors[n % len(basic_colors)])
 plt.pie(group_total, labels=group_label, autopct='%1.1f%%', startangle=140, colors=colors)
 plt.title('Group Rates')
 plt.axis('equal')
-plt.savefig("group_total.pdf")
+plt.savefig("Figures/group_total.pdf")
 
 plt.clf()
 plt.pie(group_pure, labels=group_label, autopct='%1.1f%%', startangle=140, colors=colors)
 plt.title('Pure Group Rates')
 plt.axis('equal')
-plt.savefig("group_pure.pdf")
+plt.savefig("Figures/group_pure.pdf")
 
 plt.clf()
 plt.pie(group_pureplusshared, labels=group_label, autopct='%1.1f%%', startangle=140, colors=colors)
-plt.title('Pure+Shared Group Rates')
+plt.title('Pure Group Rates')
 plt.axis('equal')
-plt.savefig("group_pureplusshared.pdf")
+plt.savefig("Figures/group_pureplusshared.pdf")
     
 
 
@@ -101,13 +104,26 @@ ROOT.gStyle.SetPalette(kInvertedDarkBodyRadiator)
 
 
 #file=ROOT.TFile("final.root","r")
-root_file=ROOT.TFile("corr_histos.root","R")
+root_file=ROOT.TFile("Results/corr_histos.root","R")
 
 tD_histo=root_file.Get("trigger_dataset_corr")
 dD_histo=root_file.Get("dataset_dataset_corr")
 
 triggerDataset_histo=[]
 icount=-1
+
+
+#Get scale factor
+scaleFactor = -1
+with open("Results/output.global.csv") as infoFile:
+    reader=csv.reader(infoFile, delimiter = ",")
+    for row in reader:
+        if "Scale" in row[0]:
+            scaleFactor = float(row[1])
+
+print scaleFactor
+
+
 for i in range(0,tD_histo.GetNbinsX()):
     dataset = tD_histo.GetXaxis().GetBinLabel(i+1)
     if not datasetOK(dataset): continue
@@ -120,14 +136,15 @@ for i in range(0,tD_histo.GetNbinsX()):
             nbinsY += 1
             triggerList.append(trigger)
     if (nbinsY <= 0): continue
+    n = nbinsY//max_y_entries + 1
+    equi_div = nbinsY//n + 1
     if (nbinsY > max_y_entries):
-        n = nbinsY//max_y_entries + 1
         for nn in range(0,n):
             nnbinsY = 1
             if (nn == n-1):
-                nnbinsY = nbinsY-max_y_entries*nn
+                nnbinsY = nbinsY-equi_div*nn
             else:
-                nnbinsY = max_y_entries
+                nnbinsY = equi_div
             triggerDataset_histo.append(ROOT.TH2F("tD_"+dataset+str(nn),"Trigger-Dataset Overlap Rates (Hz)",len(good_datasets),0,len(good_datasets),nnbinsY,0,nnbinsY))
             icount+=1
     else:
@@ -136,16 +153,15 @@ for i in range(0,tD_histo.GetNbinsX()):
 
     #Fill plots with only the "interesting" datasets and paths
     jjj=0
-    for jj in range(1,tD_histo.GetNbinsY()):
+    for jj in range(1,tD_histo.GetNbinsY()+1):
             trigger = tD_histo.GetYaxis().GetBinLabel(jj)
             if not trigger in triggerList: continue
             jjj+=1
 
-            n = nbinsY//max_y_entries + 1
-            nn = (jjj-1)//max_y_entries
-            inumber=icount-(n-(nn+1))
-            jnumber=jjj-nn*max_y_entries
-            #print icount, inumber, jnumber
+            n = nbinsY//max_y_entries
+            nn = (jjj-1)//equi_div
+            inumber=icount - n + nn
+            jnumber=jjj-nn*equi_div
 
             iii=0
             for ii in range(1,tD_histo.GetNbinsX()+1):
@@ -153,14 +169,14 @@ for i in range(0,tD_histo.GetNbinsX()):
                 if not datasetOK(dataset2): continue
                 iii+=1
                 triggerDataset_histo[inumber].GetXaxis().SetBinLabel(iii, dataset2)
-                #print icount, inumber, jnumber, dataset2
 
                 triggerDataset_histo[inumber].GetYaxis().SetBinLabel(jnumber, trigger)
-                bin_content = tD_histo.GetBinContent(ii, jj)
+                bin_content = round(tD_histo.GetBinContent(ii, jj)*scaleFactor,2)
                 triggerDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
 
 
 for icount in range(0, len(triggerDataset_histo)):            
+    print triggerDataset_histo[icount].GetName()
     left_margin=0.35
     height=0.25*900+0.75*900*triggerDataset_histo[icount].GetNbinsY()/max_y_entries
     bottom_margin=0.15*900/height
@@ -173,12 +189,12 @@ for icount in range(0, len(triggerDataset_histo)):
     c_tD.SetTopMargin(top_margin)
     c_tD.cd()
     triggerDataset_histo[icount].SetMarkerColor(color)
-    triggerDataset_histo[icount].SetMarkerSize(0.7)
+    triggerDataset_histo[icount].SetMarkerSize(0.65)
     triggerDataset_histo[icount].GetYaxis().SetLabelSize(label_size)
     triggerDataset_histo[icount].GetXaxis().SetLabelSize(label_size)
     triggerDataset_histo[icount].GetXaxis().LabelsOption("v")
     triggerDataset_histo[icount].Draw("COLZTEXT")
-    c_tD.SaveAs(triggerDataset_histo[icount].GetName()+".pdf")
+    c_tD.SaveAs("Figures/"+triggerDataset_histo[icount].GetName()+".pdf")
     c_tD.Close()
 
 datasetDataset_histo=ROOT.TH2F("dD","Dataset-Dataset Overlap Rates (Hz)",len(good_datasets),0,len(good_datasets),len(good_datasets),0,len(good_datasets))
@@ -195,10 +211,9 @@ for k in range(1,dD_histo.GetNbinsX()+1):
         if not datasetOK(dataset2): continue
         ll+=1
         datasetDataset_histo.GetYaxis().SetBinLabel(ll, dataset2)
-        bin_content=dD_histo.GetBinContent(k,l)
+        bin_content=round(dD_histo.GetBinContent(k,l)*scaleFactor,2)
         datasetDataset_histo.SetBinContent(kk, ll, bin_content)
                             
-
 datasetDataset_histo.SetMarkerColor(color)
 datasetDataset_histo.SetMarkerSize(0.7)
 datasetDataset_histo.GetYaxis().SetLabelSize(0.022)
@@ -207,5 +222,5 @@ datasetDataset_histo.GetXaxis().LabelsOption("v")
 
 c_dD.cd()
 datasetDataset_histo.Draw("COLZTEXT")
-c_dD.SaveAs("datasetDataset_corr.pdf")
+c_dD.SaveAs("Figures/datasetDataset_corr.pdf")
 c_dD.Close()
