@@ -11,7 +11,7 @@ from aux import datasets_for_corr as good_datasets
 from aux import makeIncreasingList
 
 #list of input files
-json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Xudong_HLTv4/json_HLTPhysicsL1v4_2p0e34.txt'
+json_file = '/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Cheng_HLTv4p1/json_DCS_305636_1.5e34_Reduced.txt'
 
 
 
@@ -308,7 +308,6 @@ triggerDataset_file.write("\n")
 datasetDataset_file.write("\n")
 
 
-sorted_trigger_list = makeIncreasingList(myPassedEvents)
 
 
 for i in range(0,len(sorted_trigger_list)):

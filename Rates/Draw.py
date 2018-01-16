@@ -113,17 +113,6 @@ triggerDataset_histo=[]
 icount=-1
 
 
-#Get scale factor
-scaleFactor = -1
-with open("Results/output.global.csv") as infoFile:
-    reader=csv.reader(infoFile, delimiter = ",")
-    for row in reader:
-        if "Scale" in row[0]:
-            scaleFactor = float(row[1])
-
-print scaleFactor
-
-
 for i in range(0,tD_histo.GetNbinsX()):
     dataset = tD_histo.GetXaxis().GetBinLabel(i+1)
     if not datasetOK(dataset): continue
@@ -171,7 +160,7 @@ for i in range(0,tD_histo.GetNbinsX()):
                 triggerDataset_histo[inumber].GetXaxis().SetBinLabel(iii, dataset2)
 
                 triggerDataset_histo[inumber].GetYaxis().SetBinLabel(jnumber, trigger)
-                bin_content = round(tD_histo.GetBinContent(ii, jj)*scaleFactor,2)
+                bin_content = round(tD_histo.GetBinContent(ii, jj),1)
                 triggerDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
 
 
@@ -211,7 +200,7 @@ for k in range(1,dD_histo.GetNbinsX()+1):
         if not datasetOK(dataset2): continue
         ll+=1
         datasetDataset_histo.GetYaxis().SetBinLabel(ll, dataset2)
-        bin_content=round(dD_histo.GetBinContent(k,l)*scaleFactor,2)
+        bin_content=round(dD_histo.GetBinContent(k,l),1)
         datasetDataset_histo.SetBinContent(kk, ll, bin_content)
                             
 datasetDataset_histo.SetMarkerColor(color)

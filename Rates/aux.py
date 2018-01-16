@@ -27,12 +27,12 @@ datasets_for_corr=[
 
 #Dictionary relating rates output files with their directories
 mergeNames = {
+"output.stream"               : "Stream",
 "output.path.physics"         : "PathPhysics",
 "output.path.scouting"        : "PathScouting",
 "output.dataset.physics"      : "DatasetPhysics",
 "output.dataset.scouting"     : "DatasetScouting",
 "output.group"                : "Group",
-"output.stream"               : "Stream",
 "output.dataset_dataset_corr" : "DatasetDatasetCorr",
 "output.trigger_dataset_corr" : "TriggerDatasetCorr",
 }

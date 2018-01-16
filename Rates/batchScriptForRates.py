@@ -1,21 +1,12 @@
 import time
 import datetime
 import os
-import shlex
-import subprocess
 import sys
 from filesInput import fileInputNames
-
+from aux import runCommand
 
 MYDIR=os.getcwd()
 #folder = '/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/Summer16_FlatPU28to62/HLTRates_v4p2_V2_1p25e34_MC_2017feb09J'
-
-#a function to read stuff from the command line
-def runCommand(commandLine):
-    #sys.stdout.write("%s\n" % commandLine)
-    args = shlex.split(commandLine)
-    retVal = subprocess.Popen(args, stdout = subprocess.PIPE)
-    return retVal
 
 
 #make directories for the jobs
