@@ -310,9 +310,9 @@ datasetDataset_file.write("\n")
 
 
 
-for i in range(0,len(sorted_trigger_list)):
-    #print sorted_trigger_list[i], myPassedEvents[i], myPassedEvents[i] 
-    trigger = sorted_trigger_list[i]
+for i in range(0,len(myPaths)):
+    #print myPaths[i], myPassedEvents[i], myPassedEvents[i] 
+    trigger = myPaths[i]
     triggerKey = trigger.rstrip("0123456789")
     group_string = ""
     if triggerKey in groups.keys():
@@ -353,7 +353,7 @@ for key in primaryDatasetList:
     isPhysicsDataset = False
     isScoutingDataset = False
 
-    for trigger in sorted_trigger_list:
+    for trigger in myPaths:
         triggerKey = trigger.rstrip("0123456789")
         if physicsStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isPhysicsDataset = True
         if scoutingStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isScoutingDataset = True
@@ -374,6 +374,7 @@ for key in primaryDatasetList:
         datasetDataset_file.write(", " + str(datasetDatasetCorrMatrix[key2][key]))
         datasetDataset_histo.GetXaxis().SetBinLabel(j, key2)
         datasetDataset_histo.SetBinContent(j, i, datasetDatasetCorrMatrix[key2][key])
+        if i == j : print key2, key
     datasetDataset_file.write("\n")
 
 physics_dataset_file.close()

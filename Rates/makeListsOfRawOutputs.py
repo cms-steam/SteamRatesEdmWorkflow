@@ -8,6 +8,7 @@ masterDic = {}
 
 #MYDIR=os.getcwd()
 files_dir = "Results/Raw"
+#files_dir = "ResultsCheng/Results/ResultsPS6/Raw/Raw"
 
 
 for name in mergeNames:

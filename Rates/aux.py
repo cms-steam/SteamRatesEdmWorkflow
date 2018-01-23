@@ -82,3 +82,32 @@ def makeIncreasingList(map_in):
 
     return sorted_list
     
+
+def mapForDecreasingOrder(list_in):
+    newToOldMap = {}
+    llist = list(list_in)
+    processed_elements = []
+    for j in range(0,len(llist)):
+        mmax = -1
+        max_index = -1
+        for i in range(0, len(llist)):
+            if i in processed_elements: continue
+            if llist[i] > mmax:
+                mmax = llist[i]
+                max_index = i
+        newToOldMap[j] = max_index
+        processed_elements.append(max_index)
+        
+
+    return newToOldMap
+
+def reorderList(list_in, reorderingMap):
+    newList = []
+    for j in range(0,len(list_in)):
+        #j is the new index
+        old_index = reorderingMap[j]
+        if old_index >= len(list_in):
+            print "Reordering of the list\n", list_in, "\nfailed : the map provided yields an out of range index\n", str(old_index) + " >= " + str(len(list_in))
+            break
+        newList.append(list_in[old_index])
+    return newList

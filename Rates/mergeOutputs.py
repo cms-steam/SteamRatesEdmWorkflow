@@ -13,9 +13,9 @@ from aux import makeIncreasingList
 import csv
 
 #Rescaling parameters, set them according to your own needs
-lumi_in = 1.467e34
-lumi_target = 1.5e34
-HLT_prescale = 1160.
+lumi_in = 1.06e34 #1.467e34
+lumi_target = 1.1e34
+HLT_prescale = 10.
 LS_length = 23.31 #seconds
 
 
@@ -27,7 +27,8 @@ for globalFile in globalFiles:
         reader=csv.reader(ffile, delimiter=',')
         for row in reader:
             if row[0] == "N_LS":
-                nLS += int(row[1])
+                if not "e" in row[1]:
+                    nLS += int(row[1])
             elif row[0] == "N_eventsProcessed":
                 n_events += int(row[1])
 
@@ -68,6 +69,7 @@ for i in range(0, len(keyList)):
         
             for row in reader:
                 if firstRow:
+                    if len(row) < 2: continue
                     if "Groups" in row[1]: columnOneIsGroups = True
                     firstRow = False
                 else:
@@ -89,6 +91,7 @@ for i in range(0, len(keyList)):
         
             for row in reader:
                 if firstRow:
+                    if len(row) < 2: continue
                     if "Groups" in row[1]: columnOneIsGroups = True
                     firstRow = False
                 else:
@@ -196,13 +199,13 @@ for rootFile in rootList:
 os.system(hadd_text)
 
 root_file=ROOT.TFile("Results/corr_histos.root","UPDATE")
+root_file.cd()
 
-tD_histo=root_file.Get("trigger_dataset_corr")
-dD_histo=root_file.Get("dataset_dataset_corr")
+tD_histo = root_file.Get("trigger_dataset_corr")
+dD_histo = root_file.Get("dataset_dataset_corr")
 
 tD_histo.SetName("trigger_dataset_corr_old")
 dD_histo.SetName("dataset_dataset_corr_old")
-
 #sort the triggers by decreasing rates
 trigger_map = {}
 trigger_index_map = {}
@@ -242,14 +245,14 @@ for i in range(len(sorted_stream_list)-1,-1,-1):
         processed_datasets.append(min_dataset)
 
 
-tD_histo_sorted = tD_histo.Clone("trigger_dataset_corr")
-dD_histo_sorted = dD_histo.Clone("dataset_dataset_corr")
+tD_histo_sorted = ROOT.TH2F("trigger_dataset_corr", "Trigger-Dataset Correlations", len(sorted_dataset_list), 0, len(sorted_dataset_list), len(sorted_trigger_list), 0, len(sorted_trigger_list))
+dD_histo_sorted = ROOT.TH2F("dataset_dataset_corr", "Dataset-Dataset Correlations", len(sorted_dataset_list), 0, len(sorted_dataset_list), len(sorted_dataset_list), 0, len(sorted_dataset_list))
+
 
 for i in range(0,len(sorted_dataset_list)):
     dataset = sorted_dataset_list[i]
     ii = dataset_index_map[dataset]
 
-    print i, dataset
     dD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
     tD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
     for j in range(0,len(sorted_dataset_list)):
@@ -268,13 +271,12 @@ for i in range(0,len(sorted_dataset_list)):
 
         if (i == 0) : tD_histo_sorted.GetYaxis().SetBinLabel(j+1, trigger)
 
-root_file.cd()
 #Write the sorted histos
+root_file.Delete("trigger_dataset_corr;1")
+root_file.Delete("dataset_dataset_corr;1")
+
 tD_histo_sorted.Write()
 dD_histo_sorted.Write()
 
-#Delete the others
-tD_histo.Delete()
-dD_histo.Delete()
 root_file.Close()
 

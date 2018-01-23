@@ -8,75 +8,144 @@ from Menu_HLT import datasetMap as  triggersDatasetMap
 from aux import physicsStreamOK
 from aux import datasetOK
 from aux import datasets_for_corr as good_datasets
+from aux import reorderList
+from aux import mapForDecreasingOrder
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
 import csv
 import os
 
 os.system("mkdir Figures")
 
 #Pie charts
-group_label=[]
-group_total=[]
-group_pure=[]
-group_pureplusshared=[]
-colors=[]
-basic_colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'red', 'lightsalmon']
+naive_group_label_total1=[]
+naive_group_label_total2=[]
+naive_group_total=[]
+naive_group_label_pure=[]
+naive_group_pure=[]
+naive_group_label_pureplusshared=[]
+naive_group_pureplusshared=[]
+colors_total=[]
+colors_pure=[]
+colors_pureplusshared=[]
+basic_colors = ['gold', 'goldenrod', 'yellow', 'yellowgreen', 'green', 'lightgreen', 'lime', 'turquoise', 'teal', 'lightblue', 
+#'navy', 
+'orchid', 'pink', 'tomato', 'red', 'crimson', 'orangered', 'orange', 'sienna', 'brown']
 with open("Results/output.group.csv") as group_file:
     reader=csv.reader(group_file, delimiter=',')
     skip = True #skip 1st line
-    pureplusshared_count = 0
+    total_rate = 0
+    pure_rate = 0
+    pureplusshared_rate = 0
     for row in reader:
         if skip:
             skip = False
             continue
-        pureplusshared_count += float(row[5])
+        total_rate += float(row[2])
+        pure_rate += float(row[4])
+        pureplusshared_rate += float(row[6])
 
     skip = True #skip 1st line
-    others_total_count = 0
-    others_pure_count = 0
-    others_pureplusshared_count = 0
 
-n=0
+n_total=0
+n_pure=0
+n_pureplusshared=0
+others_total_rate = 0
+others_pure_rate = 0
+others_pureplusshared_rate = 0
+
+
 with open("Results/output.group.csv") as group_file:
+
     reader=csv.reader(group_file, delimiter=',')
     for row in reader:
         if skip:
             skip = False
             continue
-        if (float(row[5])/pureplusshared_count > 0.02):
-            group_label.append(row[0])
-            group_total.append(int(row[1]))
-            group_pure.append(int(row[3]))
-            group_pureplusshared.append(float(row[5]))
-            colors.append(basic_colors[n % len(basic_colors)])
-            n += 1
+        if (float(row[2])/total_rate > 0.02):
+            naive_group_label_total1.append(row[0])
+            naive_group_label_total2.append(str(int(round(float(row[2]),0))))
+            naive_group_total.append(float(row[2]))
+            colors_total.append(basic_colors[n_total % len(basic_colors)])
+            n_total += 1
         else:
-            others_total_count += int(row[1])
-            others_pure_count += int(row[3])
-            others_pureplusshared_count += float(row[5])
+            others_total_rate += float(row[2])
+        if (float(row[4])/pure_rate > 0.02):
+            naive_group_label_pure.append(row[0] + "\n" + str(int(round(float(row[4]),0))) + " Hz")
+            naive_group_pure.append(float(row[4]))
+            colors_pure.append(basic_colors[n_pure % len(basic_colors)])
+            n_pure += 1
+        else:
+            others_pure_rate += float(row[4])
+        if (float(row[6])/pureplusshared_rate > 0.02):
+            naive_group_pureplusshared.append(float(row[6]))
+            naive_group_label_pureplusshared.append(row[0] + "\n" + str(int(round(float(row[6]),0))) + " Hz")
+            colors_pureplusshared.append(basic_colors[n_pureplusshared % len(basic_colors)])
+            n_pureplusshared += 1
+        else:
+            others_pureplusshared_rate += float(row[6])
 
-group_label.append('Others')
-group_total.append(others_total_count)
-group_pure.append(others_pure_count)
-group_pureplusshared.append(others_pureplusshared_count)
-n +=1
-colors.append(basic_colors[n % len(basic_colors)])
+            
+map_total = mapForDecreasingOrder(naive_group_total)
+print map_total
+group_total = reorderList(naive_group_total, map_total)
+group_label_total1 = reorderList(naive_group_label_total1, map_total)
+group_label_total2 = reorderList(naive_group_label_total2, map_total)
+if others_total_rate > 0:
+    group_label_total1.append('Others')
+    group_label_total2.append(str(int(round(others_total_rate,0))))
+    n_total +=1
+    group_total.append(others_total_rate)
+    colors_total.append(basic_colors[n_total % len(basic_colors)])
+
+map_pure = mapForDecreasingOrder(naive_group_pure)
+group_pure = reorderList(naive_group_pure, map_pure)
+group_label_pure = reorderList(naive_group_label_pure, map_pure)
+if others_pure_rate > 0:
+    group_label_pure.append('Others\n' + str(int(round(others_pure_rate,0))) + " Hz")
+    n_pure +=1
+    group_pure.append(others_pure_rate)
+    colors_pure.append(basic_colors[n_pure % len(basic_colors)])
+
+map_pureplusshared = mapForDecreasingOrder(naive_group_pureplusshared)
+group_pureplusshared = reorderList(naive_group_pureplusshared, map_pureplusshared)
+group_label_pureplusshared = reorderList(naive_group_label_pureplusshared, map_pureplusshared)
+if others_pureplusshared_rate > 0:
+    group_label_pureplusshared.append('Others\n' + str(int(round(others_pureplusshared_rate,0))) + " Hz")
+    n_pureplusshared +=1
+    group_pureplusshared.append(others_pureplusshared_rate)
+    colors_pureplusshared.append(basic_colors[n_pureplusshared % len(basic_colors)])
 
 
-plt.pie(group_total, labels=group_label, autopct='%1.1f%%', startangle=140, colors=colors)
-plt.title('Group Rates')
-plt.axis('equal')
+mpl.rcParams['xtick.labelsize'] = 10
+mpl.rcParams['ytick.labelsize'] = 10
+
+width = 0.5
+ind = np.arange(len(group_total))
+fig, ax = plt.subplots()
+barchart = ax.bar(ind, group_total, width, color=colors_total)
+ax.set_ylabel('Rates (Hz)')
+ax.set_xticks(ind + width/2.)
+ax.set_xticklabels(group_label_total1)
+j = 0
+for rect in barchart:
+    height = rect.get_height()
+    ax.text(rect.get_x() + rect.get_width()/2., height+0.02, group_label_total2[j], ha='center', va='bottom', fontsize = 10)
+    j += 1
+plt.title('Group Total Rates', fontweight='bold', y = 1.02)
 plt.savefig("Figures/group_total.pdf")
 
 plt.clf()
-plt.pie(group_pure, labels=group_label, autopct='%1.1f%%', startangle=140, colors=colors)
-plt.title('Pure Group Rates')
+#autopct='%1.1f%%', startangle=140, colors=colors)
+plt.pie(group_pure, labels=group_label_pure, startangle=0, colors=colors_pure)
+plt.title('Pure Group Rates', fontweight='bold', y = 1.08)
 plt.axis('equal')
 plt.savefig("Figures/group_pure.pdf")
 
 plt.clf()
-plt.pie(group_pureplusshared, labels=group_label, autopct='%1.1f%%', startangle=140, colors=colors)
-plt.title('Pure Group Rates')
+plt.pie(group_pureplusshared, labels=group_label_pureplusshared, startangle=0, colors=colors_pureplusshared)
+plt.title('Shared Group Rates', fontweight='bold', y = 1.08)
 plt.axis('equal')
 plt.savefig("Figures/group_pureplusshared.pdf")
     
@@ -105,6 +174,7 @@ ROOT.gStyle.SetPalette(kInvertedDarkBodyRadiator)
 
 #file=ROOT.TFile("final.root","r")
 root_file=ROOT.TFile("Results/corr_histos.root","R")
+#root_file=ROOT.TFile("Results/Raw/Root/corr_histos_120.root","R")
 
 tD_histo=root_file.Get("trigger_dataset_corr")
 dD_histo=root_file.Get("dataset_dataset_corr")
