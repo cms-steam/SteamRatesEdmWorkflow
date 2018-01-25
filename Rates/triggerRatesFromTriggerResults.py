@@ -36,9 +36,9 @@ def checkTriggerIndex(name,index, names):
     else:
         return True
 
-def check_json(runNo_in, LS):
+def check_json(jsonf, runNo_in, LS):
     runNo = str(runNo_in)
-    file1=open(json_file,'r')
+    file1=open(jsonf,'r')
     inp1={}
     text = ""
     for line1 in file1:
@@ -87,26 +87,48 @@ except:
     print "err!"
     pass
 
-#get input file name
-argv = sys.argv[1:]
-try:
-    opts, args = getopt.getopt(argv,"hi:",["ifile="])
-except getopt.GetoptError:
-    print 'python triggerRatesFromTriggerResults.py -i <inputfile>'
+
+#get inputs
+from optparse import OptionParser
+parser=OptionParser()
+parser.add_option("-i","--infile",dest="inputFile",type="str",default="noroot",help="one (1) input root FILE",metavar="FILE")
+parser.add_option("-j","--json",dest="jsonFile",type="str",default="nojson",help="text FILE with the LS range in json format",metavar="FILE")
+parser.add_option("-f","--filetype",dest="fileType",type="str",default="custom",help="ARG='custom' (default option) or 'RAW', use 'custom' if you're running on STEAM-made files, 'RAW' if you're running on raw data",metavar="ARG")
+
+opts, args = parser.parse_args()
+
+
+error_text = '\n\nError: wrong inputs\n'
+help_text = '\npython triggerRatesFromTriggerResults.py -i <inputfile> -j <json> -f <filetype>'
+help_text += '\n<inputfile> (mandatory argument) = one (1) input root file'
+help_text += '\n<json> (mandatory) = text file with the LS range in json format'
+help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW"\n'
+
+if opts.inputFile == "noroot" or opts.jsonFile == "nojson":
+    print error_text
+    print help_text
     sys.exit(2)
-for opt, arg in opts:
-    if opt == '-h':
-        print 'python triggerRatesFromTriggerResults.py -i <inputfile>'
-        sys.exit()
-    elif opt in ("-i", "--ifile"):
-        inputfile = arg
 
 
-final_string = inputfile[-9:-5]
+isRawFiles = False
+if opts.fileType == "custom":
+    isRawFiles = False
+elif opts.fileType == "RAW":
+    isRawFiles = True
+else:
+    print error_text
+    print help_text
+    sys.exit(2)
+
+final_string = opts.inputFile[-9:-5]
+if isRawFiles:
+    final_string = opts.inputFile[-22:-5]
 
 #Handles and labels
-#triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults::MYHLT")
-triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults::HLT")
+if isRawFiles:
+    triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults::HLT")
+else:
+    triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults::MYHLT")
 
 
 #Looping over the inputfiles
@@ -128,7 +150,7 @@ datasetDatasetCorrMatrix = {}
 
 
 #get rates from input file
-events = Events (inputfile)
+events = Events (opts.inputFile)
 
 #Looping over events in inputfile
 
@@ -142,7 +164,7 @@ for event in events:
     runnbr = event.object().id().run()
     runls = event.object().id().luminosityBlock()
     runstr = str((runnbr,runls))
-    if not check_json(runnbr, runls):
+    if not check_json(opts.jsonFile, runnbr, runls):
         continue
 
 
@@ -195,20 +217,17 @@ for event in events:
             triggerDatasetCorrMatrix[dataset1] = aux_dic
 
 
-    '''
-    -------------------------IN DEVELOPMENT--------------------------
-    # Check condition DST_Physics when processing L1Accept PD
-    isDSTPhysics=False
-    for triggerName in myPaths:
-        if(not "DST_Physics_v" in triggerName): continue
-        index = names.triggerIndex(triggerName)
-        if checkTriggerIndex(triggerName,index,names.triggerNames()):
-            if triggerBits.product().accept(index):
-                isDSTPhysics = True
-    if not isDSTPhysics:
-        continue
-    -------------------------IN DEVELOPMENT--------------------------
-    '''
+    if isRawFiles:
+        # Check condition DST_Physics when processing L1Accept PD
+        isDSTPhysics=False
+        for triggerName in myPaths:
+            if(not "DST_Physics_v" in triggerName): continue
+            index = names.triggerIndex(triggerName)
+            if checkTriggerIndex(triggerName,index,names.triggerNames()):
+                if triggerBits.product().accept(index):
+                    isDSTPhysics = True
+        if not isDSTPhysics:
+            continue
 
 
     iPath = 0       
