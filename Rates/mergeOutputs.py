@@ -5,18 +5,39 @@
 import ROOT
 import math
 import os
-from makeListsOfRawOutputs import globalFiles
-from makeListsOfRawOutputs import masterDic
-from makeListsOfRawOutputs import rootFiles as rootList
+import sys
+#from makeListsOfRawOutputs import globalFiles
+#from makeListsOfRawOutputs import masterDic
+#from makeListsOfRawOutputs import rootFiles as rootList
 from Menu_HLT import datasetStreamMap
 from aux import makeIncreasingList
+from aux import makeListsOfRawOutputs
 import csv
 
-#Rescaling parameters, set them according to your own needs
-lumi_in = 1.06e34 #1.467e34
-lumi_target = 1.1e34
-HLT_prescale = 10.
-LS_length = 23.31 #seconds
+
+from optparse import OptionParser
+parser=OptionParser()
+parser.add_option("-l","--lumiin",dest="lumiIn",type="float",default=-1,help="VALUE corresponding to the average instant lumi in your json",metavar="VALUE")
+parser.add_option("-t","--lumitarget",dest="lumiTarget",type="float",default=-1,help="VALUE corresponding to the target instant lumi for which you wish to calculate your rates",metavar="VALUE")
+parser.add_option("-p","--hltps",dest="hltPS",type="int",default=-1,help="PRESCALE of the HLT_physics trigger",metavar="PRESCALE")
+parser.add_option("-d","--dir",dest="inDir",type="str",default="Results/Raw",help="DIR where the output of the batch jobs are located",metavar="DIR")
+
+opts, args = parser.parse_args()
+
+error_text = '\nError: wrong inputs\n'
+help_text = '\npython mergeOutputs.py -l <lumiin> -t <lumitarget> -p <hltps> -d <dir>\n'
+help_text += '(mandatory argument) <lumiin> = VALUE corresponding to the average instant lumi in your json\n'
+help_text += '(mandatory) <lumitarget> = VALUE corresponding to the target instant lumi for which you wish to calculate your rates\n'
+help_text += '(mandatory) <hltps> = PRESCALE of the HLT_physics trigger\n'
+help_text += '(optional) <dir> = DIR where the output of the batch jobs are located\n'
+if opts.lumiIn == -1 or opts.lumiTarget == -1 or opts.hltPS == -1:
+    print error_text
+    print help_text
+    sys.exit(2)    
+
+files_dir = opts.inDir
+
+masterDic, rootList, globalFiles = makeListsOfRawOutputs(files_dir)
 
 
 #Merge the file with the global rate information (number of events, LS processed)
@@ -32,7 +53,14 @@ for globalFile in globalFiles:
             elif row[0] == "N_eventsProcessed":
                 n_events += int(row[1])
 
-scaleFactor = lumi_target/lumi_in * HLT_prescale  /  ( nLS * LS_length ) 
+LS_length = 23.31 #seconds
+scaleFactor = opts.lumiTarget/opts.lumiIn * opts.hltPS  /  ( nLS * LS_length ) 
+
+print 'files_directory = %s' %files_dir
+print 'lumi_in = %s'%opts.lumiIn
+print 'lumi_target = %s'%opts.lumiTarget
+print 'hlt_PS = %s'%opts.hltPS
+print 'scale_factor = %s\n\n\n'%scaleFactor
 
 mergedGlobal = open ("Results/output.global.csv", "w")
 mergedGlobal.write("N_LS, " + str(nLS) + "\n")

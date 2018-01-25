@@ -111,3 +111,35 @@ def reorderList(list_in, reorderingMap):
             break
         newList.append(list_in[old_index])
     return newList
+
+
+def makeListsOfRawOutputs(files_dir):
+
+    masterDic = {}
+    for name in mergeNames:
+        key = name+".csv"
+        masterDic[key] = []
+
+        total_dir = files_dir + "/" + mergeNames[name]
+        ls_command = runCommand("ls " + total_dir )
+        stdout, stderr = ls_command.communicate()
+        for line in stdout.splitlines():
+            masterDic[key].append(total_dir + "/" + line)
+
+
+    rootFiles = []
+    total_dir = files_dir + "/Root"
+    ls_command = runCommand("ls " + total_dir)
+    stdout, stderr = ls_command.communicate()
+    for line in stdout.splitlines():
+        rootFiles.append(total_dir + "/" + line)
+
+
+    globalFiles = []
+    total_dir = files_dir + "/Global"
+    ls_command = runCommand("ls " + total_dir)
+    stdout, stderr = ls_command.communicate()
+    for line in stdout.splitlines():
+        globalFiles.append(total_dir + "/" + line)
+
+    return masterDic, rootFiles, globalFiles

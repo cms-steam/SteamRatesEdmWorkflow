@@ -5,11 +5,13 @@ After producing them, it is advisable to test one of the jobs locally before sen
 
 Example of a local test:
 ./Jobs/sub_job/sub_0.jobb
+
+Submitting all jobs on batch:
+./sub_total.jobb
 '''
 
 import os
 import sys
-from aux import runCommand
 
 
 '''
@@ -31,9 +33,12 @@ cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/2017_STEAM/For_Data/CMSSW_9_2_12/sr
 #Json file
 json_file = "/afs/cern.ch/user/n/ndaci/public/STEAM/JSON/ProcessL1Accept2017/json_306154_PS7_10LS.txt"
 
+#Do you wish to use any unusual (non-default) options for the batch queue, and the number of files processed per job?
+#If you do, set the following boolean to True
+isUnusual = False
+#If you do, please also specify the following parameters:
 #number of files processed per job
 n = 5
-
 #Batch queue where you wish to send the jobs
 queue = "8nh"
 '''
@@ -44,9 +49,12 @@ queue = "8nh"
 #run the script
 command = ""
 if makeInputFilesList:
-    command = "python batchScriptForRates.py -j %s -e %s -i %s -f %s -n %s -q %s" %(json_file, cmsswDir, inputFilesDir, file_type, n, queue)
+    command = "python batchScriptForRates.py -j %s -e %s -i %s -f %s" %(json_file, cmsswDir, inputFilesDir, file_type)
 else:
-    command = "python batchScriptForRates.py -j %s -e %s -f %s -n %s -q %s" %(json_file, cmsswDir, file_type, n, queue)
+    command = "python batchScriptForRates.py -j %s -e %s -f %s" %(json_file, cmsswDir, file_type)
+
+if isUnusual:
+    command += "-n %s -q %s" %(n, queue)
 
 os.system(command)
 
