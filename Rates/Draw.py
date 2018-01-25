@@ -154,6 +154,7 @@ plt.savefig("Figures/group_pureplusshared.pdf")
 #Overlap plots
 label_size=0.022
 max_y_entries = 40
+max_y_label_length = 67
 
 c_dD=ROOT.TCanvas("canvas_dD","",0,0,900,900)
 c_dD.SetGrid()
@@ -229,14 +230,17 @@ for i in range(0,tD_histo.GetNbinsX()):
                 iii+=1
                 triggerDataset_histo[inumber].GetXaxis().SetBinLabel(iii, dataset2)
 
-                triggerDataset_histo[inumber].GetYaxis().SetBinLabel(jnumber, trigger)
+                y_bin_label = trigger
+                if len(trigger) > max_y_label_length: y_bin_label = trigger[:max_y_label_length]
+                triggerDataset_histo[inumber].GetYaxis().SetBinLabel(jnumber, y_bin_label)
                 bin_content = round(tD_histo.GetBinContent(ii, jj),1)
+                if bin_content > 5: bin_content = round(tD_histo.GetBinContent(ii, jj),0)
                 triggerDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
 
 
 for icount in range(0, len(triggerDataset_histo)):            
     print triggerDataset_histo[icount].GetName()
-    left_margin=0.35
+    left_margin=0.45
     height=0.25*900+0.75*900*triggerDataset_histo[icount].GetNbinsY()/max_y_entries
     bottom_margin=0.15*900/height
     top_margin=0.1*900/height
@@ -271,6 +275,7 @@ for k in range(1,dD_histo.GetNbinsX()+1):
         ll+=1
         datasetDataset_histo.GetYaxis().SetBinLabel(ll, dataset2)
         bin_content=round(dD_histo.GetBinContent(k,l),1)
+        if bin_content > 5: bin_content = round(tD_histo.GetBinContent(ii, jj),0)
         datasetDataset_histo.SetBinContent(kk, ll, bin_content)
                             
 datasetDataset_histo.SetMarkerColor(color)

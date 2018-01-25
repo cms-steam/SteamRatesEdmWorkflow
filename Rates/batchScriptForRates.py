@@ -25,7 +25,7 @@ sub_total = open("sub_total.jobb","w")
 sub_total.write("rm Results/Raw/*/*.csv\n")
 sub_total.write("rm Results/Raw/*/*.root\n")
 i=0
-loop_mark = 10
+loop_mark = 1
 #make job scripts
 tmp_text=''
 
@@ -55,7 +55,7 @@ for infile in fileInputNames:
         Tjob = open(Tjob_dir,"w")
         Tjob.write("%s"%(tmp_text))
         os.system("chmod +x %s"%(Tjob_dir))
-        sub_str = "bsub -q 1nh -eo Jobs/sub_err/err_%s.dat -oo Jobs/sub_out/out_%s.dat %s"%(k,k,Tjob_dir)
+        sub_str = "bsub -q 8nh -eo Jobs/sub_err/err_%s.dat -oo Jobs/sub_out/out_%s.dat %s"%(k,k,Tjob_dir)
         local_str = "%s"%(Tjob_dir)
         #os.system(sub_str)
         sub_total.write("%s\n"%(sub_str))

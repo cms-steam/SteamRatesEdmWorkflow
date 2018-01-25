@@ -58,12 +58,15 @@ for i in range(0, len(keyList)):
     groupsDic = {}
     firstFile = True
     columnOneIsGroups = False
+    lfile = masterDic[key][0]
 
     for file_in in masterDic[key]:
         ffile = open(file_in)
         reader=csv.reader(ffile, delimiter=',')
         
         if firstFile:
+            firstFile = False
+            '''
             firstRow = True
             print file_in
         
@@ -85,10 +88,11 @@ for i in range(0, len(keyList)):
                             else:
                                 countsDic[row[0]].append(int(row[i]))
             
-            firstFile = False
+            '''
+            pass    
         else:
             firstRow = True
-        
+
             for row in reader:
                 if firstRow:
                     if len(row) < 2: continue
@@ -96,14 +100,31 @@ for i in range(0, len(keyList)):
                     firstRow = False
                 else:
                     if columnOneIsGroups:
-                        for i in range(2,len(row)):
-                            countsDic[row[0]][i-2] += int(row[i])
+                        if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
+                            lfile = file_in
+                            countsDic[row[0]] = []
+                            groupsDic[row[0]] = row[1]
+                            for i in range(2,len(row)):
+                                countsDic[row[0]].append(int(row[i]))
+                        else:
+                            for i in range(2,len(row)):
+                                countsDic[row[0]][i-2] += int(row[i])
                     else:
-                        for i in range(1,len(row)):
-                            if "." in row[i]:
-                                countsDic[row[0]][i-1] += float(row[i])
-                            else:
-                                countsDic[row[0]][i-1] += int(row[i])
+                        if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
+                            lfile = file_in
+                            countsDic[row[0]] = []
+                            for i in range(1,len(row)):
+                                if "." in row[i]:
+                                    countsDic[row[0]].append(float(row[i]))
+                                else:
+                                    countsDic[row[0]].append(int(row[i]))
+                        else:
+                            for i in range(1,len(row)):
+                                if "." in row[i]:
+                                    countsDic[row[0]][i-1] += float(row[i])
+                                else:
+                                    countsDic[row[0]][i-1] += int(row[i])
+
     
 
     sorted_list = []
@@ -155,7 +176,8 @@ for i in range(0, len(keyList)):
     if "stream" in key: sorted_stream_list = sorted_list
             
 
-    lastFile = open(masterDic[key][0])
+    lastFile = open(lfile)
+    print lfile
     reader=csv.reader(lastFile, delimiter=',')               
     firstRow = True
     for row in reader:
@@ -178,7 +200,7 @@ for i in range(0, len(keyList)):
                 mergedFile.write("nostream, ")
         mergedFile.write(kkey)
         if columnOneIsGroups: mergedFile.write( " ," + groupsDic[kkey] )
-        for i in range(0, len(countsDic[row[0]])):
+        for i in range(0, len(countsDic[kkey])):
             if "_dataset_" in key:
                 mergedFile.write(  ", " + str( round(countsDic[kkey][i]*scaleFactor,2) )  )
             else:
