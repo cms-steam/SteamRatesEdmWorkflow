@@ -92,66 +92,39 @@ for i in range(0, len(keyList)):
         ffile = open(file_in)
         reader=csv.reader(ffile, delimiter=',')
         
-        if firstFile:
-            firstFile = False
-            '''
-            firstRow = True
-            print file_in
-        
-            for row in reader:
-                if firstRow:
-                    if len(row) < 2: continue
-                    if "Groups" in row[1]: columnOneIsGroups = True
-                    firstRow = False
-                else:
-                    countsDic[row[0]] = []
-                    if columnOneIsGroups:
+        firstRow = True
+
+        for row in reader:
+            if firstRow:
+                if len(row) < 2: continue
+                if "Groups" in row[1]: columnOneIsGroups = True
+                firstRow = False
+            else:
+                if columnOneIsGroups:
+                    if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
+                        lfile = file_in
+                        countsDic[row[0]] = []
                         groupsDic[row[0]] = row[1]
                         for i in range(2,len(row)):
                             countsDic[row[0]].append(int(row[i]))
                     else:
+                        for i in range(2,len(row)):
+                            countsDic[row[0]][i-2] += int(row[i])
+                else:
+                    if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
+                        lfile = file_in
+                        countsDic[row[0]] = []
                         for i in range(1,len(row)):
                             if "." in row[i]:
                                 countsDic[row[0]].append(float(row[i]))
                             else:
                                 countsDic[row[0]].append(int(row[i]))
-            
-            '''
-            pass    
-        else:
-            firstRow = True
-
-            for row in reader:
-                if firstRow:
-                    if len(row) < 2: continue
-                    if "Groups" in row[1]: columnOneIsGroups = True
-                    firstRow = False
-                else:
-                    if columnOneIsGroups:
-                        if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
-                            lfile = file_in
-                            countsDic[row[0]] = []
-                            groupsDic[row[0]] = row[1]
-                            for i in range(2,len(row)):
-                                countsDic[row[0]].append(int(row[i]))
-                        else:
-                            for i in range(2,len(row)):
-                                countsDic[row[0]][i-2] += int(row[i])
                     else:
-                        if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
-                            lfile = file_in
-                            countsDic[row[0]] = []
-                            for i in range(1,len(row)):
-                                if "." in row[i]:
-                                    countsDic[row[0]].append(float(row[i]))
-                                else:
-                                    countsDic[row[0]].append(int(row[i]))
-                        else:
-                            for i in range(1,len(row)):
-                                if "." in row[i]:
-                                    countsDic[row[0]][i-1] += float(row[i])
-                                else:
-                                    countsDic[row[0]][i-1] += int(row[i])
+                        for i in range(1,len(row)):
+                            if "." in row[i]:
+                                countsDic[row[0]][i-1] += float(row[i])
+                            else:
+                                countsDic[row[0]][i-1] += int(row[i])
 
     
 
@@ -273,7 +246,7 @@ sorted_trigger_list = makeIncreasingList(trigger_map)
 #sorting datasets
 sorted_dataset_list = []
 dataset_index_map = {}
-for i in range(len(sorted_stream_list)-1,-1,-1):
+for i in range(len(sorted_stream_list)-1,0,-1):
     stream = sorted_stream_list[i]
     processed_datasets = []
     while len(processed_datasets) < dD_histo.GetNbinsY():
