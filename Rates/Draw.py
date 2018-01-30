@@ -275,7 +275,7 @@ for k in range(1,dD_histo.GetNbinsX()+1):
         ll+=1
         datasetDataset_histo.GetYaxis().SetBinLabel(ll, dataset2)
         bin_content=round(dD_histo.GetBinContent(k,l),1)
-        if bin_content > 5: bin_content = round(tD_histo.GetBinContent(ii, jj),0)
+        if bin_content > 5: bin_content = round(dD_histo.GetBinContent(k, l),0)
         datasetDataset_histo.SetBinContent(kk, ll, bin_content)
                             
 datasetDataset_histo.SetMarkerColor(color)
