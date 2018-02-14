@@ -93,18 +93,20 @@ from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-i","--infile",dest="inputFile",type="str",default="noroot",help="one (1) input root FILE",metavar="FILE")
 parser.add_option("-j","--json",dest="jsonFile",type="str",default="nojson",help="text FILE with the LS range in json format",metavar="FILE")
+parser.add_option("-s","--finalstring",dest="finalString",type="str",default="nostr",help="STRING used to name the output",metavar="STRING")
 parser.add_option("-f","--filetype",dest="fileType",type="str",default="custom",help="ARG='custom' (default option) or 'RAW', use 'custom' if you're running on STEAM-made files, 'RAW' if you're running on raw data",metavar="ARG")
 
 opts, args = parser.parse_args()
 
 
 error_text = '\n\nError: wrong inputs\n'
-help_text = '\npython triggerRatesFromTriggerResults.py -i <inputfile> -j <json> -f <filetype>'
+help_text = '\npython triggerRatesFromTriggerResults.py -i <inputfile> -j <json> -s <finalstring> -f <filetype>'
 help_text += '\n<inputfile> (mandatory argument) = one (1) input root file'
 help_text += '\n<json> (mandatory) = text file with the LS range in json format'
+help_text += '\n<finalstring> (mandatory) = string which will provide a unique tag to the output'
 help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW"\n'
 
-if opts.inputFile == "noroot" or opts.jsonFile == "nojson":
+if opts.inputFile == "noroot" or opts.jsonFile == "nojson" or opts.finalString == "nostr":
     print error_text
     print help_text
     sys.exit(2)
@@ -120,9 +122,7 @@ else:
     print help_text
     sys.exit(2)
 
-final_string = opts.inputFile[-9:-5]
-if isRawFiles:
-    final_string = opts.inputFile[-22:-5]
+final_string = opts.finalString
 
 #Handles and labels
 if isRawFiles:
@@ -132,7 +132,7 @@ else:
 
 
 #Looping over the inputfiles
-n = 0
+n = -1
 nPassed_Physics = 0
 nPassed_Scouting = 0
 
@@ -157,20 +157,12 @@ events = Events (opts.inputFile)
 runAndLsList = []
 atLeastOneEvent = False
 for event in events: 
-    #if n == 100000: break
+    n += 1
+    #if n == 10000: break
     #taking trigger informations: names, bits and products
     event.getByLabel(triggerBitLabel, triggerBits)
     names = event.object().triggerNames(triggerBits.product())    
-    runnbr = event.object().id().run()
-    runls = event.object().id().luminosityBlock()
-    runstr = str((runnbr,runls))
-    if not check_json(opts.jsonFile, runnbr, runls):
-        continue
 
-
-    if not runstr in runAndLsList:
-        nLS = nLS +1
-        runAndLsList.append(runstr)
 
     #initializing stuff
     if n<1:
@@ -198,7 +190,6 @@ for event in events:
                     streamList.append(stream)
             
 
-
         #inizialize the number of passed events
         for i in range(len(myPaths)):
             myPassedEvents[myPaths[i]]=0
@@ -215,6 +206,17 @@ for event in events:
                 triggerKey = trigger.rstrip("0123456789")
                 aux_dic[triggerKey] = 0
             triggerDatasetCorrMatrix[dataset1] = aux_dic
+
+
+    #check if event is in the json range
+    runnbr = event.object().id().run()
+    runls = event.object().id().luminosityBlock()
+    runstr = str((runnbr,runls))
+    if not check_json(opts.jsonFile, runnbr, runls):
+        continue
+    if not runstr in runAndLsList:
+        nLS = nLS +1
+        runAndLsList.append(runstr)
 
 
     if isRawFiles:
@@ -296,10 +298,9 @@ for event in events:
         groupCountsShared[group] = groupCountsShared[group] + 1./len(myGroupFired)
 
         
-    n = n+1
 
 
-
+n+=1
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
 
@@ -323,6 +324,7 @@ if atLeastOneEvent:
     
     #2d histograms for the correlation matrices
     root_file=ROOT.TFile("Results/Raw/Root/corr_histos"+final_string+".root","RECREATE")
+    print len(myPaths)
     triggerDataset_histo=ROOT.TH2F("trigger_dataset_corr","Trigger-Dataset Correlations",len(primaryDatasetList),0,len(primaryDatasetList),len(myPaths),0,len(myPaths))
     datasetDataset_histo=ROOT.TH2F("dataset_dataset_corr","Dataset-Dataset Correlations",len(primaryDatasetList),0,len(primaryDatasetList),len(primaryDatasetList),0,len(primaryDatasetList))
     

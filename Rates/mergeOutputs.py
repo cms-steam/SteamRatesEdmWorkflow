@@ -38,7 +38,7 @@ if opts.lumiIn == -1 or opts.lumiTarget == -1 or opts.hltPS == -1:
 files_dir = opts.inDir
 
 masterDic, rootList, globalFiles = makeListsOfRawOutputs(files_dir)
-
+print len(rootList)
 
 #Merge the file with the global rate information (number of events, LS processed)
 nLS = 0
@@ -219,6 +219,9 @@ for i in range(0, len(keyList)):
 hadd_text = "hadd -f Results/corr_histos.root"
 for rootFile in rootList:
     hadd_text += " " + rootFile
+    rfile = ROOT.TFile(rootFile,"R")
+    tD_histo1 = rfile.Get("trigger_dataset_corr")
+    print tD_histo1.GetNbinsY()
 os.system(hadd_text)
 
 root_file=ROOT.TFile("Results/corr_histos.root","UPDATE")
@@ -227,11 +230,13 @@ root_file.cd()
 tD_histo = root_file.Get("trigger_dataset_corr")
 dD_histo = root_file.Get("dataset_dataset_corr")
 
-tD_histo.SetName("trigger_dataset_corr_old")
-dD_histo.SetName("dataset_dataset_corr_old")
+print tD_histo.GetXaxis().GetBinLabel(9), tD_histo.GetYaxis().GetBinLabel(52), tD_histo.GetBinContent(9,52)
+
+
 #sort the triggers by decreasing rates
 trigger_map = {}
 trigger_index_map = {}
+
 for j in range(1,tD_histo.GetNbinsY()+1):
     trigger = tD_histo.GetYaxis().GetBinLabel(j)
     trigger_index_map[trigger] = j
@@ -242,11 +247,10 @@ for j in range(1,tD_histo.GetNbinsY()+1):
 
 sorted_trigger_list = makeIncreasingList(trigger_map)
 
-
 #sorting datasets
 sorted_dataset_list = []
 dataset_index_map = {}
-for i in range(len(sorted_stream_list)-1,0,-1):
+for i in range(len(sorted_stream_list)-1,-1,-1):
     stream = sorted_stream_list[i]
     processed_datasets = []
     while len(processed_datasets) < dD_histo.GetNbinsY():
@@ -268,8 +272,8 @@ for i in range(len(sorted_stream_list)-1,0,-1):
         processed_datasets.append(min_dataset)
 
 
-tD_histo_sorted = ROOT.TH2F("trigger_dataset_corr", "Trigger-Dataset Correlations", len(sorted_dataset_list), 0, len(sorted_dataset_list), len(sorted_trigger_list), 0, len(sorted_trigger_list))
-dD_histo_sorted = ROOT.TH2F("dataset_dataset_corr", "Dataset-Dataset Correlations", len(sorted_dataset_list), 0, len(sorted_dataset_list), len(sorted_dataset_list), 0, len(sorted_dataset_list))
+tD_histo_sorted = ROOT.TH2F("trigger_dataset_corr_2", "Trigger-Dataset Correlations", len(sorted_dataset_list), 0, len(sorted_dataset_list), len(sorted_trigger_list), 0, len(sorted_trigger_list))
+dD_histo_sorted = ROOT.TH2F("dataset_dataset_corr_2", "Dataset-Dataset Correlations", len(sorted_dataset_list), 0, len(sorted_dataset_list), len(sorted_dataset_list), 0, len(sorted_dataset_list))
 
 
 for i in range(0,len(sorted_dataset_list)):
@@ -281,6 +285,7 @@ for i in range(0,len(sorted_dataset_list)):
     for j in range(0,len(sorted_dataset_list)):
         dataset2 = sorted_dataset_list[j]
         jj = dataset_index_map[dataset2]
+        #print dataset, dD_histo.GetXaxis().GetBinLabel(ii)
         bin_content = dD_histo.GetBinContent(ii, jj)*scaleFactor
         dD_histo_sorted.SetBinContent(i+1, j+1, bin_content)
 
@@ -298,6 +303,8 @@ for i in range(0,len(sorted_dataset_list)):
 root_file.Delete("trigger_dataset_corr;1")
 root_file.Delete("dataset_dataset_corr;1")
 
+tD_histo_sorted.SetName("trigger_dataset_corr")
+dD_histo_sorted.SetName("dataset_dataset_corr")
 tD_histo_sorted.Write()
 dD_histo_sorted.Write()
 

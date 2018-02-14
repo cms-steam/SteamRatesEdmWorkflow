@@ -14,10 +14,10 @@ import sys
 makeFigures = True
 
 #Write the average instant lumi of the json you ran over
-lumi_in =     1.06e34
+lumi_in =  1.5e34
 
 #Write the TARGET lumi for which you wish to calculate rates
-lumi_target = 1.1e34
+lumi_target = 1.5e34
 
 #Write the HLT prescale used in the json you ran over
 hlt_ps = 10

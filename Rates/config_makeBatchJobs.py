@@ -31,7 +31,7 @@ file_type = "RAW"#"custom"
 cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/2017_STEAM/For_Data/CMSSW_9_2_12/src"
 
 #Json file
-json_file = "/afs/cern.ch/user/n/ndaci/public/STEAM/JSON/ProcessL1Accept2017/json_306154_PS7_10LS.txt"
+json_file = "/afs/cern.ch/work/d/dbeghin/public/json/json_306154_PS2_LS93_PU57.txt"
 
 #Do you wish to use any unusual (non-default) options for the batch queue, and the number of files processed per job?
 #If you do, set the following boolean to True

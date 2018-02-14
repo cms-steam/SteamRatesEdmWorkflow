@@ -21,7 +21,7 @@ opts, args = parser.parse_args()
 
 
 error_text = '\n\nError: wrong inputs\n'
-help_text = '\npython triggerRatesFromTriggerResults.py -j <json> -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <batchQueue>'
+help_text = '\npython batchScriptForRates.py -j <json> -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <batchQueue>'
 help_text += '\n<json> (mandatory argument) = text file with the LS range in json format'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<infilesDir> (optional) = directory where the input root files are located (default = will take whatever is in the filesInput.py file)'
@@ -60,7 +60,9 @@ sub_total.write("rm Results/Raw/*/*.root\n")
 
 
 if opts.inputFilesDir != "no":
-    print 'Taking input files from %s'%opts.inputFilesDir
+    print 'Making a copy of the old filesInput.py : filesInput_old.py'
+    os.system('cp filesInput.py filesInput_old.py')
+    print 'Making a new filesInput.py with input root files from %s'%opts.inputFilesDir
     os.system('python make_ratesFilesInput.py -i %s'%opts.inputFilesDir)
 else:
     print 'Taking default input files (from filesInput.py)'
@@ -82,7 +84,7 @@ for infile in fileInputNames:
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")
-    tmp_job.write("python triggerRatesFromTriggerResults.py -i %s -j %s -f %s\n"%(infile, opts.jsonFile, opts.fileType))
+    tmp_job.write("python triggerRatesFromTriggerResults.py -i %s -j %s -s %s -f %s\n"%(infile, opts.jsonFile, str(k), opts.fileType))
     tmp_job.write("\n")
     tmp_job.close()
     tmp_job_dir = MYDIR+'/Jobs/sub_job/'+tmp_jobname

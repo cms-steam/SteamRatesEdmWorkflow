@@ -138,13 +138,14 @@ plt.savefig("Figures/group_total.pdf")
 
 plt.clf()
 #autopct='%1.1f%%', startangle=140, colors=colors)
-plt.pie(group_pure, labels=group_label_pure, startangle=0, colors=colors_pure)
+plt.pie(group_pure, labels=group_label_pure, startangle=0, colors=colors_pure, autopct='%1.0f%%')
 plt.title('Pure Group Rates', fontweight='bold', y = 1.08)
 plt.axis('equal')
 plt.savefig("Figures/group_pure.pdf")
 
+
 plt.clf()
-plt.pie(group_pureplusshared, labels=group_label_pureplusshared, startangle=0, colors=colors_pureplusshared)
+plt.pie(group_pureplusshared, labels=group_label_pureplusshared, startangle=0, colors=colors_pureplusshared, autopct='%1.0f%%')
 plt.title('Shared Group Rates', fontweight='bold', y = 1.08)
 plt.axis('equal')
 plt.savefig("Figures/group_pureplusshared.pdf")
