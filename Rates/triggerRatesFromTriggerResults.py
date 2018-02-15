@@ -113,10 +113,14 @@ if opts.inputFile == "noroot" or opts.jsonFile == "nojson" or opts.finalString =
 
 
 isRawFiles = False
+isL1Accept = False
 if opts.fileType == "custom":
     isRawFiles = False
 elif opts.fileType == "RAW":
     isRawFiles = True
+elif opts.fileType == "L1Accept":
+    isRawFiles = True
+    isL1Accept = True
 else:
     print error_text
     print help_text
@@ -156,6 +160,7 @@ events = Events (opts.inputFile)
 
 runAndLsList = []
 atLeastOneEvent = False
+nEvents = 0
 for event in events: 
     n += 1
     #if n == 10000: break
@@ -219,7 +224,7 @@ for event in events:
         runAndLsList.append(runstr)
 
 
-    if isRawFiles:
+    if isL1Accept:
         # Check condition DST_Physics when processing L1Accept PD
         isDSTPhysics=False
         for triggerName in myPaths:
@@ -297,16 +302,17 @@ for event in events:
     for group in myGroupFired:
         groupCountsShared[group] = groupCountsShared[group] + 1./len(myGroupFired)
 
-        
+    nEvents += 1
 
 
-n+=1
+n += 1
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
 
     global_info_file =  open('Results/Raw/Global/output.global'+final_string+'.csv', 'w')
     global_info_file.write("N_LS, " + str(nLS) + "\n")
-    global_info_file.write("N_eventsProcessed, " + str(n) + "\n")
+    global_info_file.write("N_eventsInLoop, " + str(n) + "\n")
+    global_info_file.write("N_eventsProcessed, " + str(nEvents) + "\n")
     global_info_file.close()
     
     physics_path_file = open('Results/Raw/'+mergeNames['output.path.physics']+'/output.path.physics'+final_string+'.csv', 'w')

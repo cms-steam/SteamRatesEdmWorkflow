@@ -24,8 +24,10 @@ makeInputFilesList = False
 inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/xulyu/menu_v4.2/HLTPhysics_PS1p5e34_new"
 
 #Were your input files produced by STEAM? If yes, file_type = "custom"
-#Are these raw data files? If yes, file_type = "RAW"
-file_type = "RAW"#"custom"
+#Are these raw data files?
+#If yes, are you running specifically on L1Accept files? Then file_type = "L1Accept"
+#Are you running on other non-L1Accept data files? Then file_type = "RAW"
+file_type = "L1Accept"#"RAW"#"custom"
 
 #Directory where the top of your CMSSW release is located
 cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/2017_STEAM/For_Data/CMSSW_9_2_12/src"

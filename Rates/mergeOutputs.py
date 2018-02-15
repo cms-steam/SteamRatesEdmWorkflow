@@ -38,10 +38,10 @@ if opts.lumiIn == -1 or opts.lumiTarget == -1 or opts.hltPS == -1:
 files_dir = opts.inDir
 
 masterDic, rootList, globalFiles = makeListsOfRawOutputs(files_dir)
-print len(rootList)
 
 #Merge the file with the global rate information (number of events, LS processed)
 nLS = 0
+n_eventsLoop = 0
 n_events = 0
 for globalFile in globalFiles:
     with open(globalFile) as ffile:
@@ -50,8 +50,11 @@ for globalFile in globalFiles:
             if row[0] == "N_LS":
                 if not "e" in row[1]:
                     nLS += int(row[1])
+            elif row[0] == "N_eventsInLoop":
+                n_eventsLoop += int(row[1])
             elif row[0] == "N_eventsProcessed":
                 n_events += int(row[1])
+            
 
 LS_length = 23.31 #seconds
 scaleFactor = opts.lumiTarget/opts.lumiIn * opts.hltPS  /  ( nLS * LS_length ) 
@@ -64,6 +67,7 @@ print 'scale_factor = %s\n\n\n'%scaleFactor
 
 mergedGlobal = open ("Results/output.global.csv", "w")
 mergedGlobal.write("N_LS, " + str(nLS) + "\n")
+mergedGlobal.write("N_eventsInLoop, " + str(n_eventsLoop) + "\n")
 mergedGlobal.write("N_eventsProcessed, " + str(n_events) + "\n")
 mergedGlobal.write("Scale Factor, "+ str(scaleFactor) + "\n")
 mergedGlobal.close()
@@ -79,7 +83,6 @@ for key in masterDic:
 
 for i in range(0, len(keyList)):
     key = keyList[i]
-    print key
 
     mergedFile = open("Results/"+key, "w")
     countsDic = {}
@@ -178,7 +181,6 @@ for i in range(0, len(keyList)):
             
 
     lastFile = open(lfile)
-    print lfile
     reader=csv.reader(lastFile, delimiter=',')               
     firstRow = True
     for row in reader:
@@ -219,9 +221,6 @@ for i in range(0, len(keyList)):
 hadd_text = "hadd -f Results/corr_histos.root"
 for rootFile in rootList:
     hadd_text += " " + rootFile
-    rfile = ROOT.TFile(rootFile,"R")
-    tD_histo1 = rfile.Get("trigger_dataset_corr")
-    print tD_histo1.GetNbinsY()
 os.system(hadd_text)
 
 root_file=ROOT.TFile("Results/corr_histos.root","UPDATE")
@@ -230,7 +229,6 @@ root_file.cd()
 tD_histo = root_file.Get("trigger_dataset_corr")
 dD_histo = root_file.Get("dataset_dataset_corr")
 
-print tD_histo.GetXaxis().GetBinLabel(9), tD_histo.GetYaxis().GetBinLabel(52), tD_histo.GetBinContent(9,52)
 
 
 #sort the triggers by decreasing rates

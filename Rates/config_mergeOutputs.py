@@ -11,7 +11,7 @@ import sys
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
 #Do you wish to draw the figures? If you have a slow connection, drawing might take a while
-makeFigures = True
+makeFigures = False
 
 #Write the average instant lumi of the json you ran over
 lumi_in =  1.5e34
