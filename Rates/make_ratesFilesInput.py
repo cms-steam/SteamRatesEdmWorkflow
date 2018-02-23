@@ -2,24 +2,23 @@ import os
 import math
 import shlex
 import subprocess
+from aux import runCommand
 
-files_dir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/SteamRatesEdmWorkflow/Rates/blob"
 
+from optparse import OptionParser
+parser=OptionParser()
+parser.add_option("-i","--indir",dest="inDir",type="str",default="/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/xulyu/menu_v4.2/HLTPhysics_PS1p5e34_new",help="DIR where the input files are located",metavar="DIR")
 
-def runCommand(commandLine):
-    #sys.stdout.write("%s\n" % commandLine)                                                                                                                                       
-    args = shlex.split(commandLine)
-    retVal = subprocess.Popen(args, stdout = subprocess.PIPE)
-    return retVal
-
+opts, args = parser.parse_args()
+print 'input directory = %s'%opts.inDir
 
 outfile = open('filesInput.py', 'w')
 outfile.write("fileInputNames = [\n")
 
-ls_command = runCommand("ls " + files_dir)
+ls_command = runCommand("ls " + opts.inDir)
 stdout, stderr = ls_command.communicate()
 
 for line in stdout.splitlines():
     if ".root" in line:
-        outfile.write('"' + files_dir + '/' + line + '",' + '\n')
+        outfile.write('"' + opts.inDir + '/' + line + '",' + '\n')
 outfile.write(']')
