@@ -240,7 +240,8 @@ for event in events:
     iPath = 0       
 
     #here we initialize the counter per dataset to avoid counting a DS twice
-    kPassedEvent = False
+    kPassedEventPhysics = False
+    kPassedEventScouting = False
     datasetsCountsBool = primaryDatasetCounts.fromkeys(primaryDatasetCounts.keys(),False)
     groupCountsBool = groupCounts.fromkeys(groupCounts.keys(),False)
     streamCountsBool = streamCounts.fromkeys(streamCounts.keys(),False)
@@ -279,11 +280,15 @@ for event in events:
 
 
 
-                if kPassedEvent == False:
-                    #We only want to count physics streams in the total rate
-                    if physicsStreamOK(triggerKey): nPassed_Physics += 1
-                    if scoutingStreamOK(triggerKey): nPassed_Scouting += 1
-                    kPassedEvent = True
+                if kPassedEventPhysics == False:
+                    if physicsStreamOK(triggerKey):
+                        nPassed_Physics += 1
+                        kPassedEventPhysics = True
+
+                if kPassedEventScouting == False:
+                    if scoutingStreamOK(triggerKey):
+                        nPassed_Scouting += 1
+                        kPassedEventScouting = True
 
         iPath = iPath+1        
     for dataset1 in primaryDatasetList:
