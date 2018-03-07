@@ -10,6 +10,7 @@ import sys
 #from makeListsOfRawOutputs import masterDic
 #from makeListsOfRawOutputs import rootFiles as rootList
 from Menu_HLT import datasetStreamMap
+from Menu_HLT import newDatasetMap
 from aux import makeIncreasingList
 from aux import makeListsOfRawOutputs
 import csv
@@ -134,7 +135,7 @@ for i in range(0, len(keyList)):
     sorted_list = []
 
     #we don't bother sorting the large correlation matrices
-    if "_dataset_" in key:
+    if ("_dataset_" in key) or ("_newDataset_" in key):
         mmap = countsDic.copy()
         for kkey in mmap:
             sorted_list.append(kkey)
@@ -204,8 +205,9 @@ for i in range(0, len(keyList)):
         mergedFile.write(kkey)
         if columnOneIsGroups: mergedFile.write( " ," + groupsDic[kkey] )
         for i in range(0, len(countsDic[kkey])):
-            if "_dataset_" in key:
+            if ("_dataset_" in key) or ("_newDataset_" in key):
                 mergedFile.write(  ", " + str( round(countsDic[kkey][i]*scaleFactor,2) )  )
+                print key
             else:
                 if i%2 == 0:
                     mergedFile.write(  ", " + str( countsDic[kkey][i]                      )  )
@@ -228,6 +230,8 @@ root_file.cd()
 
 tD_histo = root_file.Get("trigger_dataset_corr")
 dD_histo = root_file.Get("dataset_dataset_corr")
+newtD_histo = root_file.Get("trigger_newDataset_corr")
+newdD_histo = root_file.Get("newDataset_newDataset_corr")
 
 
 
@@ -248,6 +252,8 @@ sorted_trigger_list = makeIncreasingList(trigger_map)
 #sorting datasets
 sorted_dataset_list = []
 dataset_index_map = {}
+sorted_newDataset_list = []
+newDataset_index_map = {}
 for i in range(len(sorted_stream_list)-1,-1,-1):
     stream = sorted_stream_list[i]
     processed_datasets = []
@@ -268,19 +274,34 @@ for i in range(len(sorted_stream_list)-1,-1,-1):
                 min_dataset = dD_histo.GetYaxis().GetBinLabel(j)
         if min_dataset != "": sorted_dataset_list.append(min_dataset)
         processed_datasets.append(min_dataset)
+        newDataset = min_dataset
+        if min_dataset in newDatasetMap.keys():
+            newDataset = newDatasetMap[min_dataset]
+        if newDataset != "" and not (newDataset in sorted_newDataset_list):
+            sorted_newDataset_list.append(newDataset)
+
+sorted_dataset_list.append("NonPure")
+sorted_newDataset_list.append("NonPure")
+dataset_index_map["NonPure"] = tD_histo.GetNbinsX()
+
+for jj in range(1,newtD_histo.GetNbinsX()+1):
+    dataset = newtD_histo.GetXaxis().GetBinLabel(jj)
+    newDataset_index_map[dataset] = jj                
+
 
 
 tD_histo_sorted = ROOT.TH2F("trigger_dataset_corr_2", "Trigger-Dataset Correlations", len(sorted_dataset_list), 0, len(sorted_dataset_list), len(sorted_trigger_list), 0, len(sorted_trigger_list))
-dD_histo_sorted = ROOT.TH2F("dataset_dataset_corr_2", "Dataset-Dataset Correlations", len(sorted_dataset_list), 0, len(sorted_dataset_list), len(sorted_dataset_list), 0, len(sorted_dataset_list))
+dD_histo_sorted = ROOT.TH2F("dataset_dataset_corr_2", "Dataset-Dataset Correlations", len(sorted_dataset_list)-1, 0, len(sorted_dataset_list)-1, len(sorted_dataset_list)-1, 0, len(sorted_dataset_list)-1)
 
 
 for i in range(0,len(sorted_dataset_list)):
     dataset = sorted_dataset_list[i]
     ii = dataset_index_map[dataset]
 
-    dD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
+    if dataset != "NonPure": dD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
     tD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
-    for j in range(0,len(sorted_dataset_list)):
+    for j in range(0,len(sorted_dataset_list)-1):
+        if dataset == "NonPure": break
         dataset2 = sorted_dataset_list[j]
         jj = dataset_index_map[dataset2]
         #print dataset, dD_histo.GetXaxis().GetBinLabel(ii)
@@ -297,14 +318,53 @@ for i in range(0,len(sorted_dataset_list)):
 
         if (i == 0) : tD_histo_sorted.GetYaxis().SetBinLabel(j+1, trigger)
 
+
+
+newtD_histo_sorted = ROOT.TH2F("trigger_newDataset_corr_2", "New Trigger-Dataset Correlations", len(sorted_newDataset_list), 0, len(sorted_newDataset_list), len(sorted_trigger_list), 0, len(sorted_trigger_list))
+newdD_histo_sorted = ROOT.TH2F("newDataset_newDataset_corr_2", "New Dataset-Dataset Correlations", len(sorted_newDataset_list)-1, 0, len(sorted_newDataset_list)-1, len(sorted_newDataset_list)-1, 0, len(sorted_newDataset_list)-1)
+
+
+for i in range(0,len(sorted_newDataset_list)):
+    dataset = sorted_newDataset_list[i]
+    ii = newDataset_index_map[dataset]
+
+    if dataset != "NonPure": newdD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
+    newtD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
+    for j in range(0,len(sorted_newDataset_list)-1):
+        if dataset == "NonPure": break
+        dataset2 = sorted_newDataset_list[j]
+        jj = newDataset_index_map[dataset2]
+        #print dataset, dD_histo.GetXaxis().GetBinLabel(ii)
+        bin_content = newdD_histo.GetBinContent(ii, jj)*scaleFactor
+        newdD_histo_sorted.SetBinContent(i+1, j+1, bin_content)
+
+        if (i == 0) : newdD_histo_sorted.GetYaxis().SetBinLabel(j+1, dataset2)
+
+    for j in range(0,len(sorted_trigger_list)):
+        trigger = sorted_trigger_list[j]
+        jj = trigger_index_map[trigger]
+        bin_content = newtD_histo.GetBinContent(ii, jj)*scaleFactor
+        newtD_histo_sorted.SetBinContent(i+1, j+1, bin_content)
+
+        if (i == 0) : newtD_histo_sorted.GetYaxis().SetBinLabel(j+1, trigger)
+
+
 #Write the sorted histos
 root_file.Delete("trigger_dataset_corr;1")
 root_file.Delete("dataset_dataset_corr;1")
+
+root_file.Delete("trigger_newDataset_corr;1")
+root_file.Delete("newDataset_newDataset_corr;1")
 
 tD_histo_sorted.SetName("trigger_dataset_corr")
 dD_histo_sorted.SetName("dataset_dataset_corr")
 tD_histo_sorted.Write()
 dD_histo_sorted.Write()
+
+newtD_histo_sorted.SetName("trigger_newDataset_corr")
+newdD_histo_sorted.SetName("newDataset_newDataset_corr")
+newtD_histo_sorted.Write()
+newdD_histo_sorted.Write()
 
 root_file.Close()
 

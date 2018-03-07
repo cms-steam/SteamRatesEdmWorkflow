@@ -56,12 +56,15 @@ def check_json(jsonf, runNo_in, LS):
 from Menu_HLT import groupMap as triggersGroupMap
 from Menu_HLT import datasetMap as  triggersDatasetMap
 from Menu_HLT import streamMap as  triggersStreamMap
+from Menu_HLT import newDatasetMap
 
 
 
 triggerList = []
 primaryDatasetList = []
 primaryDatasetCounts = {}
+newDatasetList = []
+newDatasetCounts = {}
 datasets = {}
 
 groupList = []
@@ -142,7 +145,6 @@ nPassed_Scouting = 0
 
 #List of triggers
 myPaths = []
-reducedDatasets = []
 myPassedEvents = {}
 
 nLS = 0
@@ -150,6 +152,8 @@ nLS = 0
 
 triggerDatasetCorrMatrix = {}
 datasetDatasetCorrMatrix = {}
+triggerNewDatasetCorrMatrix = {}
+newDatasetNewDatasetCorrMatrix = {}
 
 
 
@@ -184,6 +188,12 @@ for event in events:
             for dataset in triggersDatasetMap[triggerKey]:
                 if not dataset in primaryDatasetList: primaryDatasetCounts.update({str(dataset):0}) 
                 if not dataset in primaryDatasetList: primaryDatasetList.append(dataset)
+                newDataset = dataset
+                if dataset in newDatasetMap.keys():
+                    newDataset = newDatasetMap[dataset]
+                if newDataset not in newDatasetList:
+                    newDatasetCounts.update({str(newDataset):0})
+                    newDatasetList.append(newDataset)
             for group in triggersGroupMap[triggerKey]:
                 if not group in groupList: groupCounts.update({str(group):0}) 
                 if not group in groupList: groupCountsShared.update({str(group):0}) 
@@ -195,13 +205,14 @@ for event in events:
                     streamList.append(stream)
             
 
+        print newDatasetList
         #inizialize the number of passed events
         for i in range(len(myPaths)):
             myPassedEvents[myPaths[i]]=0
 
         #Initialize the correlation matrices
+        dummy_nonpure = "NonPure"
         for dataset1 in primaryDatasetList:
-            reducedDatasets.append(dataset1)
             aux_dic = {}
             for dataset2 in primaryDatasetList:
                 aux_dic[dataset2] = 0
@@ -211,6 +222,19 @@ for event in events:
                 triggerKey = trigger.rstrip("0123456789")
                 aux_dic[triggerKey] = 0
             triggerDatasetCorrMatrix[dataset1] = aux_dic
+        triggerDatasetCorrMatrix[dummy_nonpure] = aux_dic
+
+        for dataset1 in newDatasetList:
+            aux_dic = {}
+            for dataset2 in newDatasetList:
+                aux_dic[dataset2] = 0
+            newDatasetNewDatasetCorrMatrix[dataset1] = aux_dic
+            aux_dic={}
+            for trigger in myPaths:
+                triggerKey = trigger.rstrip("0123456789")
+                aux_dic[triggerKey] = 0
+            triggerNewDatasetCorrMatrix[dataset1] = aux_dic
+        triggerNewDatasetCorrMatrix[dummy_nonpure] = aux_dic
 
 
     #check if event is in the json range
@@ -242,7 +266,8 @@ for event in events:
     #here we initialize the counter per dataset to avoid counting a DS twice
     kPassedEventPhysics = False
     kPassedEventScouting = False
-    datasetsCountsBool = primaryDatasetCounts.fromkeys(primaryDatasetCounts.keys(),False)
+    datasetsLatestCounts = primaryDatasetCounts.fromkeys(primaryDatasetCounts.keys(),0)
+    newDatasetsLatestCounts = newDatasetCounts.fromkeys(newDatasetCounts.keys(),0)
     groupCountsBool = groupCounts.fromkeys(groupCounts.keys(),False)
     streamCountsBool = streamCounts.fromkeys(streamCounts.keys(),False)
     triggerCountsBool = {}
@@ -260,9 +285,15 @@ for event in events:
                 triggerKey = triggerName.rstrip("0123456789")
                 if triggerKey in datasets.keys():
                     for dataset in datasets[triggerKey]:
-                        if datasetsCountsBool[dataset] == False :
-                            datasetsCountsBool[dataset] = True
+                        if datasetsLatestCounts[dataset] == 0 :
                             primaryDatasetCounts[dataset] = primaryDatasetCounts[dataset] + 1
+                        datasetsLatestCounts[dataset] += 1
+                        newDataset = dataset
+                        if dataset in newDatasetMap.keys():
+                            newDataset = newDatasetMap[dataset]
+                        if newDatasetsLatestCounts[newDataset] == 0 :
+                            newDatasetCounts[newDataset] += 1
+                        newDatasetsLatestCounts[newDataset] += 1
                     atLeastOneEvent = True
                 if triggerKey in groups.keys():
                     for group in groups[triggerKey]:
@@ -292,14 +323,40 @@ for event in events:
 
         iPath = iPath+1        
     for dataset1 in primaryDatasetList:
-        if not datasetsCountsBool[dataset1]: continue
+        if datasetsLatestCounts[dataset1] == 0: continue
         for dataset2 in primaryDatasetList:
-            if not datasetsCountsBool[dataset2]: continue
+            if datasetsLatestCounts[dataset2] == 0: continue
             datasetDatasetCorrMatrix[dataset1][dataset2] += 1
         for trigger in myPaths:
             if not triggerCountsBool[trigger]: continue
             triggerKey = trigger.rstrip("0123456789")
             triggerDatasetCorrMatrix[dataset1][triggerKey] += 1
+            if triggerKey in datasets.keys():
+                if (dataset1 in triggersDatasetMap[triggerKey]) and datasetsLatestCounts[dataset1] > 1:
+                    triggerDatasetCorrMatrix[dummy_nonpure][triggerKey] += 1
+                    
+    for dataset1 in newDatasetList:
+        if newDatasetsLatestCounts[dataset1] == 0: continue
+        for dataset2 in newDatasetList:
+            if newDatasetsLatestCounts[dataset2] == 0: continue
+            newDatasetNewDatasetCorrMatrix[dataset1][dataset2] += 1
+        for trigger in myPaths:
+            if not triggerCountsBool[trigger]: continue
+            triggerKey = trigger.rstrip("0123456789")
+            triggerNewDatasetCorrMatrix[dataset1][triggerKey] += 1
+            bUseDummy = False
+            if triggerKey in datasets.keys():
+                if newDatasetsLatestCounts[dataset1] > 1:
+                    if dataset1 in triggersDatasetMap[triggerKey]:
+                        bUseDummy = True
+                    elif not (dataset1 in primaryDatasetList):
+                        for old_dataset in newDatasetMap.keys():
+                            if not (dataset1 in newDatasetMap[old_dataset]): continue
+                            if old_dataset in triggersDatasetMap[triggerKey]:
+                                bUseDummy = True
+                                break
+            if bUseDummy: triggerNewDatasetCorrMatrix[dummy_nonpure][triggerKey] += 1
+                    
 
     if len(myGroupFired) == 1:
         groupCountsPure[myGroupFired[0]] = groupCountsPure[myGroupFired[0]] + 1            
@@ -336,11 +393,16 @@ if atLeastOneEvent:
     #2d histograms for the correlation matrices
     root_file=ROOT.TFile("Results/Raw/Root/corr_histos"+final_string+".root","RECREATE")
     print len(myPaths)
-    triggerDataset_histo=ROOT.TH2F("trigger_dataset_corr","Trigger-Dataset Correlations",len(primaryDatasetList),0,len(primaryDatasetList),len(myPaths),0,len(myPaths))
+    triggerDataset_histo=ROOT.TH2F("trigger_dataset_corr","Trigger-Dataset Correlations",len(primaryDatasetList)+1,0,len(primaryDatasetList)+1,len(myPaths),0,len(myPaths))
     datasetDataset_histo=ROOT.TH2F("dataset_dataset_corr","Dataset-Dataset Correlations",len(primaryDatasetList),0,len(primaryDatasetList),len(primaryDatasetList),0,len(primaryDatasetList))
+    triggerNewDataset_histo=ROOT.TH2F("trigger_newDataset_corr","New Trigger-Dataset Correlations",len(newDatasetList)+1,0,len(newDatasetList)+1,len(myPaths),0,len(myPaths))
+    newDatasetNewDataset_histo=ROOT.TH2F("newDataset_newDataset_corr","New Dataset-Dataset Correlations",len(newDatasetList),0,len(newDatasetList),len(newDatasetList),0,len(newDatasetList))
     
     triggerDataset_file = open('Results/Raw/'+mergeNames['output.trigger_dataset_corr']+'/output.trigger_dataset_corr'+final_string+'.csv', 'w')
     datasetDataset_file = open('Results/Raw/'+mergeNames['output.dataset_dataset_corr']+'/output.dataset_dataset_corr'+final_string+'.csv', 'w')
+    
+    triggerNewDataset_file = open('Results/Raw/'+mergeNames['output.trigger_newDataset_corr']+'/output.trigger_newDataset_corr'+final_string+'.csv', 'w')
+    newDatasetNewDataset_file = open('Results/Raw/'+mergeNames['output.newDataset_newDataset_corr']+'/output.newDataset_newDataset_corr'+final_string+'.csv', 'w')
     
     
     i = 0
@@ -348,9 +410,14 @@ if atLeastOneEvent:
         i += 1
         triggerDataset_file.write(", " + dataset)
         datasetDataset_file.write(", " + dataset)
-    triggerDataset_file.write("\n")
+    triggerDataset_file.write(", "+dummy_nonpure+"\n")
     datasetDataset_file.write("\n")
     
+    for dataset in newDatasetList:
+        triggerNewDataset_file.write(", " + dataset)
+        newDatasetNewDataset_file.write(", " + dataset)
+    triggerNewDataset_file.write(", "+dummy_nonpure+"\n")
+    newDatasetNewDataset_file.write("\n")
     
     
     
@@ -374,18 +441,33 @@ if atLeastOneEvent:
         j = 0
         triggerDataset_histo.GetYaxis().SetBinLabel(i+1, triggerKey)
         for dataset in primaryDatasetList:
-            if (myPassedEvents[trigger] > 0):
-                triggerDatasetCorrMatrix[dataset][triggerKey] = triggerDatasetCorrMatrix[dataset][triggerKey] #/myPassedEvents[trigger]
             triggerDataset_file.write(", " + str(triggerDatasetCorrMatrix[dataset][triggerKey]))
             triggerDataset_histo.GetXaxis().SetBinLabel(j+1, dataset)
             triggerDataset_histo.SetBinContent(j+1, i+1, triggerDatasetCorrMatrix[dataset][triggerKey])
             j += 1
+        triggerDataset_histo.GetXaxis().SetBinLabel(j+1, dummy_nonpure)
+        triggerDataset_histo.SetBinContent(j+1, i+1, triggerDatasetCorrMatrix[dummy_nonpure][triggerKey])
+        triggerDataset_file.write(", " + str(triggerDatasetCorrMatrix[dummy_nonpure][triggerKey]))
         triggerDataset_file.write("\n")
+        
+        triggerNewDataset_file.write(triggerKey)
+        j = 0
+        triggerNewDataset_histo.GetYaxis().SetBinLabel(i+1, triggerKey)
+        for dataset in newDatasetList:
+            triggerNewDataset_file.write(", " + str(triggerNewDatasetCorrMatrix[dataset][triggerKey]))
+            triggerNewDataset_histo.GetXaxis().SetBinLabel(j+1, dataset)
+            triggerNewDataset_histo.SetBinContent(j+1, i+1, triggerNewDatasetCorrMatrix[dataset][triggerKey])
+            j += 1
+        triggerNewDataset_histo.GetXaxis().SetBinLabel(j+1, dummy_nonpure)
+        triggerNewDataset_histo.SetBinContent(j+1, i+1, triggerNewDatasetCorrMatrix[dummy_nonpure][triggerKey])
+        triggerNewDataset_file.write(", " + str(triggerNewDatasetCorrMatrix[dummy_nonpure][triggerKey]))
+        triggerNewDataset_file.write("\n")
         
     
     physics_path_file.close()
     scouting_path_file.close()
     triggerDataset_file.close()
+    triggerNewDataset_file.close()
     
     physics_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.physics']+'/output.dataset.physics'+final_string+'.csv', 'w')
     scouting_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.scouting']+'/output.dataset.scouting'+final_string+'.csv', 'w')
@@ -421,9 +503,40 @@ if atLeastOneEvent:
             if i == j : print key2, key
         datasetDataset_file.write("\n")
     
-    physics_dataset_file.close()
-    scouting_dataset_file.close()
-    datasetDataset_file.close()
+    newDataset_file = open('Results/Raw/'+mergeNames['output.newDataset.physics']+'/output.newDataset.physics'+final_string+'.csv', 'w')
+    newDataset_file.write("Dataset, Counts, Rates (Hz)\n")
+    i = 0
+    for key in newDatasetList:
+        isPhysicsDataset = False
+    
+        for trigger in myPaths:
+            triggerKey = trigger.rstrip("0123456789")
+            if physicsStreamOK(triggerKey):
+                if (key in triggersDatasetMap[triggerKey]):
+                    isPhysicsDataset = True
+                elif not (key in primaryDatasetList):
+                    for old_dataset in newDatasetMap.keys():
+                        if not (key in newDatasetMap[old_dataset]): continue
+                        if old_dataset in triggersDatasetMap[triggerKey]:
+                            isPhysicsDataset = True
+                            break
+        if isPhysicsDataset:
+            newDataset_file.write(str(key) + ", " + str(newDatasetCounts[key]) +", " + str(newDatasetCounts[key]))
+            newDataset_file.write('\n')
+    
+        i += 1
+        newDatasetNewDataset_file.write(key)
+        newDatasetNewDataset_histo.GetYaxis().SetBinLabel(i, key)
+        j = 0
+        for key2 in newDatasetList:
+            j += 1
+            newDatasetNewDataset_file.write(", " + str(newDatasetNewDatasetCorrMatrix[key2][key]))
+            newDatasetNewDataset_histo.GetXaxis().SetBinLabel(j, key2)
+            newDatasetNewDataset_histo.SetBinContent(j, i, newDatasetNewDatasetCorrMatrix[key2][key])
+        newDatasetNewDataset_file.write("\n")
+    
+    newDataset_file.close()
+    newDatasetNewDataset_file.close()
     
     
     group_file = open('Results/Raw/'+mergeNames['output.group']+'/output.group'+final_string+'.csv','w')
@@ -445,4 +558,6 @@ if atLeastOneEvent:
     root_file.cd()
     triggerDataset_histo.Write()
     datasetDataset_histo.Write()
+    triggerNewDataset_histo.Write()
+    newDatasetNewDataset_histo.Write()
     root_file.Close()
