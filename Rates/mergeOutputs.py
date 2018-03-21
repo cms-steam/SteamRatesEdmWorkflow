@@ -207,7 +207,6 @@ for i in range(0, len(keyList)):
         for i in range(0, len(countsDic[kkey])):
             if ("_dataset_" in key) or ("_newDataset_" in key):
                 mergedFile.write(  ", " + str( round(countsDic[kkey][i]*scaleFactor,2) )  )
-                print key
             else:
                 if i%2 == 0:
                     mergedFile.write(  ", " + str( countsDic[kkey][i]                      )  )
@@ -220,12 +219,12 @@ for i in range(0, len(keyList)):
 
 
 #Merge the root files, scale the rates to the target lumi
-hadd_text = "hadd -f Results/corr_histos.root"
+hadd_text = "hadd -f Results/histos.root"
 for rootFile in rootList:
     hadd_text += " " + rootFile
 os.system(hadd_text)
 
-root_file=ROOT.TFile("Results/corr_histos.root","UPDATE")
+root_file=ROOT.TFile("Results/histos.root","UPDATE")
 root_file.cd()
 
 tD_histo = root_file.Get("trigger_dataset_corr")

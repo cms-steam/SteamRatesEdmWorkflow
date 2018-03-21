@@ -76,6 +76,8 @@ groups = {}
 streamList = []
 streamCounts = {}
 
+metBx = ROOT.TH1F("metBx","",4000,0.,4000.)
+muonBx = ROOT.TH1F("muonBx","",4000,0.,4000.)
 #make output dir
 from aux import mergeNames
 
@@ -279,6 +281,12 @@ for event in events:
         if checkTriggerIndex(triggerName,index,names.triggerNames()):
             #checking if the event has been accepted by a given trigger
             if triggerBits.product().accept(index):
+                if "HLT_PFMET" in str(triggerName):
+                    metBx.Fill(event.object().bunchCrossing()*1.)
+
+                if "HLT_IsoMu24" in str(triggerName):
+                    muonBx.Fill(event.object().bunchCrossing()*1.)
+
                 myPassedEvents[triggerName]=myPassedEvents[triggerName]+1 
                 triggerCountsBool[triggerName] = True
                 #we loop over the dictionary keys to see if the paths is in that key, and in case we increase the counter
@@ -391,7 +399,7 @@ if atLeastOneEvent:
     
     
     #2d histograms for the correlation matrices
-    root_file=ROOT.TFile("Results/Raw/Root/corr_histos"+final_string+".root","RECREATE")
+    root_file=ROOT.TFile("Results/Raw/Root/histos"+final_string+".root","RECREATE")
     print len(myPaths)
     triggerDataset_histo=ROOT.TH2F("trigger_dataset_corr","Trigger-Dataset Correlations",len(primaryDatasetList)+1,0,len(primaryDatasetList)+1,len(myPaths),0,len(myPaths))
     datasetDataset_histo=ROOT.TH2F("dataset_dataset_corr","Dataset-Dataset Correlations",len(primaryDatasetList),0,len(primaryDatasetList),len(primaryDatasetList),0,len(primaryDatasetList))
@@ -560,4 +568,6 @@ if atLeastOneEvent:
     datasetDataset_histo.Write()
     triggerNewDataset_histo.Write()
     newDatasetNewDataset_histo.Write()
+    metBx.Write()
+    muonBx.Write()
     root_file.Close()

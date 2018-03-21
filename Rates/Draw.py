@@ -192,7 +192,7 @@ ROOT.gStyle.SetPalette(kInvertedDarkBodyRadiator)
 
 
 #file=ROOT.TFile("final.root","r")
-root_file=ROOT.TFile("Results/corr_histos.root","R")
+root_file=ROOT.TFile("Results/histos.root","R")
 #root_file=ROOT.TFile("Results/Raw/Root/corr_histos_120.root","R")
 
 tD_histo=root_file.Get("trigger_dataset_corr")
@@ -251,14 +251,14 @@ for i in range(0,tD_histo.GetNbinsX()):
                 y_bin_label = trigger
                 if len(trigger) > max_y_label_length: y_bin_label = trigger[:max_y_label_length]
                 triggerDataset_histo[inumber].GetYaxis().SetBinLabel(jnumber, y_bin_label)
-                bin_content = round(tD_histo.GetBinContent(ii, jj),1)
+                bin_content = round(tD_histo.GetBinContent(ii, jj),2)
                 if bin_content > 5: bin_content = round(tD_histo.GetBinContent(ii, jj),0)
                 triggerDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
 
                 if dataset2 in triggersDatasetMap[trigger]:
                     iii+=1
                     triggerDataset_histo[inumber].GetXaxis().SetBinLabel(iii, dataset2+"**")
-                    bin_content = round(tD_histo.GetBinContent(tD_histo.GetNbinsX(), jj),1)
+                    bin_content = round(tD_histo.GetBinContent(tD_histo.GetNbinsX(), jj),2)
                     if bin_content > 5: bin_content = round(tD_histo.GetBinContent(tD_histo.GetNbinsX(), jj),0)
                     triggerDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
                     
@@ -268,7 +268,6 @@ nxentries = len(good_datasets)+1-4
 for i in range(0,newtD_histo.GetNbinsX()):
     dataset = newtD_histo.GetXaxis().GetBinLabel(i+1)
     if not newDatasetOK(dataset): continue
-    print dataset
     nbinsY=0
     triggerList=[]
     for j in range(1,newtD_histo.GetNbinsY()+1):
@@ -325,7 +324,7 @@ for i in range(0,newtD_histo.GetNbinsX()):
                 y_bin_label = trigger
                 if len(trigger) > max_y_label_length: y_bin_label = trigger[:max_y_label_length]
                 triggerNewDataset_histo[inumber].GetYaxis().SetBinLabel(jnumber, y_bin_label)
-                bin_content = round(newtD_histo.GetBinContent(ii, jj),1)
+                bin_content = round(newtD_histo.GetBinContent(ii, jj),2)
                 if bin_content > 5: bin_content = round(newtD_histo.GetBinContent(ii, jj),0)
                 triggerNewDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
 
@@ -339,9 +338,8 @@ for i in range(0,newtD_histo.GetNbinsX()):
                             break
                 if doIt:
                     iii+=1
-                    print dataset2+"**"
                     triggerNewDataset_histo[inumber].GetXaxis().SetBinLabel(iii, dataset2+"**")
-                    bin_content = round(newtD_histo.GetBinContent(newtD_histo.GetNbinsX(), jj),1)
+                    bin_content = round(newtD_histo.GetBinContent(newtD_histo.GetNbinsX(), jj),2)
                     if bin_content > 5: bin_content = round(newtD_histo.GetBinContent(newtD_histo.GetNbinsX(), jj),0)
                     triggerNewDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
                     
@@ -407,7 +405,7 @@ for k in range(1,dD_histo.GetNbinsX()+1):
         if not datasetOK(dataset2): continue
         ll+=1
         datasetDataset_histo.GetYaxis().SetBinLabel(ll, dataset2)
-        bin_content=round(dD_histo.GetBinContent(k,l),1)
+        bin_content=round(dD_histo.GetBinContent(k,l),2)
         if bin_content > 5: bin_content = round(dD_histo.GetBinContent(k, l),0)
         datasetDataset_histo.SetBinContent(kk, ll, bin_content)
                             
@@ -444,7 +442,7 @@ for k in range(1,newdD_histo.GetNbinsX()+1):
         if not newDatasetOK(dataset2): continue
         ll+=1
         newDatasetNewDataset_histo.GetYaxis().SetBinLabel(ll, dataset2)
-        bin_content=round(newdD_histo.GetBinContent(k,l),1)
+        bin_content=round(newdD_histo.GetBinContent(k,l),2)
         if bin_content > 5: bin_content = round(newdD_histo.GetBinContent(k, l),0)
         newDatasetNewDataset_histo.SetBinContent(kk, ll, bin_content)
                             
