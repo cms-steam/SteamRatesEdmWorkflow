@@ -32,6 +32,14 @@ datasetStreamMap = {
 }
 
 
+newDatasetMap = {
+        'DoubleEG'       : 'EG',
+        'SingleElectron' : 'EG',
+        'SinglePhoton'   : 'EG',
+        'BTagCSV'        : 'JetHTMHTBTagCSV',
+        'HTMHT'          : 'JetHTMHTBTagCSV',
+        'JetHT'          : 'JetHTMHTBTagCSV',
+}
 
 
 streamMap = {

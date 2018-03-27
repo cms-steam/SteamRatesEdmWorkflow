@@ -27,22 +27,25 @@ inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGro
 #Are these raw data files?
 #If yes, are you running specifically on L1Accept files? Then file_type = "L1Accept"
 #Are you running on other non-L1Accept data files? Then file_type = "RAW"
-file_type = "L1Accept"#"RAW"#"custom"
+file_type = "RAW"#"L1Accept"#"custom"
 
 #Directory where the top of your CMSSW release is located
 cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/2017_STEAM/For_Data/CMSSW_9_2_12/src"
 
 #Json file
-json_file = "/afs/cern.ch/work/d/dbeghin/public/json/json_306154_PS2_LS93_PU57.txt"
+json_file =  "/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Cheng_HLTv4p1/json_DCS_305636_1.5e34_FullRange.txt"
+
+#Do you wish to test dataset merging? (Make sure you have the merging maps)
+datasetMerging = True
 
 #Do you wish to use any unusual (non-default) options for the batch queue, and the number of files processed per job?
 #If you do, set the following boolean to True
 isUnusual = True
 #If you do, please also specify the following parameters:
 #number of files processed per job
-n = 1
+n = 3
 #Batch queue where you wish to send the jobs
-queue = "8nh"
+queue = "1nh"
 '''
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
@@ -58,6 +61,8 @@ else:
 if isUnusual:
     command += " -n %s -q %s" %(n, queue)
 
+if datasetMerging:
+    command += " -m yes"
 os.system(command)
 
 
