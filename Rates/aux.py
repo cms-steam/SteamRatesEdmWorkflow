@@ -31,10 +31,13 @@ mergeNames = {
 "output.path.physics"         : "PathPhysics",
 "output.path.scouting"        : "PathScouting",
 "output.dataset.physics"      : "DatasetPhysics",
+"output.newDataset.physics"   : "NewDatasetPhysics",
 "output.dataset.scouting"     : "DatasetScouting",
 "output.group"                : "Group",
 "output.dataset_dataset_corr" : "DatasetDatasetCorr",
 "output.trigger_dataset_corr" : "TriggerDatasetCorr",
+"output.newDataset_newDataset_corr" : "NewDatasetDatasetCorr",
+"output.trigger_newDataset_corr" : "NewTriggerDatasetCorr",
 }
 
 

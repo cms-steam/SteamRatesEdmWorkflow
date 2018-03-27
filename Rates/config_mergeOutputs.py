@@ -11,16 +11,19 @@ import sys
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
 #Do you wish to draw the figures? If you have a slow connection, drawing might take a while
-makeFigures = False
+makeFigures = True
 
 #Write the average instant lumi of the json you ran over
-lumi_in =  1.5e34
+lumi_in =  1.45e34
 
 #Write the TARGET lumi for which you wish to calculate rates
 lumi_target = 1.5e34
 
 #Write the HLT prescale used in the json you ran over
-hlt_ps = 10
+hlt_ps = 1160
+
+#Do you want to test dataset merging? (Make sure this option was enabled when making the counting jobs)
+datasetMerging = True
 
 #Do you wish to take input files from an unusual location (different from the default one)?
 #If you do, set the following boolean to True
@@ -39,8 +42,14 @@ if diffLoc:
 else:
     command = "python mergeOutputs.py -l %s -t %s -p %s" %(lumi_in, lumi_target, hlt_ps)
 
+if datasetMerging:
+    command += " -m yes"
+
 os.system(command)
-if makeFigures: os.system("python Draw.py")
+if makeFigures: 
+    comm2 = "python Draw.py"
+    if datasetMerging: comm2 += " -m yes"
+    os.system(comm2)
 
 
 

@@ -10,7 +10,6 @@ import sys
 #from makeListsOfRawOutputs import masterDic
 #from makeListsOfRawOutputs import rootFiles as rootList
 from Menu_HLT import datasetStreamMap
-from Menu_HLT import newDatasetMap
 from aux import makeIncreasingList
 from aux import makeListsOfRawOutputs
 import csv
@@ -22,15 +21,20 @@ parser.add_option("-l","--lumiin",dest="lumiIn",type="float",default=-1,help="VA
 parser.add_option("-t","--lumitarget",dest="lumiTarget",type="float",default=-1,help="VALUE corresponding to the target instant lumi for which you wish to calculate your rates",metavar="VALUE")
 parser.add_option("-p","--hltps",dest="hltPS",type="int",default=-1,help="PRESCALE of the HLT_physics trigger",metavar="PRESCALE")
 parser.add_option("-d","--dir",dest="inDir",type="str",default="Results/Raw",help="DIR where the output of the batch jobs are located",metavar="DIR")
+parser.add_option("-m","--merging",dest="newDataset",type="str",default="no",help="Are you testing the merging of datasets? yes/no")
 
 opts, args = parser.parse_args()
 
+if opts.newDataset == "yes":
+    from Menu_HLT import newDatasetMap
+
 error_text = '\nError: wrong inputs\n'
-help_text = '\npython mergeOutputs.py -l <lumiin> -t <lumitarget> -p <hltps> -d <dir>\n'
+help_text = '\npython mergeOutputs.py -l <lumiin> -t <lumitarget> -p <hltps> -d <dir> -m <merging>\n'
 help_text += '(mandatory argument) <lumiin> = VALUE corresponding to the average instant lumi in your json\n'
 help_text += '(mandatory) <lumitarget> = VALUE corresponding to the target instant lumi for which you wish to calculate your rates\n'
 help_text += '(mandatory) <hltps> = PRESCALE of the HLT_physics trigger\n'
 help_text += '(optional) <dir> = DIR where the output of the batch jobs are located\n'
+help_text += '(optional) <merging> testing dataset merging  = "yes" or "no" (default option)"\n'
 if opts.lumiIn == -1 or opts.lumiTarget == -1 or opts.hltPS == -1:
     print error_text
     print help_text
@@ -80,7 +84,13 @@ sorted_stream_list = []
 #first we make sure the streams are the first on the keyList
 keyList = ["output.stream.csv"]
 for key in masterDic:
-    if key != "output.stream.csv": keyList.append(key)
+    append = True
+    if key == "output.stream.csv":
+        append = False
+    elif opts.newDataset == "no":
+        if "new" in key:
+            append = False
+    if append: keyList.append(key)
 
 for i in range(0, len(keyList)):
     key = keyList[i]
@@ -229,8 +239,9 @@ root_file.cd()
 
 tD_histo = root_file.Get("trigger_dataset_corr")
 dD_histo = root_file.Get("dataset_dataset_corr")
-newtD_histo = root_file.Get("trigger_newDataset_corr")
-newdD_histo = root_file.Get("newDataset_newDataset_corr")
+if opts.newDataset == "yes":
+    newtD_histo = root_file.Get("trigger_newDataset_corr")
+    newdD_histo = root_file.Get("newDataset_newDataset_corr")
 
 
 
@@ -251,8 +262,9 @@ sorted_trigger_list = makeIncreasingList(trigger_map)
 #sorting datasets
 sorted_dataset_list = []
 dataset_index_map = {}
-sorted_newDataset_list = []
-newDataset_index_map = {}
+if opts.newDataset == "yes":
+    sorted_newDataset_list = []
+    newDataset_index_map = {}
 for i in range(len(sorted_stream_list)-1,-1,-1):
     stream = sorted_stream_list[i]
     processed_datasets = []
@@ -273,19 +285,22 @@ for i in range(len(sorted_stream_list)-1,-1,-1):
                 min_dataset = dD_histo.GetYaxis().GetBinLabel(j)
         if min_dataset != "": sorted_dataset_list.append(min_dataset)
         processed_datasets.append(min_dataset)
-        newDataset = min_dataset
-        if min_dataset in newDatasetMap.keys():
-            newDataset = newDatasetMap[min_dataset]
-        if newDataset != "" and not (newDataset in sorted_newDataset_list):
-            sorted_newDataset_list.append(newDataset)
+        if opts.newDataset == "yes":
+            newDataset = min_dataset
+            if min_dataset in newDatasetMap.keys():
+                newDataset = newDatasetMap[min_dataset]
+            if newDataset != "" and not (newDataset in sorted_newDataset_list):
+                sorted_newDataset_list.append(newDataset)
 
 sorted_dataset_list.append("NonPure")
-sorted_newDataset_list.append("NonPure")
+if opts.newDataset == "yes":
+    sorted_newDataset_list.append("NonPure")
 dataset_index_map["NonPure"] = tD_histo.GetNbinsX()
 
-for jj in range(1,newtD_histo.GetNbinsX()+1):
-    dataset = newtD_histo.GetXaxis().GetBinLabel(jj)
-    newDataset_index_map[dataset] = jj                
+if opts.newDataset == "yes":
+    for jj in range(1,newtD_histo.GetNbinsX()+1):
+        dataset = newtD_histo.GetXaxis().GetBinLabel(jj)
+        newDataset_index_map[dataset] = jj                
 
 
 
@@ -318,52 +333,54 @@ for i in range(0,len(sorted_dataset_list)):
         if (i == 0) : tD_histo_sorted.GetYaxis().SetBinLabel(j+1, trigger)
 
 
-
-newtD_histo_sorted = ROOT.TH2F("trigger_newDataset_corr_2", "New Trigger-Dataset Correlations", len(sorted_newDataset_list), 0, len(sorted_newDataset_list), len(sorted_trigger_list), 0, len(sorted_trigger_list))
-newdD_histo_sorted = ROOT.TH2F("newDataset_newDataset_corr_2", "New Dataset-Dataset Correlations", len(sorted_newDataset_list)-1, 0, len(sorted_newDataset_list)-1, len(sorted_newDataset_list)-1, 0, len(sorted_newDataset_list)-1)
-
-
-for i in range(0,len(sorted_newDataset_list)):
-    dataset = sorted_newDataset_list[i]
-    ii = newDataset_index_map[dataset]
-
-    if dataset != "NonPure": newdD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
-    newtD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
-    for j in range(0,len(sorted_newDataset_list)-1):
-        if dataset == "NonPure": break
-        dataset2 = sorted_newDataset_list[j]
-        jj = newDataset_index_map[dataset2]
-        #print dataset, dD_histo.GetXaxis().GetBinLabel(ii)
-        bin_content = newdD_histo.GetBinContent(ii, jj)*scaleFactor
-        newdD_histo_sorted.SetBinContent(i+1, j+1, bin_content)
-
-        if (i == 0) : newdD_histo_sorted.GetYaxis().SetBinLabel(j+1, dataset2)
-
-    for j in range(0,len(sorted_trigger_list)):
-        trigger = sorted_trigger_list[j]
-        jj = trigger_index_map[trigger]
-        bin_content = newtD_histo.GetBinContent(ii, jj)*scaleFactor
-        newtD_histo_sorted.SetBinContent(i+1, j+1, bin_content)
-
-        if (i == 0) : newtD_histo_sorted.GetYaxis().SetBinLabel(j+1, trigger)
+if opts.newDataset == "yes":
+    newtD_histo_sorted = ROOT.TH2F("trigger_newDataset_corr_2", "New Trigger-Dataset Correlations", len(sorted_newDataset_list), 0, len(sorted_newDataset_list), len(sorted_trigger_list), 0, len(sorted_trigger_list))
+    newdD_histo_sorted = ROOT.TH2F("newDataset_newDataset_corr_2", "New Dataset-Dataset Correlations", len(sorted_newDataset_list)-1, 0, len(sorted_newDataset_list)-1, len(sorted_newDataset_list)-1, 0, len(sorted_newDataset_list)-1)
+    
+    
+    for i in range(0,len(sorted_newDataset_list)):
+        dataset = sorted_newDataset_list[i]
+        ii = newDataset_index_map[dataset]
+    
+        if dataset != "NonPure": newdD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
+        newtD_histo_sorted.GetXaxis().SetBinLabel(i+1, dataset)
+        for j in range(0,len(sorted_newDataset_list)-1):
+            if dataset == "NonPure": break
+            dataset2 = sorted_newDataset_list[j]
+            jj = newDataset_index_map[dataset2]
+            #print dataset, dD_histo.GetXaxis().GetBinLabel(ii)
+            bin_content = newdD_histo.GetBinContent(ii, jj)*scaleFactor
+            newdD_histo_sorted.SetBinContent(i+1, j+1, bin_content)
+    
+            if (i == 0) : newdD_histo_sorted.GetYaxis().SetBinLabel(j+1, dataset2)
+    
+        for j in range(0,len(sorted_trigger_list)):
+            trigger = sorted_trigger_list[j]
+            jj = trigger_index_map[trigger]
+            bin_content = newtD_histo.GetBinContent(ii, jj)*scaleFactor
+            newtD_histo_sorted.SetBinContent(i+1, j+1, bin_content)
+    
+            if (i == 0) : newtD_histo_sorted.GetYaxis().SetBinLabel(j+1, trigger)
 
 
 #Write the sorted histos
 root_file.Delete("trigger_dataset_corr;1")
 root_file.Delete("dataset_dataset_corr;1")
 
-root_file.Delete("trigger_newDataset_corr;1")
-root_file.Delete("newDataset_newDataset_corr;1")
+if opts.newDataset == "yes":
+    root_file.Delete("trigger_newDataset_corr;1")
+    root_file.Delete("newDataset_newDataset_corr;1")
 
 tD_histo_sorted.SetName("trigger_dataset_corr")
 dD_histo_sorted.SetName("dataset_dataset_corr")
 tD_histo_sorted.Write()
 dD_histo_sorted.Write()
 
-newtD_histo_sorted.SetName("trigger_newDataset_corr")
-newdD_histo_sorted.SetName("newDataset_newDataset_corr")
-newtD_histo_sorted.Write()
-newdD_histo_sorted.Write()
+if opts.newDataset == "yes":
+    newtD_histo_sorted.SetName("trigger_newDataset_corr")
+    newdD_histo_sorted.SetName("newDataset_newDataset_corr")
+    newtD_histo_sorted.Write()
+    newdD_histo_sorted.Write()
 
 root_file.Close()
 
