@@ -165,6 +165,9 @@ events = Events (opts.inputFile)
 runAndLsList = []
 atLeastOneEvent = False
 nEvents = 0
+save=0
+s_triggerKey=""
+s_dataset1=""
 for event in events: 
     n += 1
     #if n == 10000: break
@@ -204,8 +207,7 @@ for event in events:
                 if not stream in streamList:
                     streamCounts.update({str(stream):0})
                     streamList.append(stream)
-            
-
+        #print primaryDatasetList
         #inizialize the number of passed events
         for i in range(len(myPaths)):
             myPassedEvents[myPaths[i]]=0
@@ -216,26 +218,26 @@ for event in events:
             aux_dic = {}
             for dataset2 in primaryDatasetList:
                 aux_dic[dataset2] = 0
-            datasetDatasetCorrMatrix[dataset1] = aux_dic
+            datasetDatasetCorrMatrix[dataset1] = aux_dic.copy()
             aux_dic={}
             for trigger in myPaths:
                 triggerKey = trigger.rstrip("0123456789")
                 aux_dic[triggerKey] = 0
-            triggerDatasetCorrMatrix[dataset1] = aux_dic
-        triggerDatasetCorrMatrix[dummy_nonpure] = aux_dic
+            triggerDatasetCorrMatrix[dataset1] = aux_dic.copy()
+        triggerDatasetCorrMatrix[dummy_nonpure] = aux_dic.copy()
 
         if opts.newDataset == "yes":
             for dataset1 in newDatasetList:
                 aux_dic = {}
                 for dataset2 in newDatasetList:
                     aux_dic[dataset2] = 0
-                newDatasetNewDatasetCorrMatrix[dataset1] = aux_dic
+                newDatasetNewDatasetCorrMatrix[dataset1] = aux_dic.copy()
                 aux_dic={}
                 for trigger in myPaths:
                     triggerKey = trigger.rstrip("0123456789")
                     aux_dic[triggerKey] = 0
-                triggerNewDatasetCorrMatrix[dataset1] = aux_dic
-            triggerNewDatasetCorrMatrix[dummy_nonpure] = aux_dic
+                triggerNewDatasetCorrMatrix[dataset1] = aux_dic.copy()
+            triggerNewDatasetCorrMatrix[dummy_nonpure] = aux_dic.copy()
 
 
     #check if event is in the json range
@@ -260,7 +262,6 @@ for event in events:
                     isDSTPhysics = True
         if not isDSTPhysics:
             continue
-
 
     iPath = 0       
 
@@ -331,6 +332,7 @@ for event in events:
                         kPassedEventScouting = True
 
         iPath = iPath+1        
+    #if (n> 6584 and n<=7318) or (n==7569) or n==6209: print n,triggerDatasetCorrMatrix[dummy_nonpure]["HLT_IsoMu27_v"]
     for dataset1 in primaryDatasetList:
         if datasetsLatestCounts[dataset1] == 0: continue
         for dataset2 in primaryDatasetList:
@@ -339,7 +341,7 @@ for event in events:
         for trigger in myPaths:
             if not triggerCountsBool[trigger]: continue
             triggerKey = trigger.rstrip("0123456789")
-            triggerDatasetCorrMatrix[dataset1][triggerKey] += 1
+            triggerDatasetCorrMatrix[dataset1][triggerKey] += 1 #somehow this is increasing the non-pure rate when dataset1 = unassigned
             if triggerKey in datasets.keys():
                 if (dataset1 in triggersDatasetMap[triggerKey]) and datasetsLatestCounts[dataset1] > 1:
                     triggerDatasetCorrMatrix[dummy_nonpure][triggerKey] += 1
@@ -365,7 +367,6 @@ for event in events:
                                     bUseDummy = True
                                     break
                 if bUseDummy: triggerNewDatasetCorrMatrix[dummy_nonpure][triggerKey] += 1
-                    
 
     if len(myGroupFired) == 1:
         groupCountsPure[myGroupFired[0]] = groupCountsPure[myGroupFired[0]] + 1            
@@ -374,7 +375,6 @@ for event in events:
         groupCountsShared[group] = groupCountsShared[group] + 1./len(myGroupFired)
 
     nEvents += 1
-
 
 n += 1
 #We'll only write the results if there's at least one event
