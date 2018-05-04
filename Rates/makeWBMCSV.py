@@ -41,7 +41,7 @@ if opts.cookie == "nocookie":
     print "\nYou didn't provide a path to your cookies. I'm assuming you have already set up your cookies properly.\nIf the script crashes, please use the --cookie option. Try 'python makeWBMCSV.py --help' for help.\n"
 else:
     print "\nGetting cookies... If this doesn't work, it's probably because you set up a CMS environment ('cmsenv'). If so, try again with a new terminal.\n...\n"
-    os.system("export SSO_COOKIE=%s" %opts.cookie)
+    os.environ["SSO_COOKIE"] = opts.cookie
     os.system("cern-get-sso-cookie --krb -r -u https://cmswbm.cern.ch/cmsdb/servlet -o $SSO_COOKIE")
 
 from cernSSOWebParser2 import parseURLTables
