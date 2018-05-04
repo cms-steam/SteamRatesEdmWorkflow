@@ -197,7 +197,10 @@ for i in range(0, len(keyList)):
     for row in reader:
         if firstRow:
             firstRow = False
-            if "dataset." in key: mergedFile.write("Stream, ")
+            if "dataset." in key:
+                mergedFile.write("Stream, ")
+            elif ".path." in key:
+                mergedFile.write("Path (w/ version number), ")
             mergedFile.write(row[0])
             for i in range(1, len(row)):
                 mergedFile.write(", " + row[i])
