@@ -207,13 +207,17 @@ for i in range(0, len(keyList)):
     
     for i in range(0, len(sorted_list)):
         kkey = sorted_list[i]
+        wkey = kkey
         if "dataset." in key:
             if kkey in datasetStreamMap.keys():
                 mergedFile.write(datasetStreamMap[kkey] + ", ")
             else:
                 mergedFile.write("nostream, ")
-        mergedFile.write(kkey)
-        if columnOneIsGroups: mergedFile.write( " ," + groupsDic[kkey] )
+        elif ".path." in key:
+            mergedFile.write(wkey + ", ")
+            wkey = wkey.rstrip("0123456789")
+        mergedFile.write(wkey)
+        if columnOneIsGroups: mergedFile.write( ", " + groupsDic[kkey] )
         for i in range(0, len(countsDic[kkey])):
             if ("_dataset_" in key) or ("_newDataset_" in key):
                 mergedFile.write(  ", " + str( round(countsDic[kkey][i]*scaleFactor,2) )  )
