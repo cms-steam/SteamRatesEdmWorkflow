@@ -536,25 +536,23 @@ if atLeastOneEvent:
             triggerNewDataset_file.close()
     
         physics_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.physics']+'/output.dataset.physics'+final_string+'.csv', 'w')
-        scouting_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.scouting']+'/output.dataset.scouting'+final_string+'.csv', 'w')
+        misc_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.misc']+'/output.dataset.misc'+final_string+'.csv', 'w')
         
         physics_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
-        scouting_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
+        misc_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
         i = 0
         for key in primaryDatasetList:
             isPhysicsDataset = False
-            isScoutingDataset = False
         
             for trigger in myPaths:
                 triggerKey = trigger.rstrip("0123456789")
                 if physicsStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isPhysicsDataset = True
-                if scoutingStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isScoutingDataset = True
             if isPhysicsDataset:
                 physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))
                 physics_dataset_file.write('\n')
-            if isScoutingDataset:
-                scouting_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))
-                scouting_dataset_file.write('\n')
+            else:
+                misc_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))
+                misc_dataset_file.write('\n')
         
             i += 1
             datasetDataset_file.write(key)

@@ -222,6 +222,8 @@ for i in range(0, len(keyList)):
         else:
             break
     
+    total_count = 0
+    total_rate = 0
     for i in range(0, len(sorted_list)):
         kkey = sorted_list[i]
         wkey = kkey
@@ -241,9 +243,13 @@ for i in range(0, len(keyList)):
             else:
                 if i%2 == 0:
                     mergedFile.write(  ", " + str( countsDic[kkey][i]                      )  )
+                    total_count +=                 countsDic[kkey][i]
                 else:
                     mergedFile.write(  ", " + str( round(countsDic[kkey][i]*scaleFactor,2) )  )
+                    total_rate +=                        countsDic[kkey][i]*scaleFactor
         mergedFile.write("\n")
+    if "dataset." in key:
+        mergedFile.write(", Sum, %s, %s\n" %(total_count, round(total_rate,2)) )
     mergedFile.close()
 
 

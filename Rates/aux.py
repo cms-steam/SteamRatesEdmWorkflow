@@ -34,7 +34,7 @@ mergeNames = {
 "output.path.misc"            : "PathMisc",
 "output.dataset.physics"      : "DatasetPhysics",
 "output.newDataset.physics"   : "NewDatasetPhysics",
-"output.dataset.scouting"     : "DatasetScouting",
+"output.dataset.misc"         : "DatasetMisc",
 "output.group"                : "Group",
 "output.dataset_dataset_corr" : "DatasetDatasetCorr",
 "output.trigger_dataset_corr" : "TriggerDatasetCorr",
