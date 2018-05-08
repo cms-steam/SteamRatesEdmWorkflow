@@ -30,6 +30,8 @@ mergeNames = {
 "output.stream"               : "Stream",
 "output.path.physics"         : "PathPhysics",
 "output.path.scouting"        : "PathScouting",
+"output.path.parking"         : "PathParking",
+"output.path.misc"            : "PathMisc",
 "output.dataset.physics"      : "DatasetPhysics",
 "output.newDataset.physics"   : "NewDatasetPhysics",
 "output.dataset.scouting"     : "DatasetScouting",
@@ -61,6 +63,14 @@ def scoutingStreamOK(triggerName):
     if triggerName in triggersStreamMap.keys():
         for stream in triggersStreamMap[triggerName]:
             if (stream.startswith("Scouting")):
+                result = True
+    return result
+
+def parkingStreamOK(triggerName):
+    result=False
+    if triggerName in triggersStreamMap.keys():
+        for stream in triggersStreamMap[triggerName]:
+            if ("Parking" in stream):
                 result = True
     return result
 

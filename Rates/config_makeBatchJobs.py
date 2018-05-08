@@ -27,7 +27,9 @@ inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGro
 #Are these raw data files?
 #If yes, are you running specifically on L1Accept files? Then file_type = "L1Accept"
 #Are you running on other non-L1Accept data files? Then file_type = "RAW"
-file_type = "RAW"#"L1Accept"#"custom"
+file_type = "RAW"
+#file_type = "L1Accept"
+#file_type = "custom"
 
 #Directory where the top of your CMSSW release is located
 cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/2017_STEAM/For_Data/CMSSW_9_2_12/src"
@@ -35,8 +37,11 @@ cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/2017_STEAM/For_Data/CMSSW_9_2_12/sr
 #Json file
 json_file =  "/afs/cern.ch/user/n/ndaci/public/STEAM/Production/Cheng_HLTv4p1/json_DCS_305636_1.5e34_FullRange.txt"
 
-#Do you wish to test dataset merging? (Make sure you have the merging maps)
-datasetMerging = True
+#Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
+#If you don't want to use any maps, set the variable below to "nomaps"
+maps = "nomaps" #recommended if you're an HLT dev
+#maps = "somemaps" #if you want dataset/group/etc. rates but no dataset merging study
+#maps = "allmaps" #if you want to study dataset merging
 
 #Do you wish to use any unusual (non-default) options for the batch queue, and the number of files processed per job?
 #If you do, set the following boolean to True
@@ -61,8 +66,7 @@ else:
 if isUnusual:
     command += " -n %s -q %s" %(n, queue)
 
-if datasetMerging:
-    command += " -m yes"
+command += " -m %s" %maps
 os.system(command)
 
 
