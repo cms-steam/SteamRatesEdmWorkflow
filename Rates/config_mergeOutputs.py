@@ -20,13 +20,13 @@ lumi_target = 1.5e34
 hlt_ps = 1160
 
 #Maps option should be the same one you use to make the batch jobs
-maps = "nomaps"
-#maps = "somemaps"
+#maps = "nomaps"
+maps = "somemaps"
 #maps = "allmaps"
 
 #Do you wish to draw the figures? If you have a slow connection, drawing might take a while
 #This boolean will be set to False if you used the "nomaps" option
-makeFigures = True
+makeFigures = False
 
 #Do you wish to take input files from an unusual location (different from the default one)?
 #If you do, set the following boolean to True

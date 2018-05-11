@@ -233,6 +233,7 @@ for event in events:
         if bUseMaps:
             #Initialize the correlation matrices
             dummy_nonpure = "NonPure"
+            aux_dic = {}
             for dataset1 in primaryDatasetList:
                 aux_dic = {}
                 for dataset2 in primaryDatasetList:

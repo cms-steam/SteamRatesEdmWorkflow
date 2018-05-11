@@ -24,6 +24,7 @@ parser=OptionParser()
 parser.add_option("-p","--prescale",dest="PS",type="str",default="Index1",help="PRESCALE column which was used when the WBM data was taken",metavar="PRESCALE")
 parser.add_option("-r","--run",dest="RUN",type="int",default=-1,help="Run NUMBER",metavar="NUMBER")
 parser.add_option("-l","--ls",dest="LS",type="str",default="noLS",help="starting and final lumi sections, separated by '-', LS_begin-LS_end")
+parser.add_option("-s","--scaling",dest="scaleFactor",type="str",default="1",help="luminosity scaling you want to apply, you can write it as ratio ('2.0e34/1.12e33') or as a number ('1.6'). '1' is the default scaling")
 parser.add_option("-c","--cookie",dest="cookie",type="str",default="nocookie",help="PATH to the temporary directory where you want to store your CERN cookie\nTemplate: /tmp/USERNAME_sso",metavar="PATH")
 
 opts, args = parser.parse_args()
@@ -43,6 +44,15 @@ else:
     print "\nGetting cookies... If this doesn't work, it's probably because you set up a CMS environment ('cmsenv'). If so, try again with a new terminal.\n...\n"
     os.environ["SSO_COOKIE"] = opts.cookie
     os.system("cern-get-sso-cookie --krb -r -u https://cmswbm.cern.ch/cmsdb/servlet -o $SSO_COOKIE")
+
+sf = 1.0
+if '/' in opts.scaleFactor:
+    division_terms = opts.scaleFactor.split('/')
+    sf = float(division_terms[0])/float(division_terms[1])
+else:
+    sf = float(opts.scaleFactor)
+print "Rates will be scaled by your input %s = %s" %(opts.scaleFactor, sf)
+
 
 from cernSSOWebParser2 import parseURLTables
 #https://cmswbm.cern.ch/cmsdb/servlet/HLTSummary?fromLS=14&toLS=17&RUN=306154
@@ -113,7 +123,6 @@ for i in range(0, len(tables)):
 
         HLTKey = HLTpath.rstrip("0123456789 )(")
         HLTKey = HLTKey.strip(" ")
-        if not (HLTKey.startswith("HLT_") or HLTKey.startswith("DST_")): continue
 
         #Find L1 PS using the L1 prescale map
         L1ps = -1
@@ -152,7 +161,10 @@ for i in range(0, len(tables)):
         HLTKey = HLTKey.strip(" ")
         if not HLTKey in map_PS.keys(): continue
         count = str(tables[i][j][count_column]).strip(" ")
+        count = count.replace(",", "")
         rate = str(tables[i][j][rate_column]).strip(" ")
+        rate = rate.replace(",", "")
+        rate = str(float(rate)*sf)
         file_out.write( '%s, %s, %s, %s, %s\n'%(HLTKey, map_PS[HLTKey][0], map_PS[HLTKey][1], count, rate) )
     break
 

@@ -1,8 +1,0 @@
-Stream, Dataset,  Counts,  Rates (Hz)
-PhysicsCommissioning, ZeroBias, 337, 17348.78
-PhysicsCommissioning, HLTPhysics, 103, 5302.45
-PhysicsCommissioning, NoBPTX, 41, 2110.68
-PhysicsCommissioning, Commissioning, 4, 205.92
-PhysicsCommissioning, IsolatedBunch, 0, 0.0
-ScoutingCaloMuon, ScoutingCaloMuon, 401, 20643.5
-, Sum, 886, 45611.33
