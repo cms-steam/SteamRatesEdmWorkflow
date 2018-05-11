@@ -1,0 +1,232 @@
+Path (w/ version number), Path,  Groups,  Counts,  Rates (Hz)
+MC_CaloMET_JetIdCleaned_v9, MC_CaloMET_JetIdCleaned_v,  , 10017, 515675.68
+DST_Physics_v7, DST_Physics_v,  , 10017, 515675.68
+HLT_Physics_part6_v7, HLT_Physics_part6_v,  TSG , 10017, 515675.68
+HLT_Physics_part5_v7, HLT_Physics_part5_v,  TSG , 10017, 515675.68
+HLT_Physics_part3_v7, HLT_Physics_part3_v,  TSG , 10017, 515675.68
+MC_CaloMET_v8, MC_CaloMET_v,  , 10017, 515675.68
+HLT_Physics_part2_v7, HLT_Physics_part2_v,  TSG , 10017, 515675.68
+MC_PFMHT_v15, MC_PFMHT_v,  , 10017, 515675.68
+MC_PFMET_v16, MC_PFMET_v,  , 10017, 515675.68
+HLT_Physics_part4_v7, HLT_Physics_part4_v,  TSG , 10017, 515675.68
+HLT_Physics_part1_v7, HLT_Physics_part1_v,  TSG , 10017, 515675.68
+MC_CaloMHT_v8, MC_CaloMHT_v,  , 10017, 515675.68
+HLT_Physics_part0_v7, HLT_Physics_part0_v,  TSG , 10017, 515675.68
+Total Misc, Total Misc,  , 10017, 515675.68
+HLT_Physics_part7_v7, HLT_Physics_part7_v,  TSG , 10017, 515675.68
+MC_ReducedIterativeTracking_v12, MC_ReducedIterativeTracking_v,  , 10017, 515675.68
+MC_AK8CaloHT_v8, MC_AK8CaloHT_v,  , 9919, 510630.63
+MC_AK8PFHT_v15, MC_AK8PFHT_v,  , 9786, 503783.78
+MC_AK8TrimPFJets_v16, MC_AK8TrimPFJets_v,  , 9725, 500643.5
+MC_CaloHT_v8, MC_CaloHT_v,  , 9541, 491171.17
+MC_AK4CaloJets_v9, MC_AK4CaloJets_v,  , 9445, 486229.09
+MC_AK8PFJets_v16, MC_AK8PFJets_v,  , 9055, 466151.87
+MC_PFHT_v15, MC_PFHT_v,  , 8925, 459459.46
+MC_AK4PFJets_v16, MC_AK4PFJets_v,  , 7848, 404015.44
+MC_AK4CaloJetsFromPV_v7, MC_AK4CaloJetsFromPV_v,  , 6790, 349549.55
+MC_PFBTagDeepCSV_v9, MC_PFBTagDeepCSV_v,  , 1244, 64041.18
+MC_CaloBTagDeepCSV_v7, MC_CaloBTagDeepCSV_v,  , 1030, 53024.45
+AlCa_EcalPi0EBonly_v13, AlCa_EcalPi0EBonly_v,  ALCA ECAL , 862, 44375.8
+AlCa_RPCMuonNormalisation_v13, AlCa_RPCMuonNormalisation_v,  RPC , 680, 35006.44
+DST_DoubleMu1_noVtx_CaloScouting_v2, DST_DoubleMu1_noVtx_CaloScouting_v,  , 415, 21364.22
+AlCa_EcalPhiSym_v9, AlCa_EcalPhiSym_v,  ALCA ECAL , 333, 17142.86
+HLT_HT300_Beamspot_v10, HLT_HT300_Beamspot_v,  , 285, 14671.81
+HLT_ZeroBias_part7_v6, HLT_ZeroBias_part7_v,  TSG , 237, 12200.77
+HLT_ZeroBias_part4_v6, HLT_ZeroBias_part4_v,  TSG , 237, 12200.77
+HLT_ZeroBias_part0_v6, HLT_ZeroBias_part0_v,  TSG , 237, 12200.77
+HLT_ZeroBias_Beamspot_v3, HLT_ZeroBias_Beamspot_v,  , 237, 12200.77
+HLT_ZeroBias_part5_v6, HLT_ZeroBias_part5_v,  TSG , 237, 12200.77
+HLT_ZeroBias_v6, HLT_ZeroBias_v,  ALCA TSG , 237, 12200.77
+HLT_AK8PFJetFwd15_v2, HLT_AK8PFJetFwd15_v,  , 237, 12200.77
+HLT_ZeroBias_part1_v6, HLT_ZeroBias_part1_v,  TSG , 237, 12200.77
+HLT_ZeroBias_part3_v6, HLT_ZeroBias_part3_v,  TSG , 237, 12200.77
+DST_ZeroBias_v2, DST_ZeroBias_v,  , 237, 12200.77
+AlCa_LumiPixels_ZeroBias_v8, AlCa_LumiPixels_ZeroBias_v,  ALCA LUMI , 237, 12200.77
+HLT_ZeroBias_part2_v6, HLT_ZeroBias_part2_v,  TSG , 237, 12200.77
+HLT_ZeroBias_part6_v6, HLT_ZeroBias_part6_v,  TSG , 237, 12200.77
+HLT_AK8PFJet25_v2, HLT_AK8PFJet25_v,  , 235, 12097.81
+HLT_PFJet15_v2, HLT_PFJet15_v,  , 230, 11840.41
+HLT_AK8PFJetFwd25_v2, HLT_AK8PFJetFwd25_v,  , 229, 11788.93
+HLT_PFJetFwd15_v2, HLT_PFJetFwd15_v,  , 221, 11377.09
+AlCa_EcalEtaEBonly_v13, AlCa_EcalEtaEBonly_v,  ALCA ECAL , 219, 11274.13
+AlCa_EcalPi0EEonly_v13, AlCa_EcalPi0EEonly_v,  ALCA ECAL , 162, 8339.77
+HLT_Mu8_IP3_part5_v1, HLT_Mu8_IP3_part5_v,  , 161, 8288.29
+HLT_Mu8_IP3_part4_v1, HLT_Mu8_IP3_part4_v,  , 161, 8288.29
+HLT_Mu8_IP3_part0_v1, HLT_Mu8_IP3_part0_v,  , 161, 8288.29
+HLT_Mu8_IP3_part1_v1, HLT_Mu8_IP3_part1_v,  , 161, 8288.29
+HLT_Mu8_IP3_part3_v1, HLT_Mu8_IP3_part3_v,  , 161, 8288.29
+HLT_Mu8_IP3_part2_v1, HLT_Mu8_IP3_part2_v,  , 161, 8288.29
+HLT_L2Mu23NoVtx_2Cha_v1, HLT_L2Mu23NoVtx_2Cha_v,  , 148, 7619.05
+HLT_DiPFJetAve15_HFJEC_v16, HLT_DiPFJetAve15_HFJEC_v,  , 146, 7516.09
+HLT_Mu8p5_IP3p5_part1_v1, HLT_Mu8p5_IP3p5_part1_v,  , 132, 6795.37
+HLT_Mu8p5_IP3p5_part5_v1, HLT_Mu8p5_IP3p5_part5_v,  , 132, 6795.37
+HLT_Mu8p5_IP3p5_part2_v1, HLT_Mu8p5_IP3p5_part2_v,  , 132, 6795.37
+HLT_Mu8p5_IP3p5_part0_v1, HLT_Mu8p5_IP3p5_part0_v,  , 132, 6795.37
+HLT_Mu8p5_IP3p5_part3_v1, HLT_Mu8p5_IP3p5_part3_v,  , 132, 6795.37
+HLT_Mu8p5_IP3p5_part4_v1, HLT_Mu8p5_IP3p5_part4_v,  , 132, 6795.37
+HLT_L2Mu23NoVtx_2Cha_CosmicSeed_v1, HLT_L2Mu23NoVtx_2Cha_CosmicSeed_v,  , 118, 6074.65
+HLT_Mu10p5_IP3p5_part4_v1, HLT_Mu10p5_IP3p5_part4_v,  , 117, 6023.17
+HLT_Mu10p5_IP3p5_part0_v1, HLT_Mu10p5_IP3p5_part0_v,  , 117, 6023.17
+HLT_Mu10p5_IP3p5_part1_v1, HLT_Mu10p5_IP3p5_part1_v,  , 117, 6023.17
+HLT_Mu10p5_IP3p5_part3_v1, HLT_Mu10p5_IP3p5_part3_v,  , 117, 6023.17
+HLT_Mu10p5_IP3p5_part2_v1, HLT_Mu10p5_IP3p5_part2_v,  , 117, 6023.17
+HLT_Mu10p5_IP3p5_part5_v1, HLT_Mu10p5_IP3p5_part5_v,  , 117, 6023.17
+DST_DoubleMu3_noVtx_Mass10_PFScouting_v2, DST_DoubleMu3_noVtx_Mass10_PFScouting_v,  , 115, 5920.21
+HLT_AK8PFJet15_v2, HLT_AK8PFJet15_v,  , 109, 5611.33
+HLT_Physics_v7, HLT_Physics_v,  TSG , 103, 5302.45
+HLT_ZeroBias_IsolatedBunches_v5, HLT_ZeroBias_IsolatedBunches_v,  ALCA , 96, 4942.08
+HLT_PFJet25_v2, HLT_PFJet25_v,  , 88, 4530.24
+HLT_Mu9_IP6_part5_v1, HLT_Mu9_IP6_part5_v,  , 76, 3912.48
+HLT_Mu9_IP6_part1_v1, HLT_Mu9_IP6_part1_v,  , 76, 3912.48
+HLT_Mu9_IP6_part4_v1, HLT_Mu9_IP6_part4_v,  , 76, 3912.48
+HLT_Mu9_IP6_part0_v1, HLT_Mu9_IP6_part0_v,  , 76, 3912.48
+HLT_Mu9_IP6_part3_v1, HLT_Mu9_IP6_part3_v,  , 76, 3912.48
+HLT_Mu9_IP6_part2_v1, HLT_Mu9_IP6_part2_v,  , 76, 3912.48
+HLT_AK4CaloJet30_v11, HLT_AK4CaloJet30_v,  , 65, 3346.2
+HLT_PFJetFwd25_v2, HLT_PFJetFwd25_v,  , 61, 3140.28
+HLT_HT450_Beamspot_v10, HLT_HT450_Beamspot_v,  , 57, 2934.36
+HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v8, HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v,  , 54, 2779.92
+HLT_L2Mu10_NoVertex_NoBPTX3BX_v5, HLT_L2Mu10_NoVertex_NoBPTX3BX_v,  EXO , 41, 2110.68
+HLT_AK4PFJet30_v18, HLT_AK4PFJet30_v,  , 36, 1853.28
+AlCa_EcalEtaEEonly_v13, AlCa_EcalEtaEEonly_v,  ALCA ECAL , 18, 926.64
+HLT_DiPFJetAve25_HFJEC_v16, HLT_DiPFJetAve25_HFJEC_v,  , 15, 772.2
+HLT_SinglePhoton10_Eta3p1ForPPRef_v8, HLT_SinglePhoton10_Eta3p1ForPPRef_v,  , 15, 772.2
+HLT_DoubleMu4_3_Jpsi_v1, HLT_DoubleMu4_3_Jpsi_v,  , 11, 566.28
+HLT_AK4CaloJet40_v10, HLT_AK4CaloJet40_v,  , 10, 514.8
+HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v5, HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v,  EXO , 8, 411.84
+HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v4, HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v,  EXO , 7, 360.36
+HLT_Photon100EEHE10_v1, HLT_Photon100EEHE10_v,  , 7, 360.36
+HLT_Photon20_v2, HLT_Photon20_v,  , 5, 257.4
+HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np2_v1, HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np2_v,  , 5, 257.4
+MC_IsoMu_v14, MC_IsoMu_v,  , 5, 257.4
+HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v1, HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v,  , 5, 257.4
+HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v2, HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v,  , 4, 205.92
+HLT_QuadPFJet98_83_71_15_PFBTagDeepCSV_1p3_VBF2_v7, HLT_QuadPFJet98_83_71_15_PFBTagDeepCSV_1p3_VBF2_v,  , 4, 205.92
+HLT_DoubleMu2_Jpsi_DoubleTrk1_Phi1p05_v5, HLT_DoubleMu2_Jpsi_DoubleTrk1_Phi1p05_v,  , 4, 205.92
+HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v2, HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v,  , 4, 205.92
+HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v7, HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v,  , 3, 154.44
+HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_v2, HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_v,  , 3, 154.44
+HLT_AK4CaloJet50_v10, HLT_AK4CaloJet50_v,  , 3, 154.44
+HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_Mass55_v1, HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_Mass55_v,  , 3, 154.44
+HLT_Photon100EBHE10_v1, HLT_Photon100EBHE10_v,  , 3, 154.44
+HLT_IsoTrackHE_v4, HLT_IsoTrackHE_v,  ALCA HCAL , 3, 154.44
+HLT_ZeroBias_FirstCollisionAfterAbortGap_v5, HLT_ZeroBias_FirstCollisionAfterAbortGap_v,  ALCA TRK-DPG TRK-POG , 3, 154.44
+HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4_v2, HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4_v,  , 3, 154.44
+HLT_QuadPFJet105_88_76_15_PFBTagDeepCSV_1p3_VBF2_v7, HLT_QuadPFJet105_88_76_15_PFBTagDeepCSV_1p3_VBF2_v,  , 3, 154.44
+HLT_QuadPFJet105_90_76_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v7, HLT_QuadPFJet105_90_76_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v,  , 3, 154.44
+HLT_QuadPFJet98_83_71_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v7, HLT_QuadPFJet98_83_71_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v,  , 3, 154.44
+HLT_QuadPFJet103_88_75_15_PFBTagDeepCSV_1p3_VBF2_v7, HLT_QuadPFJet103_88_75_15_PFBTagDeepCSV_1p3_VBF2_v,  , 3, 154.44
+HLT_Ele15_IsoVVVL_PFHT450_CaloBTagDeepCSV_4p5_v7, HLT_Ele15_IsoVVVL_PFHT450_CaloBTagDeepCSV_4p5_v,  , 2, 102.96
+HLT_IsoMu27_TightChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v4, HLT_IsoMu27_TightChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v,  , 2, 102.96
+HLT_DoubleL2Mu30NoVtx_2Cha_Eta2p4_v2, HLT_DoubleL2Mu30NoVtx_2Cha_Eta2p4_v,  , 2, 102.96
+HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_p02_v2, HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_p02_v,  , 2, 102.96
+HLT_DoubleIsoMu20_eta2p1_v6, HLT_DoubleIsoMu20_eta2p1_v,  , 2, 102.96
+HLT_DoubleL2Mu25NoVtx_2Cha_v2, HLT_DoubleL2Mu25NoVtx_2Cha_v,  , 2, 102.96
+HLT_AK4PFJet50_v18, HLT_AK4PFJet50_v,  , 2, 102.96
+HLT_IsoMu27_LooseChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v4, HLT_IsoMu27_LooseChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v,  , 2, 102.96
+HLT_IsoMu27_MediumChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v4, HLT_IsoMu27_MediumChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v,  , 2, 102.96
+HLT_AK8PFJet330_TrimMass30_PFAK8BTagDeepCSV_p17_v1, HLT_AK8PFJet330_TrimMass30_PFAK8BTagDeepCSV_p17_v,  , 2, 102.96
+HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v2, HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v,  , 2, 102.96
+HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4_v2, HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4_v,  , 2, 102.96
+HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu70_PFMHTNoMu70_IDTight_v1, HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu70_PFMHTNoMu70_IDTight_v,  , 2, 102.96
+HLT_DoubleL2Mu23NoVtx_2Cha_v2, HLT_DoubleL2Mu23NoVtx_2Cha_v,  , 2, 102.96
+HLT_PFMET110_PFMHT110_IDTight_CaloBTagDeepCSV_3p1_v7, HLT_PFMET110_PFMHT110_IDTight_CaloBTagDeepCSV_3p1_v,  , 1, 51.48
+HLT_Mu3er1p5_PFJet100er2p5_PFMET80_PFMHT80_IDTight_v1, HLT_Mu3er1p5_PFJet100er2p5_PFMET80_PFMHT80_IDTight_v,  , 1, 51.48
+MC_DoubleEle5_CaloIdL_MW_v14, MC_DoubleEle5_CaloIdL_MW_v,  , 1, 51.48
+HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu80_PFMHTNoMu80_IDTight_v1, HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu80_PFMHTNoMu80_IDTight_v,  , 1, 51.48
+HLT_Mu4_TrkIsoVVL_DiPFJet90_40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_v13, HLT_Mu4_TrkIsoVVL_DiPFJet90_40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_v,  , 1, 51.48
+HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu90_PFMHTNoMu90_IDTight_v1, HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu90_PFMHTNoMu90_IDTight_v,  , 1, 51.48
+HLT_Mu3er1p5_PFJet100er2p5_PFMET90_PFMHT90_IDTight_v1, HLT_Mu3er1p5_PFJet100er2p5_PFMET90_PFMHT90_IDTight_v,  , 1, 51.48
+HLT_Photon100EB_TightID_TightIso_v1, HLT_Photon100EB_TightID_TightIso_v,  , 1, 51.48
+HLT_IsoTrackHB_v4, HLT_IsoTrackHB_v,  ALCA HCAL , 1, 51.48
+HLT_Mu3er1p5_PFJet100er2p5_PFMET70_PFMHT70_IDTight_v1, HLT_Mu3er1p5_PFJet100er2p5_PFMET70_PFMHT70_IDTight_v,  , 1, 51.48
+HLT_DoubleL2Mu30NoVtx_2Cha_CosmicSeed_Eta2p4_v2, HLT_DoubleL2Mu30NoVtx_2Cha_CosmicSeed_Eta2p4_v,  , 1, 51.48
+HLT_ZeroBias_FirstBXAfterTrain_v3, HLT_ZeroBias_FirstBXAfterTrain_v,  ALCA TRK-DPG TRK-POG , 1, 51.48
+HLT_HcalPhiSym_v15, HLT_HcalPhiSym_v,  ALCA HCAL , 1, 51.48
+HLT_PFMET120_PFMHT120_IDTight_CaloBTagDeepCSV_3p1_v7, HLT_PFMET120_PFMHT120_IDTight_CaloBTagDeepCSV_3p1_v,  , 1, 51.48
+HLT_DoubleMu4_Mass3p8_DZ_PFHT350_v7, HLT_DoubleMu4_Mass3p8_DZ_PFHT350_v,  , 1, 51.48
+HLT_QuadPFJet111_90_80_15_PFBTagDeepCSV_1p3_VBF2_v7, HLT_QuadPFJet111_90_80_15_PFBTagDeepCSV_1p3_VBF2_v,  , 1, 51.48
+HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_CaloMJJ300_PFJetsMJJ400DEta3_v4, HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_CaloMJJ300_PFJetsMJJ400DEta3_v,  , 1, 51.48
+HLT_AK8PFJet330_TrimMass30_PFAK8BTagDeepCSV_p1_v1, HLT_AK8PFJet330_TrimMass30_PFAK8BTagDeepCSV_p1_v,  , 1, 51.48
+HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v1, HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v,  , 1, 51.48
+HLT_QuadPFJet111_90_80_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v7, HLT_QuadPFJet111_90_80_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v,  , 1, 51.48
+HLT_DiMu4_Ele9_CaloIdL_TrackIdL_DZ_Mass3p8_v15, HLT_DiMu4_Ele9_CaloIdL_TrackIdL_DZ_Mass3p8_v,  , 1, 51.48
+HLT_PFMET100_PFMHT100_IDTight_CaloBTagDeepCSV_3p1_v7, HLT_PFMET100_PFMHT100_IDTight_CaloBTagDeepCSV_3p1_v,  , 1, 51.48
+HLT_Photon110EB_TightID_TightIso_v1, HLT_Photon110EB_TightID_TightIso_v,  , 0, 0.0
+HLT_DoubleMu40NoFiltersNoVtxDisplaced_v1, HLT_DoubleMu40NoFiltersNoVtxDisplaced_v,  , 0, 0.0
+HLT_HcalCalibration_v5, HLT_HcalCalibration_v,  , 0, 0.0
+HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_CaloMJJ400_PFJetsMJJ600DEta3_v4, HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_CaloMJJ400_PFJetsMJJ600DEta3_v,  , 0, 0.0
+HLT_UncorrectedJetE70_NoBPTX3BX_v6, HLT_UncorrectedJetE70_NoBPTX3BX_v,  EXO , 0, 0.0
+HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v2, HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v,  , 0, 0.0
+HLT_PFMET140_PFMHT140_IDTight_CaloBTagDeepCSV_3p1_v7, HLT_PFMET140_PFMHT140_IDTight_CaloBTagDeepCSV_3p1_v,  , 0, 0.0
+HLT_DoublePFJets40_CaloBTagDeepCSV_p71_v1, HLT_DoublePFJets40_CaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_AK4PFJet120_v17, HLT_AK4PFJet120_v,  , 0, 0.0
+HLT_DoublePFJets100_CaloBTagDeepCSV_p71_v1, HLT_DoublePFJets100_CaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_TripleMu_5_3_3_Mass3p8_DCA_v2, HLT_TripleMu_5_3_3_Mass3p8_DCA_v,  , 0, 0.0
+HLT_AK4CaloJet120_v9, HLT_AK4CaloJet120_v,  , 0, 0.0
+HLT_Mu12_DoublePFJets62MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v1, HLT_Mu12_DoublePFJets62MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_MediumChargedIsoPFTau200HighPtRelaxedIso_Trk50_eta2p1_v11, HLT_MediumChargedIsoPFTau200HighPtRelaxedIso_Trk50_eta2p1_v,  , 0, 0.0
+HLT_PFHT430_SixPFJet40_PFBTagDeepCSV_1p5_v7, HLT_PFHT430_SixPFJet40_PFBTagDeepCSV_1p5_v,  , 0, 0.0
+AlCa_LumiPixels_Random_v4, AlCa_LumiPixels_Random_v,  ALCA LUMI , 0, 0.0
+HLT_VBF_DoubleTightChargedIsoPFTau20_Trk1_eta2p1_v2, HLT_VBF_DoubleTightChargedIsoPFTau20_Trk1_eta2p1_v,  , 0, 0.0
+HLT_Ele15_CaloIdL_TrackIdL_IsoVL_PFJet30_v2, HLT_Ele15_CaloIdL_TrackIdL_IsoVL_PFJet30_v,  , 0, 0.0
+HLT_DoublePFJets128MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v1, HLT_DoublePFJets128MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_AK4PFJet100_v18, HLT_AK4PFJet100_v,  , 0, 0.0
+HLT_L1_CDC_SingleMu_3_er1p2_TOP120_DPHI2p618_3p142_v2, HLT_L1_CDC_SingleMu_3_er1p2_TOP120_DPHI2p618_3p142_v,  TRK-DPG , 0, 0.0
+HLT_Mu12_DoublePFJets100_CaloBTagDeepCSV_p71_v1, HLT_Mu12_DoublePFJets100_CaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_v2, HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_v,  , 0, 0.0
+HLT_VBF_DoubleMediumChargedIsoPFTau20_Trk1_eta2p1_v2, HLT_VBF_DoubleMediumChargedIsoPFTau20_Trk1_eta2p1_v,  , 0, 0.0
+HLT_ZeroBias_FirstCollisionInTrain_v4, HLT_ZeroBias_FirstCollisionInTrain_v,  ALCA TRK-DPG TRK-POG , 0, 0.0
+HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_v1, HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_v,  , 0, 0.0
+HLT_Dimuon12_Upsilon_y1p4_v1, HLT_Dimuon12_Upsilon_y1p4_v,  , 0, 0.0
+MC_Diphoton10_10_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass10_v13, MC_Diphoton10_10_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass10_v,  , 0, 0.0
+HLT_UncorrectedJetE30_NoBPTX_v6, HLT_UncorrectedJetE30_NoBPTX_v,  EXO , 0, 0.0
+HLT_AK4CaloJet80_v10, HLT_AK4CaloJet80_v,  , 0, 0.0
+HLT_Photon90_CaloIdL_PFHT700_v15, HLT_Photon90_CaloIdL_PFHT700_v,  , 0, 0.0
+HLT_HT500_DisplacedDijet40_DisplacedTrack_v12, HLT_HT500_DisplacedDijet40_DisplacedTrack_v,  , 0, 0.0
+HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v1, HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v,  , 0, 0.0
+HLT_PFMET130_PFMHT130_IDTight_CaloBTagDeepCSV_3p1_v7, HLT_PFMET130_PFMHT130_IDTight_CaloBTagDeepCSV_3p1_v,  , 0, 0.0
+HLT_SinglePhoton20_Eta3p1ForPPRef_v9, HLT_SinglePhoton20_Eta3p1ForPPRef_v,  , 0, 0.0
+HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu100_PFMHTNoMu100_IDTight_v1, HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu100_PFMHTNoMu100_IDTight_v,  , 0, 0.0
+HLT_L2Mu10_NoVertex_NoBPTX_v6, HLT_L2Mu10_NoVertex_NoBPTX_v,  EXO , 0, 0.0
+HLT_Mu12_DoublePFJets200_CaloBTagDeepCSV_p71_v1, HLT_Mu12_DoublePFJets200_CaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_DoubleEle24_eta2p1_WPTight_Gsf_v6, HLT_DoubleEle24_eta2p1_WPTight_Gsf_v,  , 0, 0.0
+HLT_MediumChargedIsoPFTau220HighPtRelaxedIso_Trk50_eta2p1_v11, HLT_MediumChargedIsoPFTau220HighPtRelaxedIso_Trk50_eta2p1_v,  , 0, 0.0
+MC_Ele5_WPTight_Gsf_v7, MC_Ele5_WPTight_Gsf_v,  , 0, 0.0
+HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET140_v2, HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET140_v,  , 0, 0.0
+HLT_AK4CaloJet100_v10, HLT_AK4CaloJet100_v,  , 0, 0.0
+HLT_UncorrectedJetE60_NoBPTX3BX_v6, HLT_UncorrectedJetE60_NoBPTX3BX_v,  EXO , 0, 0.0
+HLT_BTagMu_AK8Jet170_DoubleMu5_v1, HLT_BTagMu_AK8Jet170_DoubleMu5_v,  , 0, 0.0
+MC_DoubleMu_TrkIsoVVL_DZ_v10, MC_DoubleMu_TrkIsoVVL_DZ_v,  , 0, 0.0
+HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v2, HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v,  , 0, 0.0
+HLT_Mu15_v2, HLT_Mu15_v,  , 0, 0.0
+HLT_ZeroBias_LastCollisionInTrain_v3, HLT_ZeroBias_LastCollisionInTrain_v,  ALCA TRK-DPG TRK-POG , 0, 0.0
+HLT_DoublePFJets200_CaloBTagDeepCSV_p71_v1, HLT_DoublePFJets200_CaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_Ele15_Ele8_CaloIdL_TrackIdL_IsoVL_v2, HLT_Ele15_Ele8_CaloIdL_TrackIdL_IsoVL_v,  , 0, 0.0
+HLT_L1UnpairedBunchBptxMinus_v2, HLT_L1UnpairedBunchBptxMinus_v,  , 0, 0.0
+HLT_Photon100EE_TightID_TightIso_v1, HLT_Photon100EE_TightID_TightIso_v,  , 0, 0.0
+HLT_Mu15_IsoVVVL_PFHT450_CaloBTagDeepCSV_4p5_v7, HLT_Mu15_IsoVVVL_PFHT450_CaloBTagDeepCSV_4p5_v,  , 0, 0.0
+HLT_Random_v3, HLT_Random_v,  ALCA TRK-DPG , 0, 0.0
+HLT_Mu12_DoublePFJets40MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v1, HLT_Mu12_DoublePFJets40MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_IsoMu27_MET90_v2, HLT_IsoMu27_MET90_v,  , 0, 0.0
+HLT_HcalIsolatedbunch_v5, HLT_HcalIsolatedbunch_v,  ALCA HCAL , 0, 0.0
+MC_Ele15_Ele10_CaloIdL_TrackIdL_IsoVL_DZ_v14, MC_Ele15_Ele10_CaloIdL_TrackIdL_IsoVL_DZ_v,  , 0, 0.0
+HLT_L1NotBptxOR_v3, HLT_L1NotBptxOR_v,  , 0, 0.0
+HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71_v1, HLT_Mu12_DoublePFJets40_CaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_Ele17_WPLoose_Gsf_v2, HLT_Ele17_WPLoose_Gsf_v,  , 0, 0.0
+HLT_Mu3er1p5_PFJet100er2p5_PFMET100_PFMHT100_IDTight_v1, HLT_Mu3er1p5_PFJet100er2p5_PFMET100_PFMHT100_IDTight_v,  , 0, 0.0
+HLT_DoubleMu33NoFiltersNoVtxDisplaced_v1, HLT_DoubleMu33NoFiltersNoVtxDisplaced_v,  , 0, 0.0
+HLT_SinglePhoton30_Eta3p1ForPPRef_v9, HLT_SinglePhoton30_Eta3p1ForPPRef_v,  , 0, 0.0
+HLT_Photon120EB_TightID_TightIso_v1, HLT_Photon120EB_TightID_TightIso_v,  , 0, 0.0
+MC_DoubleMuNoFiltersNoVtx_v7, MC_DoubleMuNoFiltersNoVtx_v,  , 0, 0.0
+HLT_TripleMu_5_3_3_Mass3p8_DZ_v7, HLT_TripleMu_5_3_3_Mass3p8_DZ_v,  , 0, 0.0
+HLT_Mu12_DoublePFJets350_CaloBTagDeepCSV_p71_v1, HLT_Mu12_DoublePFJets350_CaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_HcalNZS_v13, HLT_HcalNZS_v,  ALCA HCAL , 0, 0.0
+HLT_UncorrectedJetE30_NoBPTX3BX_v6, HLT_UncorrectedJetE30_NoBPTX3BX_v,  EXO , 0, 0.0
+HLT_DoublePFJets350_CaloBTagDeepCSV_p71_v1, HLT_DoublePFJets350_CaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_Mu12_DoublePFJets54MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v1, HLT_Mu12_DoublePFJets54MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v,  , 0, 0.0
+HLT_EcalCalibration_v4, HLT_EcalCalibration_v,  , 0, 0.0
+HLT_AK4PFJet80_v18, HLT_AK4PFJet80_v,  , 0, 0.0
+HLT_Ele15_WPLoose_Gsf_v2, HLT_Ele15_WPLoose_Gsf_v,  , 0, 0.0
+HLT_L1UnpairedBunchBptxPlus_v2, HLT_L1UnpairedBunchBptxPlus_v,  , 0, 0.0
+HLT_Mu12_v2, HLT_Mu12_v,  , 0, 0.0
