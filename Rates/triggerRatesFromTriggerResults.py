@@ -4,11 +4,6 @@ import math
 import json
 import sys, getopt
 import os
-from aux import physicsStreamOK
-from aux import scoutingStreamOK
-from aux import parkingStreamOK
-from aux import datasets_for_corr as good_datasets
-from aux import makeIncreasingList
 
 
 #auxiliary functions
@@ -132,11 +127,19 @@ if opts.maps == "allmaps":
     from Menu_HLT import groupMap as triggersGroupMap
     from Menu_HLT import datasetMap as  triggersDatasetMap
     from Menu_HLT import streamMap as  triggersStreamMap
+    from aux import physicsStreamOK
+    from aux import scoutingStreamOK
+    from aux import parkingStreamOK
+
 elif opts.maps == "somemaps":
     bUseMaps = True
     from Menu_HLT import groupMap as triggersGroupMap
     from Menu_HLT import datasetMap as  triggersDatasetMap
     from Menu_HLT import streamMap as  triggersStreamMap
+    from aux import physicsStreamOK
+    from aux import scoutingStreamOK
+    from aux import parkingStreamOK
+
 elif opts.maps == "nomaps":
     bUseMaps = False
 else:
@@ -425,6 +428,7 @@ if atLeastOneEvent:
     misc_path_file = open('Results/Raw/'+mergeNames['output.path.misc']+'/output.path.misc'+final_string+'.csv', 'w')
     misc_path_file.write("Path, Groups, Counts, Rates (Hz)\n")
     misc_path_file.write("Total Misc, , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
+
 
     root_file=ROOT.TFile("Results/Raw/Root/histos"+final_string+".root","RECREATE")
     if bUseMaps:
