@@ -16,8 +16,7 @@ parser.add_option("-i","--infiles",dest="inputFilesDir",type="str",default="no",
 parser.add_option("-f","--filetype",dest="fileType",type="str",default="custom",help="ARG='custom' (default option) or 'RAW', use 'custom' if you're running on STEAM-made files, 'RAW' if you're running on raw data",metavar="ARG")
 parser.add_option("-n",dest="nPerJob",type="int",default=5,help="NUMBER of files processed per batch job",metavar="NUMBER")
 parser.add_option("-q","--queue",dest="batchQueue",type="str",default="8nh",help="batch QUEUE",metavar="QUEUE")
-parser.add_option("-m","--maps",dest="maps",type="str",default="nomaps",help="ARG='nomaps' (default option, don't use maps to get dataste/groups/etc. rates), 'somemaps' (get dat
-aset/groups/etc. rates but with no study of dataset merging), 'allmaps' (get dataset/groups/etc. rates and also study dataset merging)",metavar="ARG")
+parser.add_option("-m","--maps",dest="maps",type="str",default="nomaps",help="ARG='nomaps' (default option, don't use maps to get dataste/groups/etc. rates), 'somemaps' (get dataset/groups/etc. rates but with no study of dataset merging), 'allmaps' (get dataset/groups/etc. rates and also study dataset merging)",metavar="ARG")
 
 opts, args = parser.parse_args()
 
@@ -87,7 +86,7 @@ for infile in fileInputNames:
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")
-    tmp_job.write("python triggerRatesFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(k), opts.fileType, opts.newDataset))
+    tmp_job.write("python triggerRatesFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(k), opts.fileType, opts.maps))
     tmp_job.write("\n")
     tmp_job.close()
     tmp_job_dir = MYDIR+'/Jobs/sub_job/'+tmp_jobname
