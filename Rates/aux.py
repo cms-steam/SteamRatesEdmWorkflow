@@ -2,7 +2,6 @@ import os
 import math
 import shlex
 import subprocess
-from Menu_HLT import streamMap as triggersStreamMap
 #from Menu_HLT import datasetMap as triggersDatasetMap
 
 datasets_for_corr=[
@@ -30,9 +29,11 @@ mergeNames = {
 "output.stream"               : "Stream",
 "output.path.physics"         : "PathPhysics",
 "output.path.scouting"        : "PathScouting",
+"output.path.parking"         : "PathParking",
+"output.path.misc"            : "PathMisc",
 "output.dataset.physics"      : "DatasetPhysics",
 "output.newDataset.physics"   : "NewDatasetPhysics",
-"output.dataset.scouting"     : "DatasetScouting",
+"output.dataset.misc"         : "DatasetMisc",
 "output.group"                : "Group",
 "output.dataset_dataset_corr" : "DatasetDatasetCorr",
 "output.trigger_dataset_corr" : "TriggerDatasetCorr",
@@ -49,6 +50,7 @@ def runCommand(commandLine):
 
 
 def physicsStreamOK(triggerName):
+    from Menu_HLT import streamMap as triggersStreamMap
     result=False
     if triggerName in triggersStreamMap.keys():
         for stream in triggersStreamMap[triggerName]:
@@ -57,10 +59,20 @@ def physicsStreamOK(triggerName):
     return result
 
 def scoutingStreamOK(triggerName):
+    from Menu_HLT import streamMap as triggersStreamMap
     result=False
     if triggerName in triggersStreamMap.keys():
         for stream in triggersStreamMap[triggerName]:
             if (stream.startswith("Scouting")):
+                result = True
+    return result
+
+def parkingStreamOK(triggerName):
+    from Menu_HLT import streamMap as triggersStreamMap
+    result=False
+    if triggerName in triggersStreamMap.keys():
+        for stream in triggersStreamMap[triggerName]:
+            if ("Parking" in stream):
                 result = True
     return result
 

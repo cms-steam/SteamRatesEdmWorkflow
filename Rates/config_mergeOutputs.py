@@ -10,20 +10,23 @@ import sys
 '''
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
-#Do you wish to draw the figures? If you have a slow connection, drawing might take a while
-makeFigures = True
-
 #Write the average instant lumi of the json you ran over
-lumi_in =  1.45e34
+lumi_in =  1.683e34
 
 #Write the TARGET lumi for which you wish to calculate rates
-lumi_target = 1.5e34
+lumi_target = 2.0e34
 
 #Write the HLT prescale used in the json you ran over
-hlt_ps = 1160
+hlt_ps = 1280
 
-#Do you want to test dataset merging? (Make sure this option was enabled when making the counting jobs)
-datasetMerging = True
+#Maps option should be the same one you use to make the batch jobs
+#maps = "nomaps"
+maps = "somemaps"
+#maps = "allmaps"
+
+#Do you wish to draw the figures? If you have a slow connection, drawing might take a while
+#This boolean will be set to False if you used the "nomaps" option
+makeFigures = False
 
 #Do you wish to take input files from an unusual location (different from the default one)?
 #If you do, set the following boolean to True
@@ -42,13 +45,15 @@ if diffLoc:
 else:
     command = "python mergeOutputs.py -l %s -t %s -p %s" %(lumi_in, lumi_target, hlt_ps)
 
-if datasetMerging:
-    command += " -m yes"
+command += " -m %s" %maps
+
+if maps =="nomaps":
+    makeFigures = False
 
 os.system(command)
 if makeFigures: 
     comm2 = "python Draw.py"
-    if datasetMerging: comm2 += " -m yes"
+    if maps == "allmaps": comm2 += " -m yes"
     os.system(comm2)
 
 
