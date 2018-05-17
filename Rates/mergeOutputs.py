@@ -195,6 +195,7 @@ for i in range(0, len(keyList)):
             max_key = ""
             for dataset in mmap:
                 index = len(mmap[dataset]) - 1
+                if ".path." in key: index = len(mmap[dataset]) - 3
                 if mmap[dataset][index] > mmax: 
                     mmax = mmap[dataset][index]
                     max_key = dataset

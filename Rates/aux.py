@@ -12,6 +12,7 @@ datasets_for_corr=[
 "BTagCSV",
 "BTagMu",
 "DisplacedJet",
+"EGamma",
 "HTMHT",
 "JetHT",
 "MET",
