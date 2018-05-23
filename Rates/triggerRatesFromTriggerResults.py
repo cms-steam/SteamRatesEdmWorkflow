@@ -317,14 +317,15 @@ for event in events:
 
                 atLeastOneEvent = True
                 triggerCountsBool[triggerName] = True
-                triggerCounts += 1
                 if not bUseMaps:
+                    if triggerName.startswith("HLT_"): triggerCounts += 1
                     if not kPassedEventMisc:
                         kPassedEventMisc = True
                         nPassed_Misc += 1
                 else:
                     #we loop over the dictionary keys to see if the paths is in that key, and in case we increase the counter
                     triggerKey = triggerName.rstrip("0123456789")
+                    if physicsStreamOK(triggerKey): triggerCounts += 1
                     if triggerKey in datasets.keys():
                         for dataset in datasets[triggerKey]:
                             if datasetsLatestCounts[dataset] == 0 :

@@ -110,7 +110,7 @@ for i in range(0, len(tables)):
     for k in range(0, len(tables[i][0])):
         if opts.PS in tables[i][0][k]:
             ps_column = k
-        if "HLT" in tables[i][0][k]:
+        if "Name" in tables[i][0][k]:
             path_column = k
         if "L1" in  tables[i][0][k]:
             L1seeds_column = k
@@ -127,7 +127,7 @@ for i in range(0, len(tables)):
         #Find L1 PS using the L1 prescale map
         L1ps = -1
         cleanedstr = L1seeds_list.lstrip(" ")
-        if ' AND ' in cleanedstr: break
+        if ' AND ' in cleanedstr: continue
         L1seeds = cleanedstr.split(' OR ')
         L1ps = minPS(L1seeds, map_L1)
 
