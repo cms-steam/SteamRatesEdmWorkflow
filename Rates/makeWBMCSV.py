@@ -9,7 +9,10 @@ def minPS(L1table, mmap):
     default_value = -10
     min_PS = int(default_value)
     for seed in L1table:
-        seed = seed.strip(" ")
+        seed = seed.strip(" ()")
+        if "AND" in seed:
+            sseed = seed.split(" AND ")
+            seed = sseed[0].strip(" ()")
         if not seed in mmap.keys():
             print "\n\nWARNING:\n L1 seed '%s' is not in the L1 PS map.\n\n\n" %seed
             continue 
@@ -25,6 +28,7 @@ parser.add_option("-p","--prescale",dest="PS",type="str",default="Index1",help="
 parser.add_option("-r","--run",dest="RUN",type="int",default=-1,help="Run NUMBER",metavar="NUMBER")
 parser.add_option("-l","--ls",dest="LS",type="str",default="noLS",help="starting and final lumi sections, separated by '-', LS_begin-LS_end")
 parser.add_option("-s","--scaling",dest="scaleFactor",type="str",default="1",help="luminosity scaling you want to apply, you can write it as ratio ('2.0e34/1.12e33') or as a number ('1.6'). '1' is the default scaling")
+parser.add_option("-m","--maps",dest="maps",type="str",default="fromWBM",help="Make the code run with a user-provided map to get the L1 seed? ('fromUser' option) Or trust WBM? ('fromWBM', default option)")
 parser.add_option("-c","--cookie",dest="cookie",type="str",default="nocookie",help="PATH to the temporary directory where you want to store your CERN cookie\nTemplate: /tmp/USERNAME_sso",metavar="PATH")
 
 opts, args = parser.parse_args()
@@ -63,11 +67,13 @@ url="https://cmswbm.cern.ch/cmsdb/servlet/PrescaleSets?RUN=%s" %opts.RUN
 tables=parseURLTables(url)
 for i in range(0, len(tables)):
     ps_column = -1
+    ps_string_tobefound = opts.PS
     L1seed_column = -1
+    L1seed_string_tobefound = "L1 Algo Name"
     for k in range(0, len(tables[i][0])):
-        if opts.PS in tables[i][0][k]:
+        if ps_string_tobefound in tables[i][0][k]:
             ps_column = k
-        if "L1" in  tables[i][0][k]:
+        if L1seed_string_tobefound in  tables[i][0][k]:
             L1seed_column = k
     if ps_column == -1 or L1seed_column == -1: continue
     for j in range(1, len(tables[i])):
@@ -76,7 +82,6 @@ for i in range(0, len(tables)):
         map_L1[L1seed] = L1ps
     break
             
-
 
 #Make a map linking HLT paths to their HLT PS *and* their L1 PS
 map_PS = {}
@@ -106,13 +111,15 @@ tables=parseURLTables(url)
 for i in range(0, len(tables)):
     ps_column = -1
     path_column = -1
+    path_string_tobefound = "HLT Path Name"
     L1seeds_column = -1
+    L1seeds_string_tobefound = "L1 Prerequisite"
     for k in range(0, len(tables[i][0])):
         if opts.PS in tables[i][0][k]:
             ps_column = k
-        if "Name" in tables[i][0][k]:
+        if path_string_tobefound in tables[i][0][k]:
             path_column = k
-        if "L1" in  tables[i][0][k]:
+        if L1seeds_string_tobefound in  tables[i][0][k]:
             L1seeds_column = k
     if ps_column == -1 or path_column == -1 or L1seeds_column == -1: continue
 
@@ -121,19 +128,24 @@ for i in range(0, len(tables)):
         HLTps = int(tables[i][j][ps_column])
         L1seeds_list = str(tables[i][j][L1seeds_column])
 
-        HLTKey = HLTpath.rstrip("0123456789 )(")
+        HLTKey = HLTpath.rstrip("0123456789)(")
         HLTKey = HLTKey.strip(" ")
 
         #Find L1 PS using the L1 prescale map
         L1ps = -1
-        cleanedstr = L1seeds_list.lstrip(" ")
-        if ' AND ' in cleanedstr: continue
+        cleanedstr = ''
+        if opts.maps == "fromWBM":
+            cleanedstr = L1seeds_list.lstrip(" ")
+        elif opts.maps == "fromUser":
+            from Menu_HLT import seedMap
+            for key in seedMap.keys():
+                if HLTKey in key: cleanedstr = seedMap[HLTKey]
         L1seeds = cleanedstr.split(' OR ')
         L1ps = minPS(L1seeds, map_L1)
-
+        
+        HLTKey = HLTKey.strip("0123456789")
         map_PS[HLTKey] = [L1ps, HLTps]
     break
-
 
 file_out = open('WBM.csv', 'w')
 file_out.write('Paths, L1 PS, HLT PS, Counts, Rates (Hz)\n')
@@ -144,15 +156,18 @@ tables=parseURLTables(url)
 for i in range(0, len(tables)):
     look_in_line = 1
     path_column = -1
+    path_string_tobefound = "Name"
     count_column = -1
+    count_string_tobefound = "PAccept"
     rate_column = -1
+    rate_string_tobefound = "RateHz"
     if len(tables[i]) <= look_in_line: continue
     for k in range(0, len(tables[i][look_in_line])):
-        if "Name" in tables[i][look_in_line][k]:
+        if path_string_tobefound in tables[i][look_in_line][k]:
             path_column = k
-        if "PAccept" in tables[i][look_in_line][k]:
+        if count_string_tobefound in tables[i][look_in_line][k]:
             count_column = k
-        if "Rate" in tables[i][look_in_line][k]:
+        if rate_string_tobefound in tables[i][look_in_line][k]:
             rate_column = k
     if path_column == -1 or rate_column == -1 or count_column == -1: continue
 
