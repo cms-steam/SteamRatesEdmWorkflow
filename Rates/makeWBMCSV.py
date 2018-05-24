@@ -128,7 +128,8 @@ for i in range(0, len(tables)):
         HLTps = int(tables[i][j][ps_column])
         L1seeds_list = str(tables[i][j][L1seeds_column])
 
-        HLTKey = HLTpath.rstrip("0123456789)(")
+        HLTKey = HLTpath.strip("0123456789)(")
+        print HLTKey
         HLTKey = HLTKey.strip(" ")
 
         #Find L1 PS using the L1 prescale map
