@@ -65,6 +65,7 @@ from cernSSOWebParser2 import parseURLTables
 map_L1 = {}
 url="https://cmswbm.cern.ch/cmsdb/servlet/PrescaleSets?RUN=%s" %opts.RUN
 tables=parseURLTables(url)
+ps_col_L1 = -1
 for i in range(0, len(tables)):
     ps_column = -1
     ps_string_tobefound = opts.PS
@@ -76,6 +77,7 @@ for i in range(0, len(tables)):
         if L1seed_string_tobefound in  tables[i][0][k]:
             L1seed_column = k
     if ps_column == -1 or L1seed_column == -1: continue
+    ps_col_L1 = ps_column
     for j in range(1, len(tables[i])):
         L1seed = str(tables[i][j][L1seed_column])
         L1ps = int(tables[i][j][ps_column])
@@ -108,6 +110,7 @@ url="https://cmswbm.cern.ch/cmsdb/servlet/TriggerMode?KEY=%s" % (l1_hlt_mode)
 tables=parseURLTables(url)
 
 #We got the tables, let's find the HLT prescales and L1 seeds
+ps_col_HLT = -1
 for i in range(0, len(tables)):
     ps_column = -1
     path_column = -1
@@ -122,6 +125,7 @@ for i in range(0, len(tables)):
         if L1seeds_string_tobefound in  tables[i][0][k]:
             L1seeds_column = k
     if ps_column == -1 or path_column == -1 or L1seeds_column == -1: continue
+    ps_col_HLT = ps_column
 
     for j in range(1, len(tables[i])):
         HLTpath = str(tables[i][j][path_column])
@@ -148,6 +152,13 @@ for i in range(0, len(tables)):
         
         map_PS[HLTKey] = [L1ps, HLTps]
     break
+
+
+if ps_col_L1 != ps_col_HLT:
+    print "!!!!WARNING!!!!\nDifferent PS column at L1 (%s) and HLT (%s)\n!!!!!!!!!!!!!!!\n" %(ps_col_L1, ps_col_HLT)
+ps_out = open('pscolumn.txt', 'w')
+ps_out.write(str(ps_col_L1))
+ps_out.close()
 
 file_out = open('WBM.csv', 'w')
 file_out.write('Paths, L1 PS, HLT PS, Counts, Rates (Hz)\n')
