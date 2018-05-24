@@ -81,7 +81,7 @@ for i in range(0, len(triggerList)):
             file_out.write("0, 0, " +str(pull)+ "\n")
         else:
             reldiff = diff/mapWBM[triggerKey][3]
-            reldiff_err = math.sqrt( (diff_err/diff)**2 + 1./mapWBM[triggerKey][2] ) * reldiff
+            reldiff_err = math.sqrt( (diff_err/diff)**2 + 1./mapWBM[triggerKey][2] ) * abs(reldiff)
             file_out.write(str(round(reldiff, 2)) + ", " + str(round(reldiff_err, 2)) + ", " + str(round(pull, 2)) + "\n")
 
 file_out.close()
