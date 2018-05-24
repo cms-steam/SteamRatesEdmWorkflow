@@ -14,7 +14,7 @@ def minPS(L1table, mmap):
             sseed = seed.split(" AND ")
             seed = sseed[0].strip(" ()")
         if not seed in mmap.keys():
-            print "\n\nWARNING:\n L1 seed '%s' is not in the L1 PS map.\n\n\n" %seed
+            #print "\n\nWARNING:\n L1 seed '%s' is not in the L1 PS map.\n\n\n" %seed
             continue 
         if (mmap[seed] > 0) and ((min_PS == default_value) or (mmap[seed] < min_PS)):
             min_PS = int(mmap[seed])
@@ -129,8 +129,9 @@ for i in range(0, len(tables)):
         L1seeds_list = str(tables[i][j][L1seeds_column])
 
         HLTKey = HLTpath.strip("0123456789)(")
-        print HLTKey
         HLTKey = HLTKey.strip(" ")
+        HLTKey = HLTKey.strip("0123456789")
+
 
         #Find L1 PS using the L1 prescale map
         L1ps = -1
@@ -140,11 +141,11 @@ for i in range(0, len(tables)):
         elif opts.maps == "fromUser":
             from Menu_HLT import seedMap
             for key in seedMap.keys():
-                if HLTKey in key: cleanedstr = seedMap[HLTKey]
+                if HLTKey in key:
+                    cleanedstr = seedMap[key]
         L1seeds = cleanedstr.split(' OR ')
         L1ps = minPS(L1seeds, map_L1)
         
-        HLTKey = HLTKey.strip("0123456789")
         map_PS[HLTKey] = [L1ps, HLTps]
     break
 
