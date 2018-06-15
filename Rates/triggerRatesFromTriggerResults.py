@@ -58,6 +58,7 @@ groups = {}
 
 streamList = []
 streamCounts = {}
+streams = {}
 
 metBx = ROOT.TH1F("metBx","",4000,0.,4000.)
 muonBx = ROOT.TH1F("muonBx","",4000,0.,4000.)
@@ -187,7 +188,7 @@ runAndLsList = []
 atLeastOneEvent = False
 nEvents = 0
 save=0
-s_triggerKey=""
+s_strippedTrigger=""
 s_dataset1=""
 for event in events: 
     n += 1
@@ -204,12 +205,21 @@ for event in events:
             if ("HLTriggerFirstPath" in name) or ("HLTriggerFinalPath" in name): continue
             myPaths.append(name)
             if bUseMaps:
-                triggerKey = name.rstrip("0123456789")
-                if not triggerKey in triggersDatasetMap: continue
-                datasets.update({str(triggerKey):triggersDatasetMap[triggerKey]})
-                groups.update({str(triggerKey):triggersGroupMap[triggerKey]})
+                strippedTrigger = name.rstrip("0123456789")
+                bVersionNumbers = True
+                for key in triggersDatasetMap.keys():
+                    if key.endswith("v"): bVersionNumbers = False
+                actualKey = ""
+                if bVersionNumbers:
+                        actualKey = name
+                else:
+                    actualKey = strippedTrigger
+                if not actualKey in triggersDatasetMap: continue
+                datasets.update({str(strippedTrigger):triggersDatasetMap[actualKey]})
+                groups.update({str(strippedTrigger):triggersGroupMap[actualKey]})
+                streams.update({str(strippedTrigger):triggersStreamMap[actualKey]})
                 if not (name in triggerList) :triggerList.append(name)
-                for dataset in triggersDatasetMap[triggerKey]:
+                for dataset in triggersDatasetMap[actualKey]:
                     if not dataset in primaryDatasetList: primaryDatasetCounts.update({str(dataset):0}) 
                     if not dataset in primaryDatasetList: primaryDatasetList.append(dataset)
                     if opts.maps == "allmaps":
@@ -219,12 +229,12 @@ for event in events:
                         if newDataset not in newDatasetList:
                             newDatasetCounts.update({str(newDataset):0})
                             newDatasetList.append(newDataset)
-                for group in triggersGroupMap[triggerKey]:
+                for group in triggersGroupMap[actualKey]:
                     if not group in groupList: groupCounts.update({str(group):0}) 
                     if not group in groupList: groupCountsShared.update({str(group):0}) 
                     if not group in groupList: groupCountsPure.update({str(group):0}) 
                     if not group in groupList: groupList.append(group)
-                for stream in triggersStreamMap[triggerKey]:
+                for stream in triggersStreamMap[actualKey]:
                     if not stream in streamList:
                         streamCounts.update({str(stream):0})
                         streamList.append(stream)
@@ -244,8 +254,8 @@ for event in events:
                 datasetDatasetCorrMatrix[dataset1] = aux_dic.copy()
                 aux_dic={}
                 for trigger in myPaths:
-                    triggerKey = trigger.rstrip("0123456789")
-                    aux_dic[triggerKey] = 0
+                    strippedTrigger = trigger.rstrip("0123456789")
+                    aux_dic[strippedTrigger] = 0
                 triggerDatasetCorrMatrix[dataset1] = aux_dic.copy()
             triggerDatasetCorrMatrix[dummy_nonpure] = aux_dic.copy()
             
@@ -257,8 +267,8 @@ for event in events:
                     newDatasetNewDatasetCorrMatrix[dataset1] = aux_dic.copy()
                     aux_dic={}
                     for trigger in myPaths:
-                        triggerKey = trigger.rstrip("0123456789")
-                        aux_dic[triggerKey] = 0
+                        strippedTrigger = trigger.rstrip("0123456789")
+                        aux_dic[strippedTrigger] = 0
                     triggerNewDatasetCorrMatrix[dataset1] = aux_dic.copy()
                 triggerNewDatasetCorrMatrix[dummy_nonpure] = aux_dic.copy()
 
@@ -324,10 +334,10 @@ for event in events:
                         nPassed_Misc += 1
                 else:
                     #we loop over the dictionary keys to see if the paths is in that key, and in case we increase the counter
-                    triggerKey = triggerName.rstrip("0123456789")
-                    if physicsStreamOK(triggerKey): triggerCounts += 1
-                    if triggerKey in datasets.keys():
-                        for dataset in datasets[triggerKey]:
+                    strippedTrigger = triggerName.rstrip("0123456789")
+                    if physicsStreamOK(strippedTrigger): triggerCounts += 1
+                    if strippedTrigger in datasets.keys():
+                        for dataset in datasets[strippedTrigger]:
                             if datasetsLatestCounts[dataset] == 0 :
                                 primaryDatasetCounts[dataset] = primaryDatasetCounts[dataset] + 1
                             datasetsLatestCounts[dataset] += 1
@@ -338,36 +348,36 @@ for event in events:
                                 if newDatasetsLatestCounts[newDataset] == 0 :
                                     newDatasetCounts[newDataset] += 1
                                 newDatasetsLatestCounts[newDataset] += 1
-                    if triggerKey in groups.keys():
-                        for group in groups[triggerKey]:
-                            if not physicsStreamOK(triggerKey): continue
+                    if strippedTrigger in groups.keys():
+                        for group in groups[strippedTrigger]:
+                            if not physicsStreamOK(strippedTrigger): continue
                             if group not in myGroupFired: 
                                 myGroupFired.append(group)
                                 groupCounts[group] = groupCounts[group] + 1
-                    if triggerKey in triggersStreamMap.keys():
-                        for stream in triggersStreamMap[triggerKey]:
+                    if strippedTrigger in streams.keys():
+                        for stream in streams[strippedTrigger]:
                             if streamCountsBool[stream] == False:
                                 streamCountsBool[stream] = True
                                 streamCounts[stream] += 1
                     
                     
                     if kPassedEventPhysics == False:
-                        if physicsStreamOK(triggerKey):
+                        if physicsStreamOK(strippedTrigger):
                             nPassed_Physics += 1
                             kPassedEventPhysics = True
                     
                     if kPassedEventScouting == False:
-                        if scoutingStreamOK(triggerKey):
+                        if scoutingStreamOK(strippedTrigger):
                             nPassed_Scouting += 1
                             kPassedEventScouting = True
 
                     if kPassedEventParking == False:
-                        if parkingStreamOK(triggerKey):
+                        if parkingStreamOK(strippedTrigger):
                             nPassed_Parking += 1
                             kPassedEventParking = True
 
                     if kPassedEventMisc == False:
-                        if not (parkingStreamOK(triggerKey) or scoutingStreamOK(triggerKey) or physicsStreamOK(triggerKey)):
+                        if not (parkingStreamOK(strippedTrigger) or scoutingStreamOK(strippedTrigger) or physicsStreamOK(strippedTrigger)):
                             nPassed_Misc += 1
                             kPassedEventMisc = True
 
@@ -375,7 +385,7 @@ for event in events:
     for trigger in myPaths:
         if not triggerCountsBool[trigger]: continue
         myPassedEvents[trigger][0] += 1
-        if triggerCounts != 1: continue
+        if triggerCounts != 1 or not trigger.startswith("HLT_"): continue
         myPassedEvents[trigger][1] += 1
         
     if bUseMaps:
@@ -387,11 +397,11 @@ for event in events:
                 datasetDatasetCorrMatrix[dataset1][dataset2] += 1
             for trigger in myPaths:
                 if not triggerCountsBool[trigger]: continue
-                triggerKey = trigger.rstrip("0123456789")
-                triggerDatasetCorrMatrix[dataset1][triggerKey] += 1 #somehow this is increasing the non-pure rate when dataset1 = unassigned
-                if triggerKey in datasets.keys():
-                    if (dataset1 in triggersDatasetMap[triggerKey]) and datasetsLatestCounts[dataset1] > 1:
-                        triggerDatasetCorrMatrix[dummy_nonpure][triggerKey] += 1
+                strippedTrigger = trigger.rstrip("0123456789")
+                triggerDatasetCorrMatrix[dataset1][strippedTrigger] += 1 #somehow this is increasing the non-pure rate when dataset1 = unassigned
+                if strippedTrigger in datasets.keys():
+                    if (dataset1 in datasets[strippedTrigger]) and datasetsLatestCounts[dataset1] > 1:
+                        triggerDatasetCorrMatrix[dummy_nonpure][strippedTrigger] += 1
         if opts.maps == "allmaps":
             for dataset1 in newDatasetList:
                 if newDatasetsLatestCounts[dataset1] == 0: continue
@@ -400,20 +410,20 @@ for event in events:
                     newDatasetNewDatasetCorrMatrix[dataset1][dataset2] += 1
                 for trigger in myPaths:
                     if not triggerCountsBool[trigger]: continue
-                    triggerKey = trigger.rstrip("0123456789")
-                    triggerNewDatasetCorrMatrix[dataset1][triggerKey] += 1
+                    strippedTrigger = trigger.rstrip("0123456789")
+                    triggerNewDatasetCorrMatrix[dataset1][strippedTrigger] += 1
                     bUseDummy = False
-                    if triggerKey in datasets.keys():
+                    if strippedTrigger in datasets.keys():
                         if newDatasetsLatestCounts[dataset1] > 1:
-                            if dataset1 in triggersDatasetMap[triggerKey]:
+                            if dataset1 in datasets[strippedTrigger]:
                                 bUseDummy = True
                             elif not (dataset1 in primaryDatasetList):
                                 for old_dataset in newDatasetMap.keys():
                                     if not (dataset1 in newDatasetMap[old_dataset]): continue
-                                    if old_dataset in triggersDatasetMap[triggerKey]:
+                                    if old_dataset in datasets[strippedTrigger]:
                                         bUseDummy = True
                                         break
-                    if bUseDummy: triggerNewDatasetCorrMatrix[dummy_nonpure][triggerKey] += 1
+                    if bUseDummy: triggerNewDatasetCorrMatrix[dummy_nonpure][strippedTrigger] += 1
         
         if len(myGroupFired) == 1:
             groupCountsPure[myGroupFired[0]] = groupCountsPure[myGroupFired[0]] + 1            
@@ -490,53 +500,53 @@ if atLeastOneEvent:
     for i in range(0,len(myPaths)):
         #print myPaths[i], myPassedEvents[i], myPassedEvents[i] 
         trigger = myPaths[i]
-        triggerKey = trigger.rstrip("0123456789")
+        strippedTrigger = trigger.rstrip("0123456789")
         group_string = ""
         if not bUseMaps:
             misc_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
             misc_path_file.write('\n')
         else:
-            if triggerKey in groups.keys():
-                for group in groups[triggerKey]:
+            if strippedTrigger in groups.keys():
+                for group in groups[strippedTrigger]:
                     group_string = group_string + group + " "
-            if physicsStreamOK(triggerKey):
+            if physicsStreamOK(strippedTrigger):
                 physics_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
                 physics_path_file.write('\n')
-            if scoutingStreamOK(triggerKey):
+            if scoutingStreamOK(strippedTrigger):
                 scouting_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
                 scouting_path_file.write('\n')
-            if parkingStreamOK(triggerKey):
+            if parkingStreamOK(strippedTrigger):
                 parking_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
                 parking_path_file.write('\n')
-            if not (parkingStreamOK(triggerKey) or scoutingStreamOK(triggerKey) or physicsStreamOK(triggerKey)):
+            if not (parkingStreamOK(strippedTrigger) or scoutingStreamOK(strippedTrigger) or physicsStreamOK(strippedTrigger)):
                 misc_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
                 misc_path_file.write('\n')
 
-            triggerDataset_file.write(triggerKey)
+            triggerDataset_file.write(strippedTrigger)
             j = 0
-            triggerDataset_histo.GetYaxis().SetBinLabel(i+1, triggerKey)
+            triggerDataset_histo.GetYaxis().SetBinLabel(i+1, strippedTrigger)
             for dataset in primaryDatasetList:
-                triggerDataset_file.write(", " + str(triggerDatasetCorrMatrix[dataset][triggerKey]))
+                triggerDataset_file.write(", " + str(triggerDatasetCorrMatrix[dataset][strippedTrigger]))
                 triggerDataset_histo.GetXaxis().SetBinLabel(j+1, dataset)
-                triggerDataset_histo.SetBinContent(j+1, i+1, triggerDatasetCorrMatrix[dataset][triggerKey])
+                triggerDataset_histo.SetBinContent(j+1, i+1, triggerDatasetCorrMatrix[dataset][strippedTrigger])
                 j += 1
             triggerDataset_histo.GetXaxis().SetBinLabel(j+1, dummy_nonpure)
-            triggerDataset_histo.SetBinContent(j+1, i+1, triggerDatasetCorrMatrix[dummy_nonpure][triggerKey])
-            triggerDataset_file.write(", " + str(triggerDatasetCorrMatrix[dummy_nonpure][triggerKey]))
+            triggerDataset_histo.SetBinContent(j+1, i+1, triggerDatasetCorrMatrix[dummy_nonpure][strippedTrigger])
+            triggerDataset_file.write(", " + str(triggerDatasetCorrMatrix[dummy_nonpure][strippedTrigger]))
             triggerDataset_file.write("\n")
             
             if opts.maps == "allmaps":
-                triggerNewDataset_file.write(triggerKey)
+                triggerNewDataset_file.write(strippedTrigger)
                 j = 0
-                triggerNewDataset_histo.GetYaxis().SetBinLabel(i+1, triggerKey)
+                triggerNewDataset_histo.GetYaxis().SetBinLabel(i+1, strippedTrigger)
                 for dataset in newDatasetList:
-                    triggerNewDataset_file.write(", " + str(triggerNewDatasetCorrMatrix[dataset][triggerKey]))
+                    triggerNewDataset_file.write(", " + str(triggerNewDatasetCorrMatrix[dataset][strippedTrigger]))
                     triggerNewDataset_histo.GetXaxis().SetBinLabel(j+1, dataset)
-                    triggerNewDataset_histo.SetBinContent(j+1, i+1, triggerNewDatasetCorrMatrix[dataset][triggerKey])
+                    triggerNewDataset_histo.SetBinContent(j+1, i+1, triggerNewDatasetCorrMatrix[dataset][strippedTrigger])
                     j += 1
                 triggerNewDataset_histo.GetXaxis().SetBinLabel(j+1, dummy_nonpure)
-                triggerNewDataset_histo.SetBinContent(j+1, i+1, triggerNewDatasetCorrMatrix[dummy_nonpure][triggerKey])
-                triggerNewDataset_file.write(", " + str(triggerNewDatasetCorrMatrix[dummy_nonpure][triggerKey]))
+                triggerNewDataset_histo.SetBinContent(j+1, i+1, triggerNewDatasetCorrMatrix[dummy_nonpure][strippedTrigger])
+                triggerNewDataset_file.write(", " + str(triggerNewDatasetCorrMatrix[dummy_nonpure][strippedTrigger]))
                 triggerNewDataset_file.write("\n")
         
     
@@ -558,8 +568,8 @@ if atLeastOneEvent:
             isPhysicsDataset = False
         
             for trigger in myPaths:
-                triggerKey = trigger.rstrip("0123456789")
-                if physicsStreamOK(triggerKey) and (key in triggersDatasetMap[triggerKey]): isPhysicsDataset = True
+                strippedTrigger = trigger.rstrip("0123456789")
+                if physicsStreamOK(strippedTrigger) and (key in datasets[strippedTrigger]): isPhysicsDataset = True
             if isPhysicsDataset:
                 physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))
                 physics_dataset_file.write('\n')
@@ -588,14 +598,14 @@ if atLeastOneEvent:
                 isPhysicsDataset = False
             
                 for trigger in myPaths:
-                    triggerKey = trigger.rstrip("0123456789")
-                    if physicsStreamOK(triggerKey):
-                        if (key in triggersDatasetMap[triggerKey]):
+                    strippedTrigger = trigger.rstrip("0123456789")
+                    if physicsStreamOK(strippedTrigger):
+                        if (key in datasets[strippedTrigger]):
                             isPhysicsDataset = True
                         elif not (key in primaryDatasetList):
                             for old_dataset in newDatasetMap.keys():
                                 if not (key in newDatasetMap[old_dataset]): continue
-                                if old_dataset in triggersDatasetMap[triggerKey]:
+                                if old_dataset in datasets[strippedTrigger]:
                                     isPhysicsDataset = True
                                     break
                 if isPhysicsDataset:

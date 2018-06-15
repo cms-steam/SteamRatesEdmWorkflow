@@ -53,28 +53,31 @@ def runCommand(commandLine):
 def physicsStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
-    if triggerName in triggersStreamMap.keys():
-        for stream in triggersStreamMap[triggerName]:
-            if (stream.startswith("Physics")) and not (stream.startswith("PhysicsHLTPhysics")) and not (stream.startswith("PhysicsZeroBias")) and not (stream.startswith("PhysicsParking")) and not (stream.startswith("PhysicsCommissioning")):
-                result = True
+    for mapKey in triggersStreamMap.keys():
+        if triggerName == mapKey.rstrip("0123456789"):
+            for stream in triggersStreamMap[mapKey]:
+                if (stream.startswith("Physics")) and not (stream.startswith("PhysicsHLTPhysics")) and not (stream.startswith("PhysicsZeroBias")) and not (stream.startswith("PhysicsParking")):
+                    result = True
     return result
 
 def scoutingStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
-    if triggerName in triggersStreamMap.keys():
-        for stream in triggersStreamMap[triggerName]:
-            if (stream.startswith("Scouting")):
-                result = True
+    for mapKey in triggersStreamMap.keys():
+        if triggerName == mapKey.rstrip("0123456789"):
+            for stream in triggersStreamMap[mapKey]:
+                if (stream.startswith("Scouting")):
+                    result = True
     return result
 
 def parkingStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
-    if triggerName in triggersStreamMap.keys():
-        for stream in triggersStreamMap[triggerName]:
-            if ("Parking" in stream):
-                result = True
+    for mapKey in triggersStreamMap.keys():
+        if triggerName == mapKey.rstrip("0123456789"):
+            for stream in triggersStreamMap[triggerName]:
+                if ("Parking" in stream):
+                    result = True
     return result
 
 def datasetOK(dataset):
