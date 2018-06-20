@@ -43,6 +43,19 @@ mergeNames = {
 }
 
 
+PAGlist=[
+"B2G",
+"BPH",
+"EXO",
+"HIG",
+"SMP",
+"SUS",
+"TOP",
+"FSQ",
+"HIN",
+]
+
+
 def runCommand(commandLine):
     #sys.stdout.write("%s\n" % commandLine)
     args = shlex.split(commandLine)
@@ -50,10 +63,23 @@ def runCommand(commandLine):
     return retVal
 
 
+def belongsToPAG(triggerName):
+    from Menu_HLT import groupMap as triggersGroupMap
+    result=False
+    for mapKey in triggersGroupMap.keys():
+        if result: break
+        if triggerName == mapKey.rstrip("0123456789"):
+            for group in triggersGroupMap[mapKey]:
+                if group in PAGlist:
+                    result = True
+                    break
+    return result
+
 def physicsStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
     for mapKey in triggersStreamMap.keys():
+        if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
                 if (stream.startswith("Physics")) and not (stream.startswith("PhysicsHLTPhysics")) and not (stream.startswith("PhysicsZeroBias")) and not (stream.startswith("PhysicsParking")):
@@ -64,6 +90,7 @@ def scoutingStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
     for mapKey in triggersStreamMap.keys():
+        if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
                 if (stream.startswith("Scouting")):
@@ -74,6 +101,7 @@ def parkingStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
     for mapKey in triggersStreamMap.keys():
+        if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[triggerName]:
                 if ("Parking" in stream):

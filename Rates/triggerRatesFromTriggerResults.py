@@ -60,6 +60,8 @@ streamList = []
 streamCounts = {}
 streams = {}
 
+types = {}
+
 metBx = ROOT.TH1F("metBx","",4000,0.,4000.)
 muonBx = ROOT.TH1F("muonBx","",4000,0.,4000.)
 #make output dir
@@ -128,18 +130,22 @@ if opts.maps == "allmaps":
     from Menu_HLT import groupMap as triggersGroupMap
     from Menu_HLT import datasetMap as  triggersDatasetMap
     from Menu_HLT import streamMap as  triggersStreamMap
+    from Menu_HLT import typeMap as  triggersTypeMap
     from aux import physicsStreamOK
     from aux import scoutingStreamOK
     from aux import parkingStreamOK
+    from aux import belongsToPAG
 
 elif opts.maps == "somemaps":
     bUseMaps = True
     from Menu_HLT import groupMap as triggersGroupMap
     from Menu_HLT import datasetMap as  triggersDatasetMap
     from Menu_HLT import streamMap as  triggersStreamMap
+    from Menu_HLT import typeMap as  triggersTypeMap
     from aux import physicsStreamOK
     from aux import scoutingStreamOK
     from aux import parkingStreamOK
+    from aux import belongsToPAG
 
 elif opts.maps == "nomaps":
     bUseMaps = False
@@ -169,7 +175,7 @@ myPaths = []
 myPassedEvents = {}
 
 nLS = 0
-
+nPAGAnalysisPath = 0
 
 triggerDatasetCorrMatrix = {}
 datasetDatasetCorrMatrix = {}
@@ -218,6 +224,7 @@ for event in events:
                 datasets.update({str(strippedTrigger):triggersDatasetMap[actualKey]})
                 groups.update({str(strippedTrigger):triggersGroupMap[actualKey]})
                 streams.update({str(strippedTrigger):triggersStreamMap[actualKey]})
+                types.update({str(strippedTrigger):triggersTypeMap[actualKey]})
                 if not (name in triggerList) :triggerList.append(name)
                 for dataset in triggersDatasetMap[actualKey]:
                     if not dataset in primaryDatasetList: primaryDatasetCounts.update({str(dataset):0}) 
@@ -303,6 +310,7 @@ for event in events:
     kPassedEventScouting = False
     kPassedEventParking = False
     kPassedEventMisc = False
+    kPassedEventAnalysis = False
     triggerCountsBool = {}
     triggerCounts = 0
     for i in range(0, len(myPaths)):
@@ -360,6 +368,11 @@ for event in events:
                                 streamCountsBool[stream] = True
                                 streamCounts[stream] += 1
                     
+                    if kPassedEventAnalysis == False:
+                        if belongsToPAG(strippedTrigger) and physicsStreamOK(strippedTrigger):
+                            if ("backup" in types[strippedTrigger]) or ("signal" in types[strippedTrigger]):
+                                nPAGAnalysisPath += 1
+                                kPassedEventAnalysis = True
                     
                     if kPassedEventPhysics == False:
                         if physicsStreamOK(strippedTrigger):
@@ -453,6 +466,7 @@ if atLeastOneEvent:
         physics_path_file = open('Results/Raw/'+mergeNames['output.path.physics']+'/output.path.physics'+final_string+'.csv', 'w')
         physics_path_file.write("Path, Groups, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         physics_path_file.write("Total Physics, , " + str(nPassed_Physics) + ", " + str(nPassed_Physics) +"\n")
+        physics_path_file.write("Total Analysis Physics, , " + str(nPAGAnalysisPath) + ", " + str(nPAGAnalysisPath) +"\n")
         
         scouting_path_file = open('Results/Raw/'+mergeNames['output.path.scouting']+'/output.path.scouting'+final_string+'.csv', 'w')
         scouting_path_file.write("Path, Groups, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
