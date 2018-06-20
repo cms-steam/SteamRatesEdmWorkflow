@@ -197,7 +197,7 @@ for i in range(0, len(keyList)):
             max_key = ""
             for item in mmap:
                 index = len(mmap[item]) - 1
-                if ".path." in key: index = len(mmap[item]) - 3
+                if ".path." in key: index = len(mmap[item]) - 4
                 if mmap[item][index] > mmax: 
                     mmax = mmap[item][index]
                     max_key = item
