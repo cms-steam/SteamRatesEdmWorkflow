@@ -457,24 +457,24 @@ if atLeastOneEvent:
     global_info_file.close()
     
     misc_path_file = open('Results/Raw/'+mergeNames['output.path.misc']+'/output.path.misc'+final_string+'.csv', 'w')
-    misc_path_file.write("Path, Groups, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
-    misc_path_file.write("Total Misc, , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
+    misc_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
+    misc_path_file.write("Total Misc, , , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
 
 
     root_file=ROOT.TFile("Results/Raw/Root/histos"+final_string+".root","RECREATE")
     if bUseMaps:
         physics_path_file = open('Results/Raw/'+mergeNames['output.path.physics']+'/output.path.physics'+final_string+'.csv', 'w')
-        physics_path_file.write("Path, Groups, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
-        physics_path_file.write("Total Physics, , " + str(nPassed_Physics) + ", " + str(nPassed_Physics) +"\n")
-        physics_path_file.write("Total Analysis Physics, , " + str(nPAGAnalysisPath) + ", " + str(nPAGAnalysisPath) +"\n")
+        physics_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
+        physics_path_file.write("Total Physics, , , " + str(nPassed_Physics) + ", " + str(nPassed_Physics) +"\n")
+        physics_path_file.write("Total Analysis Physics, , , " + str(nPAGAnalysisPath) + ", " + str(nPAGAnalysisPath) +"\n")
         
         scouting_path_file = open('Results/Raw/'+mergeNames['output.path.scouting']+'/output.path.scouting'+final_string+'.csv', 'w')
-        scouting_path_file.write("Path, Groups, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
-        scouting_path_file.write("Total Scouting, , " + str(nPassed_Scouting) + ", " + str(nPassed_Scouting) +"\n")
+        scouting_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
+        scouting_path_file.write("Total Scouting, , , " + str(nPassed_Scouting) + ", " + str(nPassed_Scouting) +"\n")
         
         parking_path_file = open('Results/Raw/'+mergeNames['output.path.parking']+'/output.path.parking'+final_string+'.csv', 'w')
-        parking_path_file.write("Path, Groups, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
-        parking_path_file.write("Total Parking, , " + str(nPassed_Parking) + ", " + str(nPassed_Parking) +"\n")
+        parking_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
+        parking_path_file.write("Total Parking, , , " + str(nPassed_Parking) + ", " + str(nPassed_Parking) +"\n")
         
         
         
@@ -516,24 +516,27 @@ if atLeastOneEvent:
         trigger = myPaths[i]
         strippedTrigger = trigger.rstrip("0123456789")
         group_string = ""
+        type_string = ""
         if not bUseMaps:
-            misc_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
+            misc_path_file.write('{}, {}, {}, {}, {}, {}, {}'.format(trigger, group_string, type_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
             misc_path_file.write('\n')
         else:
             if strippedTrigger in groups.keys():
                 for group in groups[strippedTrigger]:
                     group_string = group_string + group + " "
+                for ttype in types[strippedTrigger]:
+                    type_string = type_string + ttype + " "
             if physicsStreamOK(strippedTrigger):
-                physics_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
+                physics_path_file.write('{}, {}, {}, {}, {}, {}, {}'.format(trigger, group_string, type_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
                 physics_path_file.write('\n')
             if scoutingStreamOK(strippedTrigger):
-                scouting_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
+                scouting_path_file.write('{}, {}, {}, {}, {}, {}, {}'.format(trigger, group_string, type_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
                 scouting_path_file.write('\n')
             if parkingStreamOK(strippedTrigger):
-                parking_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
+                parking_path_file.write('{}, {}, {}, {}, {}, {}, {}'.format(trigger, group_string, type_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
                 parking_path_file.write('\n')
             if not (parkingStreamOK(strippedTrigger) or scoutingStreamOK(strippedTrigger) or physicsStreamOK(strippedTrigger)):
-                misc_path_file.write('{}, {}, {}, {}, {}, {}'.format(trigger, group_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
+                misc_path_file.write('{}, {}, {}, {}, {}, {}, {}'.format(trigger, group_string, type_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
                 misc_path_file.write('\n')
 
             triggerDataset_file.write(strippedTrigger)

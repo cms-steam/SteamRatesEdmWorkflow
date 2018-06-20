@@ -112,6 +112,7 @@ for i in range(0, len(keyList)):
     mergedFile = open("Results/"+key, "w")
     countsDic = {}
     groupsDic = {}
+    typesDic = {}
     firstFile = True
     columnOneIsGroups = False
     lfile = masterDic[key][0]
@@ -133,11 +134,12 @@ for i in range(0, len(keyList)):
                         lfile = file_in
                         countsDic[row[0]] = []
                         groupsDic[row[0]] = row[1]
-                        for i in range(2,len(row)):
+                        typesDic[row[0]] = row[2]
+                        for i in range(3,len(row)):
                             countsDic[row[0]].append(int(row[i]))
                     else:
-                        for i in range(2,len(row)):
-                            countsDic[row[0]][i-2] += int(row[i])
+                        for i in range(3,len(row)):
+                            countsDic[row[0]][i-3] += int(row[i])
                 else:
                     if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
                         lfile = file_in
@@ -193,12 +195,12 @@ for i in range(0, len(keyList)):
         while len(mmap) > 0:
             mmax = -1
             max_key = ""
-            for dataset in mmap:
-                index = len(mmap[dataset]) - 1
-                if ".path." in key: index = len(mmap[dataset]) - 3
-                if mmap[dataset][index] > mmax: 
-                    mmax = mmap[dataset][index]
-                    max_key = dataset
+            for item in mmap:
+                index = len(mmap[item]) - 1
+                if ".path." in key: index = len(mmap[item]) - 3
+                if mmap[item][index] > mmax: 
+                    mmax = mmap[item][index]
+                    max_key = item
             sorted_list.append(max_key)
             del mmap[max_key]            
 
@@ -237,7 +239,7 @@ for i in range(0, len(keyList)):
             mergedFile.write(wkey + ", ")
             wkey = wkey.rstrip("0123456789")
         mergedFile.write(wkey)
-        if columnOneIsGroups: mergedFile.write( ", " + groupsDic[kkey] )
+        if columnOneIsGroups: mergedFile.write( ", " + groupsDic[kkey] + ", " +typesDic[kkey] )
         for i in range(0, len(countsDic[kkey])):
             if ("_dataset_" in key) or ("_newDataset_" in key):
                 mergedFile.write(  ", " + str( round(countsDic[kkey][i]*scaleFactor,2) )  )
