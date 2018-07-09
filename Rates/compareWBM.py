@@ -28,9 +28,9 @@ with open(file_STEAM) as ffile:
             firstRow = False
             continue
         triggerKey = str(row[0]).rstrip("0123456789 ")
-        if "Total Physics" in triggerKey: continue
-        counts_column = 2
-        rates_column = 3
+        if "Total " in triggerKey: continue
+        counts_column = 4
+        rates_column = 5
         mapSTEAM[triggerKey] = [int(row[counts_column]), float(row[rates_column])]
         triggerList.append(str(row[0]))
 
