@@ -11,13 +11,13 @@ import sys
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
 #Write the average instant lumi of the json you ran over
-lumi_in =  1.683e34
+lumi_in =  1.57e34
 
 #Write the TARGET lumi for which you wish to calculate rates
 lumi_target = 2.0e34
 
 #Write the HLT prescale used in the json you ran over
-hlt_ps = 1280
+hlt_ps = 1100
 
 #Maps option should be the same one you use to make the batch jobs
 #maps = "nomaps"
