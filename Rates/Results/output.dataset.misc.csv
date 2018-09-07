@@ -1,0 +1,7 @@
+Stream, Dataset,  Counts,  Rates (Hz)
+ScoutingCaloMuon, ScoutingCaloMuon, 684, 7353.47
+ScoutingCaloMuon, ScoutingCaloHT, 359, 3859.5
+ScoutingCaloMuon, ScoutingCaloCommissioning, 3, 32.25
+ScoutingPF, ScoutingPFHT, 89, 956.81
+ScoutingPF, ScoutingPFCommissioning, 6, 64.5
+, Sum, 1141, 12266.54

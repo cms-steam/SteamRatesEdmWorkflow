@@ -1,0 +1,22 @@
+Dataset, Counts, Rates (Hz)
+JetHT, 8, 8
+MuOnia, 0, 0
+EGamma, 31, 31
+MuonEG, 2, 2
+DoubleMuon, 6, 6
+Charmonium, 10, 10
+DoubleMuonLowMass, 8, 8
+SingleMuon, 32, 32
+(unassigned), 0, 0
+NoBPTX, 1, 1
+MET, 3, 3
+BTagMu, 3, 3
+Tau, 9, 9
+DisplacedJet, 0, 0
+HLTPhysics, 2, 2
+ZeroBias, 10, 10
+HighPtLowerPhotons, 0, 0
+HighPtPhoton30AndZ, 0, 0
+Commissioning, 1, 1
+HcalNZS, 1, 1
+IsolatedBunch, 0, 0

@@ -1,0 +1,61 @@
+Path (w/ version number), Path,  Groups,  Type,  Total Count,  Total Rate (Hz),  Pure Count,  Pure Rate (Hz)
+Total Misc, Total Misc,  ,  , 2344, 25199.62
+AlCa_EcalPi0EBonly_v13, AlCa_EcalPi0EBonly_v,  ALCA ECAL ,  signal , 861, 9256.34, 0, 0.0
+DST_Physics_v7, DST_Physics_v,  ,  , 811, 8718.81, 0, 0.0
+AlCa_EcalPhiSym_v9, AlCa_EcalPhiSym_v,  ALCA ECAL ,  control , 333, 3579.98, 0, 0.0
+DST_ZeroBias_v2, DST_ZeroBias_v,  ,  , 304, 3268.21, 0, 0.0
+AlCa_LumiPixels_ZeroBias_v8, AlCa_LumiPixels_ZeroBias_v,  ALCA LUMI ,  control , 304, 3268.21, 0, 0.0
+AlCa_EcalEtaEBonly_v13, AlCa_EcalEtaEBonly_v,  ALCA ECAL ,  signal , 272, 2924.19, 0, 0.0
+AlCa_EcalPi0EEonly_v13, AlCa_EcalPi0EEonly_v,  ALCA ECAL ,  signal , 224, 2408.15, 0, 0.0
+HLT_L2Mu23NoVtx_2Cha_v1, HLT_L2Mu23NoVtx_2Cha_v,  ,  , 137, 1472.84, 3, 32.25
+HLT_L2Mu23NoVtx_2Cha_CosmicSeed_v1, HLT_L2Mu23NoVtx_2Cha_CosmicSeed_v,  ,  , 107, 1150.32, 3, 32.25
+AlCa_EcalEtaEEonly_v13, AlCa_EcalEtaEEonly_v,  ALCA ECAL ,  signal , 32, 344.02, 0, 0.0
+AlCa_RPCMuonNormalisation_v13, AlCa_RPCMuonNormalisation_v,  RPC ,  signal , 29, 311.77, 0, 0.0
+HLT_HT300_Beamspot_v11, HLT_HT300_Beamspot_v,  ,  , 7, 75.25, 0, 0.0
+HLT_ZeroBias_Beamspot_v4, HLT_ZeroBias_Beamspot_v,  ,  , 2, 21.5, 0, 0.0
+HLT_IsoMu27_MET90_v3, HLT_IsoMu27_MET90_v,  ,  , 1, 10.75, 0, 0.0
+HLT_DoubleIsoMu20_eta2p1_v7, HLT_DoubleIsoMu20_eta2p1_v,  ,  , 1, 10.75, 0, 0.0
+HLT_DoubleEle24_eta2p1_WPTight_Gsf_v7, HLT_DoubleEle24_eta2p1_WPTight_Gsf_v,  ,  , 1, 10.75, 0, 0.0
+HLT_IsoMu27_TightChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v1, HLT_IsoMu27_TightChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v,  ,  , 0, 0.0, 0, 0.0
+HLT_AK4CaloJet50_v10, HLT_AK4CaloJet50_v,  ,  , 0, 0.0, 0, 0.0
+HLT_ZeroBias_part3_v6, HLT_ZeroBias_part3_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_Physics_part4_v7, HLT_Physics_part4_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_HcalCalibration_v5, HLT_HcalCalibration_v,  ,  , 0, 0.0, 0, 0.0
+HLT_DiPFJetAve15_HFJEC_v17, HLT_DiPFJetAve15_HFJEC_v,  ,  , 0, 0.0, 0, 0.0
+HLT_ZeroBias_part0_v6, HLT_ZeroBias_part0_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v3, HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v,  ,  , 0, 0.0, 0, 0.0
+HLT_ZeroBias_part2_v6, HLT_ZeroBias_part2_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_ZeroBias_part5_v6, HLT_ZeroBias_part5_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_ZeroBias_part7_v6, HLT_ZeroBias_part7_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_AK4PFJet120_v18, HLT_AK4PFJet120_v,  ,  , 0, 0.0, 0, 0.0
+HLT_TrkMu6NoFiltersNoVtx_v1, HLT_TrkMu6NoFiltersNoVtx_v,  ,  , 0, 0.0, 0, 0.0
+HLT_Physics_part0_v7, HLT_Physics_part0_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_AK4CaloJet80_v10, HLT_AK4CaloJet80_v,  ,  , 0, 0.0, 0, 0.0
+HLT_IsoMu27_LooseChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v1, HLT_IsoMu27_LooseChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v,  ,  , 0, 0.0, 0, 0.0
+HLT_AK4CaloJet120_v9, HLT_AK4CaloJet120_v,  ,  , 0, 0.0, 0, 0.0
+HLT_Physics_part5_v7, HLT_Physics_part5_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_Physics_part1_v7, HLT_Physics_part1_v,  TSG ,  control , 0, 0.0, 0, 0.0
+AlCa_LumiPixels_Random_v4, AlCa_LumiPixels_Random_v,  ALCA LUMI ,  control , 0, 0.0, 0, 0.0
+HLT_AK4PFJet50_v19, HLT_AK4PFJet50_v,  ,  , 0, 0.0, 0, 0.0
+HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v12, HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v,  ,  , 0, 0.0, 0, 0.0
+HLT_ZeroBias_part6_v6, HLT_ZeroBias_part6_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_ZeroBias_part4_v6, HLT_ZeroBias_part4_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_DiPFJetAve25_HFJEC_v17, HLT_DiPFJetAve25_HFJEC_v,  ,  , 0, 0.0, 0, 0.0
+HLT_AK4CaloJet30_v11, HLT_AK4CaloJet30_v,  ,  , 0, 0.0, 0, 0.0
+HLT_TrkMu16NoFiltersNoVtx_v1, HLT_TrkMu16NoFiltersNoVtx_v,  ,  , 0, 0.0, 0, 0.0
+HLT_HT450_Beamspot_v11, HLT_HT450_Beamspot_v,  ,  , 0, 0.0, 0, 0.0
+HLT_AK4PFJet100_v19, HLT_AK4PFJet100_v,  ,  , 0, 0.0, 0, 0.0
+HLT_L1NotBptxOR_v3, HLT_L1NotBptxOR_v,  ,  , 0, 0.0, 0, 0.0
+HLT_Physics_part6_v7, HLT_Physics_part6_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_AK4PFJet80_v19, HLT_AK4PFJet80_v,  ,  , 0, 0.0, 0, 0.0
+HLT_Physics_part7_v7, HLT_Physics_part7_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_AK4PFJet30_v19, HLT_AK4PFJet30_v,  ,  , 0, 0.0, 0, 0.0
+HLT_IsoMu27_MediumChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v1, HLT_IsoMu27_MediumChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v,  ,  , 0, 0.0, 0, 0.0
+HLT_Physics_part3_v7, HLT_Physics_part3_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_AK4CaloJet100_v10, HLT_AK4CaloJet100_v,  ,  , 0, 0.0, 0, 0.0
+HLT_AK4CaloJet40_v10, HLT_AK4CaloJet40_v,  ,  , 0, 0.0, 0, 0.0
+HLT_L1UnpairedBunchBptxMinus_v2, HLT_L1UnpairedBunchBptxMinus_v,  ,  , 0, 0.0, 0, 0.0
+HLT_Physics_part2_v7, HLT_Physics_part2_v,  TSG ,  control , 0, 0.0, 0, 0.0
+HLT_EcalCalibration_v4, HLT_EcalCalibration_v,  ,  , 0, 0.0, 0, 0.0
+HLT_L1UnpairedBunchBptxPlus_v2, HLT_L1UnpairedBunchBptxPlus_v,  ,  , 0, 0.0, 0, 0.0
+HLT_ZeroBias_part1_v6, HLT_ZeroBias_part1_v,  TSG ,  control , 0, 0.0, 0, 0.0

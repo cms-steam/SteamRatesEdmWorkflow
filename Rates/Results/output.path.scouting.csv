@@ -1,0 +1,20 @@
+Path (w/ version number), Path,  Groups,  Type,  Total Count,  Total Rate (Hz),  Pure Count,  Pure Rate (Hz)
+Total Scouting, Total Scouting,  ,  , 726, 7805.0
+DST_DoubleMu1_noVtx_CaloScouting_v2, DST_DoubleMu1_noVtx_CaloScouting_v,  EXO ,  signal , 363, 3902.5, 0, 0.0
+DST_HT250_CaloScouting_v10, DST_HT250_CaloScouting_v,  EXO ,  signal , 359, 3859.5, 0, 0.0
+DST_HT250_CaloBTagScouting_v10, DST_HT250_CaloBTagScouting_v,  EXO ,  signal , 357, 3838.0, 0, 0.0
+DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v6, DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v,  EXO ,  control , 322, 3461.72, 0, 0.0
+DST_DoubleMu3_noVtx_CaloScouting_v6, DST_DoubleMu3_noVtx_CaloScouting_v,  EXO ,  signal , 291, 3128.45, 0, 0.0
+DST_DoubleMu3_noVtx_Mass10_PFScouting_v3, DST_DoubleMu3_noVtx_Mass10_PFScouting_v,  EXO ,  signal , 107, 1150.32, 0, 0.0
+DST_HT410_BTagScouting_v16, DST_HT410_BTagScouting_v,  EXO ,  signal , 89, 956.81, 0, 0.0
+DST_HT410_PFScouting_v16, DST_HT410_PFScouting_v,  EXO ,  signal , 89, 956.81, 0, 0.0
+DST_CaloJet40_CaloScouting_PFScouting_v15, DST_CaloJet40_CaloScouting_PFScouting_v,  EXO ,  control , 3, 32.25, 0, 0.0
+DST_L1HTT_CaloBTagScouting_v14, DST_L1HTT_CaloBTagScouting_v,  EXO ,  control , 2, 21.5, 0, 0.0
+DST_L1HTT_CaloScouting_PFScouting_v15, DST_L1HTT_CaloScouting_PFScouting_v,  EXO ,  control , 2, 21.5, 0, 0.0
+DST_L1HTT_BTagScouting_v15, DST_L1HTT_BTagScouting_v,  EXO ,  control , 2, 21.5, 0, 0.0
+DST_CaloJet40_BTagScouting_v15, DST_CaloJet40_BTagScouting_v,  EXO ,  control , 1, 10.75, 0, 0.0
+DST_ZeroBias_CaloScouting_PFScouting_v14, DST_ZeroBias_CaloScouting_PFScouting_v,  EXO ,  control , 1, 10.75, 0, 0.0
+DST_CaloJet40_CaloBTagScouting_v14, DST_CaloJet40_CaloBTagScouting_v,  EXO ,  control , 1, 10.75, 0, 0.0
+DST_ZeroBias_BTagScouting_v15, DST_ZeroBias_BTagScouting_v,  EXO ,  control , 0, 0.0, 0, 0.0
+DST_L1DoubleMu_CaloScouting_PFScouting_v15, DST_L1DoubleMu_CaloScouting_PFScouting_v,  EXO ,  control , 0, 0.0, 0, 0.0
+DST_L1DoubleMu_BTagScouting_v16, DST_L1DoubleMu_BTagScouting_v,  EXO ,  control , 0, 0.0, 0, 0.0
