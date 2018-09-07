@@ -1,7 +1,0 @@
-curr_dir=/afs/cern.ch/work/d/dbeghin/Work/Rates/EnvDev/SteamRatesEdmWorkflow/Rates
-cd /afs/cern.ch/work/d/dbeghin/Work/Rates/EnvDev/SteamRatesEdmWorkflow/Rates
-cd /afs/cern.ch/work/d/dbeghin/Work/Rates/New/CMSSW_10_1_4/src/
-eval `scramv1 runtime -sh`
-cd -
-python triggerRatesFromTriggerResults.py -i /eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/HLTPhysics_v2p3Menu_run316457//hlt_147.root -j /afs/cern.ch/work/d/dbeghin/Work/Rates/New/CMSSW_10_1_4/src/SteamRatesEdmWorkflow/Prod/json_316457.txt -s 52 -f custom -m somemaps
-

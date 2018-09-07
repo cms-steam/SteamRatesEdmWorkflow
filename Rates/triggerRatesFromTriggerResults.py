@@ -190,7 +190,6 @@ events = Events (opts.inputFile)
 
 #Looping over events in inputfile
 
-default_name = ["unknown"]
 runAndLsList = []
 atLeastOneEvent = False
 nEvents = 0
@@ -218,37 +217,16 @@ for event in events:
                     if key.endswith("v"): bVersionNumbers = False
                 actualKey = ""
                 if bVersionNumbers:
-                    actualKey = name
+                        actualKey = name
                 else:
                     actualKey = strippedTrigger
-
-                datasetKnown = False
-                if actualKey in triggersDatasetMap:
-                    datasets.update({str(strippedTrigger):triggersDatasetMap[actualKey]})
-                    datasetKnown = True
-                else:
-                    datasets.update({str(strippedTrigger):default_name})
-
-                if actualKey in triggersGroupMap:
-                    groups.update({str(strippedTrigger):triggersGroupMap[actualKey]})
-                else:
-                    groups.update({str(strippedTrigger):default_name})
-                    if datasetKnown:
-                        print "group UNKNOWN while dataset is known"
-                        print strippedTrigger
-
-                if actualKey in triggersStreamMap:
-                    streams.update({str(strippedTrigger):triggersStreamMap[actualKey]})
-                else:
-                    streams.update({str(strippedTrigger):default_name})
-
-                if actualKey in triggersTypeMap:
-                    types.update({str(strippedTrigger):triggersTypeMap[actualKey]})
-                else:
-                    types.update({str(strippedTrigger):default_name})
-                    
+                if not actualKey in triggersDatasetMap: continue
+                datasets.update({str(strippedTrigger):triggersDatasetMap[actualKey]})
+                groups.update({str(strippedTrigger):triggersGroupMap[actualKey]})
+                streams.update({str(strippedTrigger):triggersStreamMap[actualKey]})
+                types.update({str(strippedTrigger):triggersTypeMap[actualKey]})
                 if not (name in triggerList) :triggerList.append(name)
-                for dataset in datasets[strippedTrigger]:
+                for dataset in triggersDatasetMap[actualKey]:
                     if not dataset in primaryDatasetList: primaryDatasetCounts.update({str(dataset):0}) 
                     if not dataset in primaryDatasetList: primaryDatasetList.append(dataset)
                     if opts.maps == "allmaps":
@@ -258,12 +236,12 @@ for event in events:
                         if newDataset not in newDatasetList:
                             newDatasetCounts.update({str(newDataset):0})
                             newDatasetList.append(newDataset)
-                for group in groups[strippedTrigger]:
+                for group in triggersGroupMap[actualKey]:
                     if not group in groupList: groupCounts.update({str(group):0}) 
                     if not group in groupList: groupCountsShared.update({str(group):0}) 
                     if not group in groupList: groupCountsPure.update({str(group):0}) 
                     if not group in groupList: groupList.append(group)
-                for stream in streams[strippedTrigger]:
+                for stream in triggersStreamMap[actualKey]:
                     if not stream in streamList:
                         streamCounts.update({str(stream):0})
                         streamList.append(stream)
@@ -608,7 +586,6 @@ if atLeastOneEvent:
         
             for trigger in myPaths:
                 strippedTrigger = trigger.rstrip("0123456789")
-                if not strippedTrigger in datasets.keys(): continue
                 if physicsStreamOK(strippedTrigger) and (key in datasets[strippedTrigger]): isPhysicsDataset = True
             if isPhysicsDataset:
                 physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))

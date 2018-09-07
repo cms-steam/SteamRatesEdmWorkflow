@@ -82,7 +82,7 @@ def physicsStreamOK(triggerName):
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
-                if (stream.startswith("Physics")) and not (stream.startswith("PhysicsHLTPhysics")) and not (stream.startswith("PhysicsZeroBias")) and not (stream.startswith("PhysicsParking")) and not (stream.startswith("PhysicsScoutingMonitor")):
+                if (stream.startswith("Physics")) and not (stream.startswith("PhysicsHLTPhysics")) and not (stream.startswith("PhysicsZeroBias")) and not (stream.startswith("PhysicsParking")):
                     result = True
     return result
 
@@ -103,7 +103,7 @@ def parkingStreamOK(triggerName):
     for mapKey in triggersStreamMap.keys():
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
-            for stream in triggersStreamMap[mapKey]:
+            for stream in triggersStreamMap[triggerName]:
                 if ("Parking" in stream):
                     result = True
     return result
