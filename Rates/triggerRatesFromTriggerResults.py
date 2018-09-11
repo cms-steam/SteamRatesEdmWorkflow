@@ -87,24 +87,24 @@ parser.add_option("-j","--json",dest="jsonFile",type="str",default="nojson",help
 parser.add_option("-s","--finalstring",dest="finalString",type="str",default="nostr",help="STRING used to name the output",metavar="STRING")
 parser.add_option("-f","--filetype",dest="fileType",type="str",default="custom",help="ARG='custom' (default option), 'RAW' or 'L1Accept', use 'custom' if you're running on STEAM-made files, 'RAW' if you're running on raw data, 'L1Accept' if you're running on L1Accept data",metavar="ARG")
 parser.add_option("-m","--maps",dest="maps",type="str",default="nomaps",help="ARG='nomaps' (default option, don't use maps to get dataste/groups/etc. rates), 'somemaps' (get dataste/groups/etc. rates but with no study of dataset merging), 'allmaps' (get dataste/groups/etc. rates and also study dataset merging)",metavar="ARG")
+parser.add_option("-M","--maxEvents",dest="maxEvents",type="int",default=-1,help="maximum number of events to be processed (default -1 to process all events)",metavar="INT")
 
 opts, args = parser.parse_args()
 
 
 error_text = '\nError: wrong inputs\n'
-help_text = '\npython triggerRatesFromTriggerResults.py -i <inputfile> -j <json> -s <finalstring> -f <filetype> -m <maps>'
+help_text = '\npython triggerRatesFromTriggerResults.py -i <inputfile> -j <json> -s <finalstring> -f <filetype> -m <maps> -M <maxEvents>'
 help_text += '\n<inputfile> (mandatory argument) = one (1) input root file'
 help_text += '\n<json> (mandatory) = text file with the LS range in json format'
 help_text += '\n<finalstring> (mandatory) = string which will provide a unique tag to the output'
 help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW" or "L1Accept"'
 help_text += '\n<maps> (optional) = "nomaps" (default option, use none of the maps), "somemaps" (use all maps except those related to dataset merging), "allmaps" (use all maps, including dataset merging)\n'
+help_text += '\n<maxEvents> (optional) maximum number of events to be processed\n'
 
 if opts.inputFile == "noroot" or opts.jsonFile == "nojson" or opts.finalString == "nostr":
     print error_text
     print help_text
     sys.exit(2)
-
-
 
 isRawFiles = False
 isL1Accept = False
@@ -122,6 +122,7 @@ else:
     sys.exit(2)
 
 final_string = opts.finalString
+maxEvents = opts.maxEvents
 
 bUseMaps = False
 if opts.maps == "allmaps":
@@ -132,6 +133,7 @@ if opts.maps == "allmaps":
     from Menu_HLT import streamMap as  triggersStreamMap
     from Menu_HLT import typeMap as  triggersTypeMap
     from aux import physicsStreamOK
+    from aux import physicsStreamOK_forDatasets
     from aux import scoutingStreamOK
     from aux import parkingStreamOK
     from aux import belongsToPAG
@@ -143,6 +145,7 @@ elif opts.maps == "somemaps":
     from Menu_HLT import streamMap as  triggersStreamMap
     from Menu_HLT import typeMap as  triggersTypeMap
     from aux import physicsStreamOK
+    from aux import physicsStreamOK_forDatasets
     from aux import scoutingStreamOK
     from aux import parkingStreamOK
     from aux import belongsToPAG
@@ -199,7 +202,13 @@ s_strippedTrigger=""
 s_dataset1=""
 for event in events: 
     n += 1
-    #if n == 10000: break
+
+    if n%1000==0:
+        print "Processing entry ",n
+
+    if maxEvents>0 and n >= maxEvents: 
+        break
+
     #taking trigger informations: names, bits and products
     event.getByLabel(triggerBitLabel, triggerBits)
     names = event.object().triggerNames(triggerBits.product())    
@@ -469,6 +478,12 @@ for event in events:
     nEvents += 1
 
 n += 1
+
+
+print "\n\nN_LS=",nLS,"   N_eventsInLoop=",n,"   N_eventsProcessed=",nEvents
+print "nPassed_Physics=",nPassed_Physics
+
+
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
 
@@ -604,13 +619,7 @@ if atLeastOneEvent:
         misc_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
         i = 0
         for key in primaryDatasetList:
-            isPhysicsDataset = False
-        
-            for trigger in myPaths:
-                strippedTrigger = trigger.rstrip("0123456789")
-                if not strippedTrigger in datasets.keys(): continue
-                if physicsStreamOK(strippedTrigger) and (key in datasets[strippedTrigger]): isPhysicsDataset = True
-            if isPhysicsDataset:
+            if physicsStreamOK_forDatasets(key):
                 physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))
                 physics_dataset_file.write('\n')
             else:
@@ -627,7 +636,6 @@ if atLeastOneEvent:
                 datasetDataset_file.write(", " + str(datasetDatasetCorrMatrix[key2][key]))
                 datasetDataset_histo.GetXaxis().SetBinLabel(j, key2)
                 datasetDataset_histo.SetBinContent(j, i, datasetDatasetCorrMatrix[key2][key])
-                if i == j : print key2, key
             datasetDataset_file.write("\n")
         
         if opts.maps == "allmaps":
@@ -637,17 +645,14 @@ if atLeastOneEvent:
             for key in newDatasetList:
                 isPhysicsDataset = False
             
-                for trigger in myPaths:
-                    strippedTrigger = trigger.rstrip("0123456789")
-                    if physicsStreamOK(strippedTrigger):
-                        if (key in datasets[strippedTrigger]):
+                if physicsStreamOK_forDatasets(key):
+                    isPhysicsDataset = True
+                elif not (key in primaryDatasetList):
+                    for old_dataset in newDatasetMap.keys():
+                        if not (key in newDatasetMap[old_dataset]): continue
+                        if physicsStreamOK_forDatasets(old_dataset):
                             isPhysicsDataset = True
-                        elif not (key in primaryDatasetList):
-                            for old_dataset in newDatasetMap.keys():
-                                if not (key in newDatasetMap[old_dataset]): continue
-                                if old_dataset in datasets[strippedTrigger]:
-                                    isPhysicsDataset = True
-                                    break
+                            break
                 if isPhysicsDataset:
                     newDataset_file.write(str(key) + ", " + str(newDatasetCounts[key]) +", " + str(newDatasetCounts[key]))
                     newDataset_file.write('\n')
