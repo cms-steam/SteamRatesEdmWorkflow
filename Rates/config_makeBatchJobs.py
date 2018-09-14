@@ -21,7 +21,7 @@ import sys
 #Type True if you want to remake them, False otherwise
 makeInputFilesList = True
 #Directory where your input root files are located
-inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/HLTPhysics_v2p1Menu_run316058/"
+inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/HLTPhysics_GRunV74_run319941/"
 
 #Were your input files produced by STEAM? If yes, file_type = "custom"
 #Are these raw data files?
@@ -32,15 +32,15 @@ file_type = "custom"
 #file_type = "L1Accept"
 
 #Directory where the top of your CMSSW release is located
-cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/2017_STEAM/For_Data/CMSSW_9_2_12/src"
+cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/CMSSW_10_1_9_patch1/src"
 
 #Json file
-json_file = "/afs/cern.ch/user/n/ndaci/public/STEAM/JSON/Process2018A/json_316058_Pu48p7to52.txt"
+json_file = "/afs/cern.ch/work/c/chench/public/json_319941.txt"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
-maps = "nomaps" #recommended if you're an HLT dev
-#maps = "somemaps" #if you want dataset/group/etc. rates but no dataset merging study
+#maps = "nomaps" #recommended if you're an HLT dev
+maps = "somemaps" #if you want dataset/group/etc. rates but no dataset merging study
 #maps = "allmaps" #if you want to study dataset merging
 
 #Do you wish to use any unusual (non-default) options for the batch queue, and the number of files processed per job?
@@ -48,7 +48,7 @@ maps = "nomaps" #recommended if you're an HLT dev
 isUnusual = True
 #If you do, please also specify the following parameters:
 #number of files processed per job
-n = 5
+n = 10
 #Batch queue where you wish to send the jobs
 queue = "1nh"
 '''
