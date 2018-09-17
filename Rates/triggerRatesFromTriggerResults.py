@@ -224,7 +224,9 @@ for event in events:
                 strippedTrigger = name.rstrip("0123456789")
                 bVersionNumbers = True
                 for key in triggersDatasetMap.keys():
-                    if key.endswith("v"): bVersionNumbers = False
+                    if key.rstrip("0123456789") == strippedTrigger:
+                        if key.endswith("v"): bVersionNumbers = False
+                        break
                 actualKey = ""
                 if bVersionNumbers:
                     actualKey = name
