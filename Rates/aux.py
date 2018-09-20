@@ -6,14 +6,14 @@ import subprocess
 
 datasets_for_corr=[
 "NoBPTX",
-"DoubleEG",
-"SingleElectron",
-"SinglePhoton",
-"BTagCSV",
+#"DoubleEG",
+#"SingleElectron",
+#"SinglePhoton",
+#"BTagCSV",
 "BTagMu",
 "DisplacedJet",
 "EGamma",
-"HTMHT",
+#"HTMHT",
 "JetHT",
 "MET",
 "Tau",
@@ -75,37 +75,6 @@ def belongsToPAG(triggerName):
                     break
     return result
 
-
-
-def goodPhysicsStream(stream):
-    result = False
-
-    badStrings = [
-    "PhysicsHLTPhysics",
-    "PhysicsZeroBias",
-    "PhysicsParking",
-    "PhysicsScoutingMonitor",
-    ]
-
-    if stream.startswith("Physics"):
-        result = True
-        for string in badStrings:
-            if stream.startswith(string):
-                result = False
-                break
-    return result
-
-
-def physicsStreamOK_forDatasets(datasetName):
-    from Menu_HLT import datasetStreamMap
-    result=False
-    if datasetName in datasetStreamMap.keys():
-        stream = datasetStreamMap[datasetName]
-        if goodPhysicsStream(stream):
-            result = True
-    return result
-
-
 def physicsStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
@@ -113,9 +82,8 @@ def physicsStreamOK(triggerName):
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
-                if goodPhysicsStream(stream):
+                if (stream.startswith("Physics")) and not (stream.startswith("PhysicsHLTPhysics")) and not (stream.startswith("PhysicsZeroBias")) and not (stream.startswith("PhysicsParking")) and not (stream.startswith("PhysicsScoutingMonitor")):
                     result = True
-                    break
     return result
 
 def scoutingStreamOK(triggerName):
@@ -127,7 +95,6 @@ def scoutingStreamOK(triggerName):
             for stream in triggersStreamMap[mapKey]:
                 if (stream.startswith("Scouting")):
                     result = True
-                    break
     return result
 
 def parkingStreamOK(triggerName):
@@ -139,7 +106,6 @@ def parkingStreamOK(triggerName):
             for stream in triggersStreamMap[mapKey]:
                 if ("Parking" in stream):
                     result = True
-                    break
     return result
 
 def datasetOK(dataset):

@@ -199,6 +199,12 @@ ROOT.gStyle.SetOptStat(0)
 ROOT.gStyle.SetPalette(kInvertedDarkBodyRadiator)
 
 
+datasets = {}
+for trigger in triggersDatasetMap.keys():
+    strippedTrigger = trigger.rstrip("0123456789")
+    datasets.update({str(strippedTrigger):triggersDatasetMap[trigger]})
+
+
 #file=ROOT.TFile("final.root","r")
 root_file=ROOT.TFile("Results/histos.root","R")
 #root_file=ROOT.TFile("Results/Raw/Root/corr_histos_120.root","R")
@@ -215,8 +221,8 @@ for i in range(0,tD_histo.GetNbinsX()):
     triggerList=[]
     for j in range(1,tD_histo.GetNbinsY()+1):
         trigger = tD_histo.GetYaxis().GetBinLabel(j)
-        if not trigger in triggersDatasetMap: continue
-        if dataset in triggersDatasetMap[trigger] and physicsStreamOK(trigger):
+        if not trigger in datasets: continue
+        if dataset in datasets[trigger] and physicsStreamOK(trigger):
             nbinsY += 1
             triggerList.append(trigger)
     if (nbinsY <= 0): continue
@@ -261,7 +267,7 @@ for i in range(0,tD_histo.GetNbinsX()):
                 if bin_content > 5: bin_content = round(tD_histo.GetBinContent(ii, jj),0)
                 triggerDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
 
-                if dataset2 in triggersDatasetMap[trigger]:
+                if dataset2 in datasets[trigger]:
                     iii+=1
                     triggerDataset_histo[inumber].GetXaxis().SetBinLabel(iii, dataset2+"**")
                     bin_content = round(tD_histo.GetBinContent(tD_histo.GetNbinsX(), jj),2)
@@ -283,15 +289,15 @@ if opts.newDataset == "yes":
         triggerList=[]
         for j in range(1,newtD_histo.GetNbinsY()+1):
             trigger = newtD_histo.GetYaxis().GetBinLabel(j)
-            if not trigger in triggersDatasetMap: continue
+            if not trigger in datasets: continue
             appendTrigger = False
             if physicsStreamOK(trigger):
-                if dataset in triggersDatasetMap[trigger]:
+                if dataset in datasets[trigger]:
                     appendTrigger = True
                 else:
                     for old_dataset in newDatasetMap.keys():
                         if not (dataset in newDatasetMap[old_dataset]): continue
-                        if old_dataset in triggersDatasetMap[trigger]:
+                        if old_dataset in datasets[trigger]:
                             appendTrigger = True
                             break
             if appendTrigger:
@@ -340,12 +346,12 @@ if opts.newDataset == "yes":
                     triggerNewDataset_histo[inumber].SetBinContent(iii, jnumber, bin_content)
     
                     doIt = False
-                    if dataset2 in triggersDatasetMap[trigger]:
+                    if dataset2 in datasets[trigger]:
                         doIt = True
                     else:
                         for old_dataset in newDatasetMap.keys():
                             if dataset2 in newDatasetMap[old_dataset]:
-                                if old_dataset in triggersDatasetMap[trigger]: doIt = True
+                                if old_dataset in datasets[trigger]: doIt = True
                                 break
                     if doIt:
                         iii+=1
