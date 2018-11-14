@@ -86,7 +86,7 @@ for infile in fileInputNames:
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")
-    tmp_job.write("python triggerRatesFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(k), opts.fileType, opts.maps))
+    tmp_job.write("python triggerCountsFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(k), opts.fileType, opts.maps))
     tmp_job.write("\n")
     tmp_job.close()
     tmp_job_dir = MYDIR+'/Jobs/sub_job/'+tmp_jobname

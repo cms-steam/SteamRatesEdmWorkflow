@@ -133,7 +133,6 @@ if opts.maps == "allmaps":
     from Menu_HLT import streamMap as  triggersStreamMap
     from Menu_HLT import typeMap as  triggersTypeMap
     from aux import physicsStreamOK
-    from aux import physicsStreamOK_forDatasets
     from aux import scoutingStreamOK
     from aux import parkingStreamOK
     from aux import belongsToPAG
@@ -145,7 +144,6 @@ elif opts.maps == "somemaps":
     from Menu_HLT import streamMap as  triggersStreamMap
     from Menu_HLT import typeMap as  triggersTypeMap
     from aux import physicsStreamOK
-    from aux import physicsStreamOK_forDatasets
     from aux import scoutingStreamOK
     from aux import parkingStreamOK
     from aux import belongsToPAG
@@ -224,9 +222,7 @@ for event in events:
                 strippedTrigger = name.rstrip("0123456789")
                 bVersionNumbers = True
                 for key in triggersDatasetMap.keys():
-                    if key.rstrip("0123456789") == strippedTrigger:
-                        if key.endswith("v"): bVersionNumbers = False
-                        break
+                    if key.endswith("v"): bVersionNumbers = False
                 actualKey = ""
                 if bVersionNumbers:
                     actualKey = name
@@ -480,12 +476,6 @@ for event in events:
     nEvents += 1
 
 n += 1
-
-
-print "\n\nN_LS=",nLS,"   N_eventsInLoop=",n,"   N_eventsProcessed=",nEvents
-print "nPassed_Physics=",nPassed_Physics
-
-
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
 
@@ -621,7 +611,13 @@ if atLeastOneEvent:
         misc_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
         i = 0
         for key in primaryDatasetList:
-            if physicsStreamOK_forDatasets(key):
+            isPhysicsDataset = False
+        
+            for trigger in myPaths:
+                strippedTrigger = trigger.rstrip("0123456789")
+                if not strippedTrigger in datasets.keys(): continue
+                if physicsStreamOK(strippedTrigger) and (key in datasets[strippedTrigger]): isPhysicsDataset = True
+            if isPhysicsDataset:
                 physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))
                 physics_dataset_file.write('\n')
             else:
@@ -647,14 +643,17 @@ if atLeastOneEvent:
             for key in newDatasetList:
                 isPhysicsDataset = False
             
-                if physicsStreamOK_forDatasets(key):
-                    isPhysicsDataset = True
-                elif not (key in primaryDatasetList):
-                    for old_dataset in newDatasetMap.keys():
-                        if not (key in newDatasetMap[old_dataset]): continue
-                        if physicsStreamOK_forDatasets(old_dataset):
+                for trigger in myPaths:
+                    strippedTrigger = trigger.rstrip("0123456789")
+                    if physicsStreamOK(strippedTrigger):
+                        if (key in datasets[strippedTrigger]):
                             isPhysicsDataset = True
-                            break
+                        elif not (key in primaryDatasetList):
+                            for old_dataset in newDatasetMap.keys():
+                                if not (key in newDatasetMap[old_dataset]): continue
+                                if old_dataset in datasets[strippedTrigger]:
+                                    isPhysicsDataset = True
+                                    break
                 if isPhysicsDataset:
                     newDataset_file.write(str(key) + ", " + str(newDatasetCounts[key]) +", " + str(newDatasetCounts[key]))
                     newDataset_file.write('\n')
