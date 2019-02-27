@@ -65,18 +65,6 @@ types = {}
 metBx = ROOT.TH1F("metBx","",4000,0.,4000.)
 muonBx = ROOT.TH1F("muonBx","",4000,0.,4000.)
 #make output dir
-from aux import mergeNames
-
-try:
-    os.system("mkdir Results")
-    os.system("mkdir Results/Raw")
-    for name in mergeNames:
-        os.system("mkdir Results/Raw/"+mergeNames[name])
-    os.system("mkdir Results/Raw/Root")
-    os.system("mkdir Results/Raw/Global")
-except:
-    print "err!"
-    pass
 
 
 #get inputs
@@ -479,29 +467,29 @@ n += 1
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
 
-    global_info_file =  open('Results/Raw/Global/output.global'+final_string+'.csv', 'w')
+    global_info_file =  open('output.global'+final_string+'.csv', 'w')
     global_info_file.write("N_LS, " + str(nLS) + "\n")
     global_info_file.write("N_eventsInLoop, " + str(n) + "\n")
     global_info_file.write("N_eventsProcessed, " + str(nEvents) + "\n")
     global_info_file.close()
     
-    misc_path_file = open('Results/Raw/'+mergeNames['output.path.misc']+'/output.path.misc'+final_string+'.csv', 'w')
+    misc_path_file = open('output.path.misc'+final_string+'.csv', 'w')
     misc_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
     misc_path_file.write("Total Misc, , , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
 
 
-    root_file=ROOT.TFile("Results/Raw/Root/histos"+final_string+".root","RECREATE")
+    root_file=ROOT.TFile("histos"+final_string+".root","RECREATE")
     if bUseMaps:
-        physics_path_file = open('Results/Raw/'+mergeNames['output.path.physics']+'/output.path.physics'+final_string+'.csv', 'w')
+        physics_path_file = open('output.path.physics'+final_string+'.csv', 'w')
         physics_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         physics_path_file.write("Total Physics, , , " + str(nPassed_Physics) + ", " + str(nPassed_Physics) +"\n")
         physics_path_file.write("Total Analysis Physics, , , " + str(nPAGAnalysisPath) + ", " + str(nPAGAnalysisPath) +"\n")
         
-        scouting_path_file = open('Results/Raw/'+mergeNames['output.path.scouting']+'/output.path.scouting'+final_string+'.csv', 'w')
+        scouting_path_file = open('output.path.scouting'+final_string+'.csv', 'w')
         scouting_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         scouting_path_file.write("Total Scouting, , , " + str(nPassed_Scouting) + ", " + str(nPassed_Scouting) +"\n")
         
-        parking_path_file = open('Results/Raw/'+mergeNames['output.path.parking']+'/output.path.parking'+final_string+'.csv', 'w')
+        parking_path_file = open('output.path.parking'+final_string+'.csv', 'w')
         parking_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         parking_path_file.write("Total Parking, , , " + str(nPassed_Parking) + ", " + str(nPassed_Parking) +"\n")
         
@@ -515,11 +503,11 @@ if atLeastOneEvent:
         if opts.maps == "allmaps":
             triggerNewDataset_histo=ROOT.TH2F("trigger_newDataset_corr","New Trigger-Dataset Correlations",len(newDatasetList)+1,0,len(newDatasetList)+1,len(myPaths),0,len(myPaths))
             newDatasetNewDataset_histo=ROOT.TH2F("newDataset_newDataset_corr","New Dataset-Dataset Correlations",len(newDatasetList),0,len(newDatasetList),len(newDatasetList),0,len(newDatasetList))
-            triggerNewDataset_file = open('Results/Raw/'+mergeNames['output.trigger_newDataset_corr']+'/output.trigger_newDataset_corr'+final_string+'.csv', 'w')
-            newDatasetNewDataset_file = open('Results/Raw/'+mergeNames['output.newDataset_newDataset_corr']+'/output.newDataset_newDataset_corr'+final_string+'.csv', 'w')
+            triggerNewDataset_file = open('output.trigger_newDataset_corr'+final_string+'.csv', 'w')
+            newDatasetNewDataset_file = open('output.newDataset_newDataset_corr'+final_string+'.csv', 'w')
         
-        triggerDataset_file = open('Results/Raw/'+mergeNames['output.trigger_dataset_corr']+'/output.trigger_dataset_corr'+final_string+'.csv', 'w')
-        datasetDataset_file = open('Results/Raw/'+mergeNames['output.dataset_dataset_corr']+'/output.dataset_dataset_corr'+final_string+'.csv', 'w')
+        triggerDataset_file = open('output.trigger_dataset_corr'+final_string+'.csv', 'w')
+        datasetDataset_file = open('output.dataset_dataset_corr'+final_string+'.csv', 'w')
         
         
         
@@ -604,8 +592,8 @@ if atLeastOneEvent:
         if opts.maps == "allmaps":
             triggerNewDataset_file.close()
     
-        physics_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.physics']+'/output.dataset.physics'+final_string+'.csv', 'w')
-        misc_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.misc']+'/output.dataset.misc'+final_string+'.csv', 'w')
+        physics_dataset_file = open('output.dataset.physics'+final_string+'.csv', 'w')
+        misc_dataset_file = open('output.dataset.misc'+final_string+'.csv', 'w')
         
         physics_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
         misc_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
@@ -637,7 +625,7 @@ if atLeastOneEvent:
             datasetDataset_file.write("\n")
         
         if opts.maps == "allmaps":
-            newDataset_file = open('Results/Raw/'+mergeNames['output.newDataset.physics']+'/output.newDataset.physics'+final_string+'.csv', 'w')
+            newDataset_file = open('output.newDataset.physics'+final_string+'.csv', 'w')
             newDataset_file.write("Dataset, Counts, Rates (Hz)\n")
             i = 0
             for key in newDatasetList:
@@ -673,7 +661,7 @@ if atLeastOneEvent:
             newDatasetNewDataset_file.close()
         
         
-        group_file = open('Results/Raw/'+mergeNames['output.group']+'/output.group'+final_string+'.csv','w')
+        group_file = open('output.group'+final_string+'.csv','w')
         group_file.write('Groups, Counts, Rates (Hz), Pure Counts, Pure Rates (Hz), Shared Counts, Shared Rates (Hz)\n')
         for key in groupCounts.keys():
             group_file.write(str(key) + ", " + str(groupCounts[key]) +", " + str(groupCounts[key]) + ", " + str(groupCountsPure[key]) +", " + str(groupCountsPure[key]) + ", " + str(groupCountsShared[key]) +", " + str(groupCountsShared[key]))
@@ -681,7 +669,7 @@ if atLeastOneEvent:
         
         group_file.close()
         
-        stream_file = open('Results/Raw/'+mergeNames['output.stream']+'/output.stream'+final_string+'.csv','w')
+        stream_file = open('output.stream'+final_string+'.csv','w')
         stream_file.write('Streams, Counts, Rates (Hz)\n')
         for stream in streamCounts.keys():
             stream_file.write(str(stream) + ", " + str(streamCounts[stream]) +", " + str(streamCounts[stream]) + "\n")
