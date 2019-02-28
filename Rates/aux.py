@@ -2,6 +2,8 @@ import os
 import math
 import shlex
 import subprocess
+import csv
+import ROOT
 #from Menu_HLT import datasetMap as triggersDatasetMap
 
 datasets_for_corr=[
@@ -160,8 +162,93 @@ def reorderList(list_in, reorderingMap):
     return newList
 
 
-def makeListsOfRawOutputs(files_dir):
+def findFileNumber(sstring):
+    lastpoint = sstring.rfind('.')
+    secondlastpoint = sstring.rfind('.', 0, lastpoint-1)
+    file_number = sstring[secondlastpoint:lastpoint+1]
+    return file_number
+    
 
+def makeListsOfRawOutputs(files_dir, fig):
+
+    bad_jobs=[]
+
+    total_dir = files_dir + "/Global"
+    ls_command = runCommand("ls " + total_dir)
+    stdout, stderr = ls_command.communicate()
+    for line in stdout.splitlines():
+        file_string = total_dir + "/" + line
+        try:
+            with open(file_string) as ffile:
+                reader=csv.reader(ffile, delimiter=',')
+                for row in reader:
+                    r = row[0]
+                    break
+        except:
+            bad_jobs.append(findFileNumber(file_string))
+
+    if fig:
+        total_dir = files_dir + "/Root"
+        ls_command = runCommand("ls " + total_dir)
+        stdout, stderr = ls_command.communicate()
+        for line in stdout.splitlines():
+            file_string = total_dir + "/" + line
+            ffile = ROOT.TFile(file_string,"R")
+            if ffile.IsZombie() or not ffile.TestBit(TFile.kRecovered):
+                nnumber = findFileNumber(file_string)
+                if not nnumber in bad_jobs:
+                    bad_jobs.append(nnumber)
+
+    for name in mergeNames:
+        key = name+".csv"
+
+        total_dir = files_dir + "/" + mergeNames[name]
+        ls_command = runCommand("ls " + total_dir )
+        stdout, stderr = ls_command.communicate()
+        for line in stdout.splitlines():
+            file_string = total_dir + "/" + line
+            try:
+                with open(file_string) as ffile:
+                    reader=csv.reader(ffile, delimiter=',')
+                    for row in reader:
+                        r = row[1]
+                        break
+            except:
+                nnumber = findFileNumber(file_string)
+                if not nnumber in bad_jobs:
+                    bad_jobs.append(nnumber)
+
+
+    print bad_jobs
+    globalFiles = []
+    total_dir = files_dir + "/Global"
+    ls_command = runCommand("ls " + total_dir)
+    stdout, stderr = ls_command.communicate()
+    for line in stdout.splitlines():
+        file_string = total_dir + "/" + line
+        bad = False
+        for number in bad_jobs:
+            if number in file_string:
+                bad = True
+                break
+        if not bad:
+            globalFiles.append(file_string)
+
+    rootFiles = []
+    if fig:
+        total_dir = files_dir + "/Root"
+        ls_command = runCommand("ls " + total_dir)
+        stdout, stderr = ls_command.communicate()
+        for line in stdout.splitlines():
+            file_string = total_dir + "/" + line
+            bad = False
+            for number in bad_jobs:
+                if number in file_string:
+                    bad = True
+                    break
+            if not bad:
+                rootFiles.append(file_string)
+    
     masterDic = {}
     for name in mergeNames:
         key = name+".csv"
@@ -171,22 +258,14 @@ def makeListsOfRawOutputs(files_dir):
         ls_command = runCommand("ls " + total_dir )
         stdout, stderr = ls_command.communicate()
         for line in stdout.splitlines():
-            masterDic[key].append(total_dir + "/" + line)
+            file_string = total_dir + "/" + line
+            bad = False
+            for number in bad_jobs:
+                if number in file_string:
+                    bad = True
+                    break
+            if not bad:
+                masterDic[key].append(file_string)
 
-
-    rootFiles = []
-    total_dir = files_dir + "/Root"
-    ls_command = runCommand("ls " + total_dir)
-    stdout, stderr = ls_command.communicate()
-    for line in stdout.splitlines():
-        rootFiles.append(total_dir + "/" + line)
-
-
-    globalFiles = []
-    total_dir = files_dir + "/Global"
-    ls_command = runCommand("ls " + total_dir)
-    stdout, stderr = ls_command.communicate()
-    for line in stdout.splitlines():
-        globalFiles.append(total_dir + "/" + line)
 
     return masterDic, rootFiles, globalFiles

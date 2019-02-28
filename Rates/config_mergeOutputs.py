@@ -26,8 +26,8 @@ maps = "somemaps"
 
 #Do you wish to draw the figures? If you have a slow connection, drawing might take a while
 #This boolean will be set to False if you used the "nomaps" option
-#makeFigures = False
-makeFigures = True
+makeFigures = False
+#makeFigures = True
 
 #Do you wish to take input files from an unusual location (different from the default one)?
 #If you do, set the following boolean to True
