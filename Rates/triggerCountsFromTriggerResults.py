@@ -483,7 +483,7 @@ if atLeastOneEvent:
     misc_path_file.write("Total Misc, , , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
 
 
-    root_file=ROOT.TFile("Jobs/histos"+final_string+".root","RECREATE")
+    root_file=ROOT.TFile("Jobs/histos."+final_string+".root","RECREATE")
     if bUseMaps:
         physics_path_file = open('Jobs/output.path.physics.'+final_string+'.csv', 'w')
         physics_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
