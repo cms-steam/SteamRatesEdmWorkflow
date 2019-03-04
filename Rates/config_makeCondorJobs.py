@@ -19,7 +19,7 @@ import sys
 '''
 #If you already have a list of input files with the proper format, you may not want to remake it
 #Type True if you want to remake them, False otherwise
-makeInputFilesList = True
+makeInputFilesList = False
 #Directory where your input root files are located
 inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/HLTPhysics_GRunV74_run319941/"
 

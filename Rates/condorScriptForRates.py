@@ -84,13 +84,12 @@ for infile in fileInputNames:
 
     tmp_jobname="sub_%s.sh"%(str(i))
     tmp_job=open(MYDIR+'/Jobs/sub_job/'+tmp_jobname,'w')
-    tmp_job.write("curr_dir=%s\n"%(MYDIR))
-    tmp_job.write("cd %s\n"%(MYDIR))
+    tmp_job.write("cd %s/Jobs\n"%(MYDIR))
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")
     tmp_job.write("python triggerCountsFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(i), opts.fileType, opts.maps))
-    tmp_job.write("\npython handleFileTransfer.py -d %s"%(MYDIR))
+    tmp_job.write("\npython handleFileTransfer.py -d %s -s %s"%(MYDIR, str(i)))
     tmp_job.close()
     tmp_job_dir = MYDIR+'/Jobs/sub_job/'+tmp_jobname
     os.system("chmod +x %s"%(tmp_job_dir))

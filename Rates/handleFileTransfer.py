@@ -5,6 +5,7 @@ from aux import mergeNames
 from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-d","--directory",dest="dir",type="str",default="nodir",help="working DIRECTORY",metavar="DIRECTORY")
+parser.add_option("-s","--finalstring",dest="fstr",type="str",default="nostr",help="final STRING",metavar="STRING")
 
 (opts, args) = parser.parse_args()
 
@@ -21,13 +22,11 @@ except:
 
 
 for filename in mergeNames.keys():
-    try:
-        os.system("cp %s*.csv %s/Results/Raw/%s"%(filename, opts.dir, mergeNames[filename]))
-        os.system("rm -f %s*.csv"%filename)
-    except:
-        pass
+    os.system("cp %s.%s.csv %s/Results/Raw/%s"%(filename, opts.fstr, opts.dir, mergeNames[filename]))
+    os.system("rm -f %s.%s.csv"%(filename, opts.fstr))
 
-os.system("cp output.global*.csv %s/Results/Raw/Global"%opts.dir)
-os.system("rm -f output.global*.csv")
-os.system("cp histo*.root %s/Results/Raw/Root"%opts.dir)
-os.system("rm -f histo*.root")
+
+os.system("cp output.global.%s.csv %s/Results/Raw/Global"%(opts.fstr, opts.dir))
+os.system("rm -f output.global.%s.csv"%opts.fstr)
+os.system("cp histos.%s.root %s/Results/Raw/Root"%(opts.fstr, opts.dir))
+os.system("rm -f histo.%s.root"%opts.fstr)
