@@ -84,7 +84,7 @@ for infile in fileInputNames:
 
     tmp_jobname="sub_%s.sh"%(str(i))
     tmp_job=open(MYDIR+'/Jobs/sub_job/'+tmp_jobname,'w')
-    tmp_job.write("cd %s/Jobs\n"%(MYDIR))
+    tmp_job.write("cd %s\n"%(MYDIR))
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")

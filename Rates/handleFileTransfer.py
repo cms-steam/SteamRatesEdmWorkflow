@@ -22,11 +22,11 @@ except:
 
 
 for filename in mergeNames.keys():
-    os.system("cp %s.%s.csv %s/Results/Raw/%s"%(filename, opts.fstr, opts.dir, mergeNames[filename]))
-    os.system("rm -f %s.%s.csv"%(filename, opts.fstr))
+    os.system("cp Jobs/%s.%s.csv %s/Results/Raw/%s"%(filename, opts.fstr, opts.dir, mergeNames[filename]))
+    os.system("rm -f Jobs/%s.%s.csv"%(filename, opts.fstr))
 
 
-os.system("cp output.global.%s.csv %s/Results/Raw/Global"%(opts.fstr, opts.dir))
-os.system("rm -f output.global.%s.csv"%opts.fstr)
-os.system("cp histos.%s.root %s/Results/Raw/Root"%(opts.fstr, opts.dir))
-os.system("rm -f histo.%s.root"%opts.fstr)
+os.system("cp Jobs/output.global.%s.csv %s/Results/Raw/Global"%(opts.fstr, opts.dir))
+os.system("rm -f Jobs/output.global.%s.csv"%opts.fstr)
+os.system("cp Jobs/histos.%s.root %s/Results/Raw/Root"%(opts.fstr, opts.dir))
+os.system("rm -f Jobs/histos.%s.root"%opts.fstr)
