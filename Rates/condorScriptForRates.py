@@ -44,13 +44,9 @@ print 'job flavour = %s'%opts.jobFlavour
 
 #make directories for the jobs
 try:
-    os.system('rm -r Jobs')
+    os.system('rm -rf Jobs')
     os.system('mkdir Jobs')
-    os.system('mkdir Jobs/sub_err')
-    os.system('mkdir Jobs/sub_out')
-    os.system('mkdir Jobs/sub_job')
-    os.system('mkdir Jobs/sub_job2')
-    os.system('mkdir Jobs/sub_log')
+    os.system('mkdir Jobs/sub_raw')
 except:
     print "err!"
     pass
@@ -83,7 +79,7 @@ for infile in fileInputNames:
     #print 'total: %d/%d  ;  %.1f %% processed '%(j,my_sum,(100*float(j)/float(my_sum)))
 
     tmp_jobname="sub_%s.sh"%(str(i))
-    tmp_job=open(MYDIR+'/Jobs/sub_job/'+tmp_jobname,'w')
+    tmp_job=open(MYDIR+'/Jobs/sub_raw/'+tmp_jobname,'w')
     tmp_job.write("cd %s\n"%(MYDIR))
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
@@ -91,7 +87,7 @@ for infile in fileInputNames:
     tmp_job.write("python triggerCountsFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(i), opts.fileType, opts.maps))
     tmp_job.write("\npython handleFileTransfer.py -d %s -s %s"%(MYDIR, str(i)))
     tmp_job.close()
-    tmp_job_dir = MYDIR+'/Jobs/sub_job/'+tmp_jobname
+    tmp_job_dir = MYDIR+'/Jobs/sub_raw/'+tmp_jobname
     os.system("chmod +x %s"%(tmp_job_dir))
 
 
@@ -101,19 +97,19 @@ for infile in fileInputNames:
     if k==loop_mark or i==len(fileInputNames):
         k=0
         Tjobsname = "sub_%s.sh"%i
-        Tjob_dir = MYDIR+'/Jobs/sub_job2/'+Tjobsname
+        Tjob_dir = MYDIR+'/Jobs/Job_%s/&s'%(i, Tjobsname)
         Tjob = open(Tjob_dir,"w")
         Tjob.write("%s"%(tmp_text))
         tmp_text='#!/bin/sh\n'
         os.system("chmod +x %s"%(Tjob_dir))
         if i==len(fileInputNames):
             condor_str = "executable = $(filename)\n"
-            condor_str += "arguments = $Fnx(filename) $(ClusterID) $(ProcId)\n"
-            condor_str += "output = Jobs/sub_out/counts.$(ClusterId).$(ProcId).stdout\n"
-            condor_str += "error = Jobs/sub_err/counts.$(ClusterId).$(ProcId).stderr\n"
-            condor_str += "log = Jobs/sub_log/counts.$(ClusterId).$(ProcId).log\n"
+            condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
+            condor_str += "output = $Fp(filename)counts.stdout\n"
+            condor_str += "error = $Fp(filename)counts..stderr\n"
+            condor_str += "log = $Fp(filename)counts.log\n"
             condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
-            condor_str += "queue filename matching ("+MYDIR+"/Jobs/sub_job2/*.sh)"
+            condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
             condor_name = MYDIR+"/condor_cluster.sub"
             condor_file = open(condor_name, "w")
             condor_file.write(condor_str)
