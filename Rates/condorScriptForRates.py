@@ -108,7 +108,7 @@ for infile in fileInputNames:
 condor_str = "executable = $(filename)\n"
 condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
 condor_str += "output = $Fp(filename)counts.stdout\n"
-condor_str += "error = $Fp(filename)counts..stderr\n"
+condor_str += "error = $Fp(filename)counts.stderr\n"
 condor_str += "log = $Fp(filename)counts.log\n"
 condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
 condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
