@@ -92,26 +92,28 @@ for infile in fileInputNames:
 
 
     tmp_text = tmp_text + tmp_job_dir + "\n"
-    i+=1
     k+=1
     if k==loop_mark or i==len(fileInputNames):
         k=0
         Tjobsname = "sub_%s.sh"%i
-        Tjob_dir = MYDIR+'/Jobs/Job_%s/&s'%(i, Tjobsname)
-        Tjob = open(Tjob_dir,"w")
+        Tjob_dir = '%s/Jobs/Job_%s/'%(MYDIR, str(i))
+        os.system("mkdir %s"%Tjob_dir)
+        Tjob = open(Tjob_dir+Tjobsname,"w")
         Tjob.write("%s"%(tmp_text))
         tmp_text='#!/bin/sh\n'
         os.system("chmod +x %s"%(Tjob_dir))
-        if i==len(fileInputNames):
-            condor_str = "executable = $(filename)\n"
-            condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
-            condor_str += "output = $Fp(filename)counts.stdout\n"
-            condor_str += "error = $Fp(filename)counts..stderr\n"
-            condor_str += "log = $Fp(filename)counts.log\n"
-            condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
-            condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
-            condor_name = MYDIR+"/condor_cluster.sub"
-            condor_file = open(condor_name, "w")
-            condor_file.write(condor_str)
-            sub_total.write("condor_submit %s\n"%condor_name)
+
+    i+=1
+
+condor_str = "executable = $(filename)\n"
+condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
+condor_str += "output = $Fp(filename)counts.stdout\n"
+condor_str += "error = $Fp(filename)counts..stderr\n"
+condor_str += "log = $Fp(filename)counts.log\n"
+condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
+condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
+condor_name = MYDIR+"/condor_cluster.sub"
+condor_file = open(condor_name, "w")
+condor_file.write(condor_str)
+sub_total.write("condor_submit %s\n"%condor_name)
 os.system("chmod +x sub_total.jobb")
