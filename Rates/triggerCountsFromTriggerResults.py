@@ -215,7 +215,9 @@ for event in events:
                 strippedTrigger = name.rstrip("0123456789")
                 bVersionNumbers = True
                 for key in triggersDatasetMap.keys():
-                    if key.endswith("v"): bVersionNumbers = False
+                    if key.rstrip("0123456789") == strippedTrigger:
+                        if key.endswith("v"): bVersionNumbers = False
+                        break
                 actualKey = ""
                 if bVersionNumbers:
                     actualKey = name
@@ -301,6 +303,8 @@ for event in events:
                     triggerNewDatasetCorrMatrix[dataset1] = aux_dic.copy()
                 triggerNewDatasetCorrMatrix[dummy_nonpure] = aux_dic.copy()
 
+
+        print datasets
 
     #check if event is in the json range
     runnbr = event.object().id().run()
