@@ -25,12 +25,13 @@ parser.add_option("-f", action="store_true", dest="figures")
 opts, args = parser.parse_args()
 
 error_text = '\nError: wrong inputs\n'
-help_text = '\npython mergeOutputs.py -l <lumiin> -t <lumitarget> -p <hltps> -d <dir> -m <merging>\n'
+help_text = '\npython mergeOutputs.py -l <lumiin> -t <lumitarget> -p <hltps> -d <dir> -m <merging>\n -f'
 help_text += '(mandatory argument) <lumiin> = VALUE corresponding to the average instant lumi in your json\n'
 help_text += '(mandatory) <lumitarget> = VALUE corresponding to the target instant lumi for which you wish to calculate your rates\n'
 help_text += '(mandatory) <hltps> = PRESCALE of the HLT_physics trigger\n'
 help_text += '(optional) <dir> = DIR where the output of the batch jobs are located'
 help_text += '\n(optional) <maps> = "nomaps" (default option, use none of the maps), "somemaps" (use all maps except those related to dataset merging), "allmaps" (use all maps, including dataset merging)\n'
+help_text += '\n(optional) -f  : Adding this option merges the root files which are used to produce trigger-dataset and dataset-dataset correlation figures. By default root files are NOT merged\n'
 if opts.lumiIn == -1 or opts.lumiTarget == -1 or opts.hltPS == -1:
     print error_text
     print help_text
