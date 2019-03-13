@@ -26,6 +26,11 @@ def checkTriggerIndex(name,index, names):
 
 def check_json(jsonf, runNo_in, LS):
     runNo = str(runNo_in)
+    try:
+        os.system("ls %s"%jsonf)
+    except:
+        print "\n\n\n!!! JSON file not found!!!\n\n\n"
+        sys.exit(2)
     file1=open(jsonf,'r')
     inp1={}
     text = ""
@@ -65,18 +70,6 @@ types = {}
 metBx = ROOT.TH1F("metBx","",4000,0.,4000.)
 muonBx = ROOT.TH1F("muonBx","",4000,0.,4000.)
 #make output dir
-from aux import mergeNames
-
-try:
-    os.system("mkdir Results")
-    os.system("mkdir Results/Raw")
-    for name in mergeNames:
-        os.system("mkdir Results/Raw/"+mergeNames[name])
-    os.system("mkdir Results/Raw/Root")
-    os.system("mkdir Results/Raw/Global")
-except:
-    print "err!"
-    pass
 
 
 #get inputs
@@ -133,7 +126,6 @@ if opts.maps == "allmaps":
     from Menu_HLT import streamMap as  triggersStreamMap
     from Menu_HLT import typeMap as  triggersTypeMap
     from aux import physicsStreamOK
-    from aux import physicsStreamOK_forDatasets
     from aux import scoutingStreamOK
     from aux import parkingStreamOK
     from aux import belongsToPAG
@@ -145,7 +137,6 @@ elif opts.maps == "somemaps":
     from Menu_HLT import streamMap as  triggersStreamMap
     from Menu_HLT import typeMap as  triggersTypeMap
     from aux import physicsStreamOK
-    from aux import physicsStreamOK_forDatasets
     from aux import scoutingStreamOK
     from aux import parkingStreamOK
     from aux import belongsToPAG
@@ -224,7 +215,9 @@ for event in events:
                 strippedTrigger = name.rstrip("0123456789")
                 bVersionNumbers = True
                 for key in triggersDatasetMap.keys():
-                    if key.endswith("v"): bVersionNumbers = False
+                    if key.rstrip("0123456789") == strippedTrigger:
+                        if key.endswith("v"): bVersionNumbers = False
+                        break
                 actualKey = ""
                 if bVersionNumbers:
                     actualKey = name
@@ -310,6 +303,8 @@ for event in events:
                     triggerNewDatasetCorrMatrix[dataset1] = aux_dic.copy()
                 triggerNewDatasetCorrMatrix[dummy_nonpure] = aux_dic.copy()
 
+
+        print datasets
 
     #check if event is in the json range
     runnbr = event.object().id().run()
@@ -478,38 +473,32 @@ for event in events:
     nEvents += 1
 
 n += 1
-
-
-print "\n\nN_LS=",nLS,"   N_eventsInLoop=",n,"   N_eventsProcessed=",nEvents
-print "nPassed_Physics=",nPassed_Physics
-
-
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
 
-    global_info_file =  open('Results/Raw/Global/output.global'+final_string+'.csv', 'w')
+    global_info_file =  open('Jobs/output.global.'+final_string+'.csv', 'w')
     global_info_file.write("N_LS, " + str(nLS) + "\n")
     global_info_file.write("N_eventsInLoop, " + str(n) + "\n")
     global_info_file.write("N_eventsProcessed, " + str(nEvents) + "\n")
     global_info_file.close()
     
-    misc_path_file = open('Results/Raw/'+mergeNames['output.path.misc']+'/output.path.misc'+final_string+'.csv', 'w')
+    misc_path_file = open('Jobs/output.path.misc.'+final_string+'.csv', 'w')
     misc_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
     misc_path_file.write("Total Misc, , , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
 
 
-    root_file=ROOT.TFile("Results/Raw/Root/histos"+final_string+".root","RECREATE")
+    root_file=ROOT.TFile("Jobs/histos."+final_string+".root","RECREATE")
     if bUseMaps:
-        physics_path_file = open('Results/Raw/'+mergeNames['output.path.physics']+'/output.path.physics'+final_string+'.csv', 'w')
+        physics_path_file = open('Jobs/output.path.physics.'+final_string+'.csv', 'w')
         physics_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         physics_path_file.write("Total Physics, , , " + str(nPassed_Physics) + ", " + str(nPassed_Physics) +"\n")
         physics_path_file.write("Total Analysis Physics, , , " + str(nPAGAnalysisPath) + ", " + str(nPAGAnalysisPath) +"\n")
         
-        scouting_path_file = open('Results/Raw/'+mergeNames['output.path.scouting']+'/output.path.scouting'+final_string+'.csv', 'w')
+        scouting_path_file = open('Jobs/output.path.scouting.'+final_string+'.csv', 'w')
         scouting_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         scouting_path_file.write("Total Scouting, , , " + str(nPassed_Scouting) + ", " + str(nPassed_Scouting) +"\n")
         
-        parking_path_file = open('Results/Raw/'+mergeNames['output.path.parking']+'/output.path.parking'+final_string+'.csv', 'w')
+        parking_path_file = open('Jobs/output.path.parking.'+final_string+'.csv', 'w')
         parking_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         parking_path_file.write("Total Parking, , , " + str(nPassed_Parking) + ", " + str(nPassed_Parking) +"\n")
         
@@ -523,11 +512,11 @@ if atLeastOneEvent:
         if opts.maps == "allmaps":
             triggerNewDataset_histo=ROOT.TH2F("trigger_newDataset_corr","New Trigger-Dataset Correlations",len(newDatasetList)+1,0,len(newDatasetList)+1,len(myPaths),0,len(myPaths))
             newDatasetNewDataset_histo=ROOT.TH2F("newDataset_newDataset_corr","New Dataset-Dataset Correlations",len(newDatasetList),0,len(newDatasetList),len(newDatasetList),0,len(newDatasetList))
-            triggerNewDataset_file = open('Results/Raw/'+mergeNames['output.trigger_newDataset_corr']+'/output.trigger_newDataset_corr'+final_string+'.csv', 'w')
-            newDatasetNewDataset_file = open('Results/Raw/'+mergeNames['output.newDataset_newDataset_corr']+'/output.newDataset_newDataset_corr'+final_string+'.csv', 'w')
+            triggerNewDataset_file = open('Jobs/output.trigger_newDataset_corr.'+final_string+'.csv', 'w')
+            newDatasetNewDataset_file = open('Jobs/output.newDataset_newDataset_corr.'+final_string+'.csv', 'w')
         
-        triggerDataset_file = open('Results/Raw/'+mergeNames['output.trigger_dataset_corr']+'/output.trigger_dataset_corr'+final_string+'.csv', 'w')
-        datasetDataset_file = open('Results/Raw/'+mergeNames['output.dataset_dataset_corr']+'/output.dataset_dataset_corr'+final_string+'.csv', 'w')
+        triggerDataset_file = open('Jobs/output.trigger_dataset_corr.'+final_string+'.csv', 'w')
+        datasetDataset_file = open('Jobs/output.dataset_dataset_corr.'+final_string+'.csv', 'w')
         
         
         
@@ -612,14 +601,20 @@ if atLeastOneEvent:
         if opts.maps == "allmaps":
             triggerNewDataset_file.close()
     
-        physics_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.physics']+'/output.dataset.physics'+final_string+'.csv', 'w')
-        misc_dataset_file = open('Results/Raw/'+mergeNames['output.dataset.misc']+'/output.dataset.misc'+final_string+'.csv', 'w')
+        physics_dataset_file = open('Jobs/output.dataset.physics.'+final_string+'.csv', 'w')
+        misc_dataset_file = open('Jobs/output.dataset.misc.'+final_string+'.csv', 'w')
         
         physics_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
         misc_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
         i = 0
         for key in primaryDatasetList:
-            if physicsStreamOK_forDatasets(key):
+            isPhysicsDataset = False
+        
+            for trigger in myPaths:
+                strippedTrigger = trigger.rstrip("0123456789")
+                if not strippedTrigger in datasets.keys(): continue
+                if physicsStreamOK(strippedTrigger) and (key in datasets[strippedTrigger]): isPhysicsDataset = True
+            if isPhysicsDataset:
                 physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))
                 physics_dataset_file.write('\n')
             else:
@@ -639,20 +634,23 @@ if atLeastOneEvent:
             datasetDataset_file.write("\n")
         
         if opts.maps == "allmaps":
-            newDataset_file = open('Results/Raw/'+mergeNames['output.newDataset.physics']+'/output.newDataset.physics'+final_string+'.csv', 'w')
+            newDataset_file = open('Jobs/output.newDataset.physics.'+final_string+'.csv', 'w')
             newDataset_file.write("Dataset, Counts, Rates (Hz)\n")
             i = 0
             for key in newDatasetList:
                 isPhysicsDataset = False
             
-                if physicsStreamOK_forDatasets(key):
-                    isPhysicsDataset = True
-                elif not (key in primaryDatasetList):
-                    for old_dataset in newDatasetMap.keys():
-                        if not (key in newDatasetMap[old_dataset]): continue
-                        if physicsStreamOK_forDatasets(old_dataset):
+                for trigger in myPaths:
+                    strippedTrigger = trigger.rstrip("0123456789")
+                    if physicsStreamOK(strippedTrigger):
+                        if (key in datasets[strippedTrigger]):
                             isPhysicsDataset = True
-                            break
+                        elif not (key in primaryDatasetList):
+                            for old_dataset in newDatasetMap.keys():
+                                if not (key in newDatasetMap[old_dataset]): continue
+                                if old_dataset in datasets[strippedTrigger]:
+                                    isPhysicsDataset = True
+                                    break
                 if isPhysicsDataset:
                     newDataset_file.write(str(key) + ", " + str(newDatasetCounts[key]) +", " + str(newDatasetCounts[key]))
                     newDataset_file.write('\n')
@@ -672,7 +670,7 @@ if atLeastOneEvent:
             newDatasetNewDataset_file.close()
         
         
-        group_file = open('Results/Raw/'+mergeNames['output.group']+'/output.group'+final_string+'.csv','w')
+        group_file = open('Jobs/output.group.'+final_string+'.csv','w')
         group_file.write('Groups, Counts, Rates (Hz), Pure Counts, Pure Rates (Hz), Shared Counts, Shared Rates (Hz)\n')
         for key in groupCounts.keys():
             group_file.write(str(key) + ", " + str(groupCounts[key]) +", " + str(groupCounts[key]) + ", " + str(groupCountsPure[key]) +", " + str(groupCountsPure[key]) + ", " + str(groupCountsShared[key]) +", " + str(groupCountsShared[key]))
@@ -680,7 +678,7 @@ if atLeastOneEvent:
         
         group_file.close()
         
-        stream_file = open('Results/Raw/'+mergeNames['output.stream']+'/output.stream'+final_string+'.csv','w')
+        stream_file = open('Jobs/output.stream.'+final_string+'.csv','w')
         stream_file.write('Streams, Counts, Rates (Hz)\n')
         for stream in streamCounts.keys():
             stream_file.write(str(stream) + ", " + str(streamCounts[stream]) +", " + str(streamCounts[stream]) + "\n")

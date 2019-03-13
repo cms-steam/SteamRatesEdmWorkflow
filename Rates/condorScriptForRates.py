@@ -14,21 +14,21 @@ parser.add_option("-j","--json",dest="jsonFile",type="str",default="nojson",help
 parser.add_option("-e","--env",dest="cmsEnv",type="str",default="noenv",help="DIRECTORY where the top of a CMSSW release can be found : /bla/bla/CMSSW_X_X/src",metavar="DIRECTORY")
 parser.add_option("-i","--infiles",dest="inputFilesDir",type="str",default="no",help="In case you want to rerun the make_filesInput.py script, specify the DIR where the input files are located",metavar="DIR")
 parser.add_option("-f","--filetype",dest="fileType",type="str",default="custom",help="ARG='custom' (default option) or 'RAW', use 'custom' if you're running on STEAM-made files, 'RAW' if you're running on raw data",metavar="ARG")
-parser.add_option("-n",dest="nPerJob",type="int",default=5,help="NUMBER of files processed per batch job",metavar="NUMBER")
-parser.add_option("-q","--queue",dest="batchQueue",type="str",default="8nh",help="batch QUEUE",metavar="QUEUE")
+parser.add_option("-n",dest="nPerJob",type="int",default=5,help="NUMBER of files processed per job",metavar="NUMBER")
+parser.add_option("-q","--flavour",dest="jobFlavour",type="str",default="workday",help="job FLAVOUR",metavar="FLAVOUR")
 parser.add_option("-m","--maps",dest="maps",type="str",default="nomaps",help="ARG='nomaps' (default option, don't use maps to get dataste/groups/etc. rates), 'somemaps' (get dataset/groups/etc. rates but with no study of dataset merging), 'allmaps' (get dataset/groups/etc. rates and also study dataset merging)",metavar="ARG")
 
 opts, args = parser.parse_args()
 
 
 error_text = '\n\nError: wrong <json>=%s or <CMSSWrel>=%s inputs\n' %(opts.jsonFile, opts.cmsEnv)
-help_text = '\npython batchScriptForRates.py -j <json> -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <batchQueue> -m <merging>'
+help_text = '\npython batchScriptForRates.py -j <json> -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
 help_text += '\n<json> (mandatory argument) = text file with the LS range in json format'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<infilesDir> (optional) = directory where the input root files are located (default = will take whatever is in the filesInput.py file)'
 help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW"'
 help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=5)'
-help_text += '\n<nPerJob> (optional) = batch queue (default=8nh)\n'
+help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 help_text += '\n<maps> (optional) = "nomaps" (default option) or "somemaps" or "allmaps""\n'
 
 if opts.jsonFile == "nojson" or opts.cmsEnv == "noenv":
@@ -39,18 +39,14 @@ if opts.jsonFile == "nojson" or opts.cmsEnv == "noenv":
 print 'json = %s'%opts.jsonFile
 print 'CMSSWrel = %s'%opts.cmsEnv
 print 'file type = %s'%opts.fileType
-print 'files processed per job = %s'%opts.nPerJob
-print 'batch queue = %s'%opts.batchQueue
+print 'job flavour = %s'%opts.jobFlavour
 
 
 #make directories for the jobs
 try:
-    os.system('rm -r Jobs')
+    os.system('rm -rf Jobs')
     os.system('mkdir Jobs')
-    os.system('mkdir Jobs/sub_err')
-    os.system('mkdir Jobs/sub_out')
-    os.system('mkdir Jobs/sub_job')
-    os.system('mkdir Jobs/sub_job2')
+    os.system('mkdir Jobs/sub_raw')
 except:
     print "err!"
     pass
@@ -70,44 +66,54 @@ else:
     print 'Taking default input files (from filesInput.py)'
 from filesInput import fileInputNames
 
-k = 0
-pre_k = 0
+nJobs = len(fileInputNames) // opts.nPerJob
+if nJobs == 0: nJobs = 1
+print 'files processed per job = %s, total number of jobs = %s'%(opts.nPerJob, nJobs)
+
 i=0
+k=0
 loop_mark = opts.nPerJob
-tmp_text=''
+tmp_text='#!/bin/sh\n'
 #make job scripts
 for infile in fileInputNames:
     #print 'total: %d/%d  ;  %.1f %% processed '%(j,my_sum,(100*float(j)/float(my_sum)))
 
-    tmp_jobname="sub_%s.jobb"%(str(i))
-    tmp_job=open(MYDIR+'/Jobs/sub_job/'+tmp_jobname,'w')
-    tmp_job.write("curr_dir=%s\n"%(MYDIR))
+    tmp_jobname="sub_%s.sh"%(str(i))
+    tmp_job=open(MYDIR+'/Jobs/sub_raw/'+tmp_jobname,'w')
     tmp_job.write("cd %s\n"%(MYDIR))
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")
-    tmp_job.write("python triggerRatesFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(k), opts.fileType, opts.maps))
-    tmp_job.write("\n")
+    tmp_job.write("python triggerCountsFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(i), opts.fileType, opts.maps))
+    tmp_job.write("\npython handleFileTransfer.py -d %s -s %s"%(MYDIR, str(i)))
     tmp_job.close()
-    tmp_job_dir = MYDIR+'/Jobs/sub_job/'+tmp_jobname
+    tmp_job_dir = MYDIR+'/Jobs/sub_raw/'+tmp_jobname
     os.system("chmod +x %s"%(tmp_job_dir))
 
 
-    k+=1
     tmp_text = tmp_text + tmp_job_dir + "\n"
-    i+=1
-    if k % loop_mark == 0 or i==len(fileInputNames):
-        Tjobsname = "sub_%s_%s.jobb"%(pre_k, k)
-        Tjob_dir = MYDIR+'/Jobs/sub_job2/'+Tjobsname
-        Tjob = open(Tjob_dir,"w")
+    k+=1
+    if k==loop_mark or i==len(fileInputNames):
+        k=0
+        Tjobsname = "sub_%s.sh"%i
+        Tjob_dir = '%s/Jobs/Job_%s/'%(MYDIR, str(i))
+        os.system("mkdir %s"%Tjob_dir)
+        Tjob = open(Tjob_dir+Tjobsname,"w")
         Tjob.write("%s"%(tmp_text))
+        tmp_text='#!/bin/sh\n'
         os.system("chmod +x %s"%(Tjob_dir))
-        sub_str = "bsub -q %s -eo Jobs/sub_err/err_%s.dat -oo Jobs/sub_out/out_%s.dat %s"%(opts.batchQueue, k, k, Tjob_dir)
-        local_str = "%s"%(Tjob_dir)
-        #os.system(sub_str)
-        sub_total.write("%s\n"%(sub_str))
-        pre_k = k
-        tmp_text = ''
+
+    i+=1
+
+condor_str = "executable = $(filename)\n"
+condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
+condor_str += "output = $Fp(filename)counts.stdout\n"
+condor_str += "error = $Fp(filename)counts.stderr\n"
+condor_str += "log = $Fp(filename)counts.log\n"
+condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
+condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
+condor_name = MYDIR+"/condor_cluster.sub"
+condor_file = open(condor_name, "w")
+condor_file.write(condor_str)
+sub_total.write("condor_submit %s\n"%condor_name)
 os.system("chmod +x sub_total.jobb")
-
-

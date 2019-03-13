@@ -1,5 +1,5 @@
 '''
-This file allows you to produce a set of jobs to be sent to a batch queue.
+This file allows you to produce a set of jobs to be sent to HT Condor.
 The jobs will be located in the 'Jobs' directory.
 After producing them, it is advisable to test one of the jobs locally before sending them all.
 
@@ -19,7 +19,7 @@ import sys
 '''
 #If you already have a list of input files with the proper format, you may not want to remake it
 #Type True if you want to remake them, False otherwise
-makeInputFilesList = True
+makeInputFilesList = False
 #Directory where your input root files are located
 inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/HLTPhysics_GRunV74_run319941/"
 
@@ -48,9 +48,9 @@ maps = "somemaps" #if you want dataset/group/etc. rates but no dataset merging s
 isUnusual = True
 #If you do, please also specify the following parameters:
 #number of files processed per job
-n = 10
-#Batch queue where you wish to send the jobs
-queue = "1nh"
+n = 5
+#Job flavour
+flavour = "workday"
 '''
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
@@ -59,12 +59,12 @@ queue = "1nh"
 #run the script
 command = ""
 if makeInputFilesList:
-    command = "python batchScriptForRates.py -j %s -e %s -i %s -f %s" %(json_file, cmsswDir, inputFilesDir, file_type)
+    command = "python condorScriptForRates.py -j %s -e %s -i %s -f %s" %(json_file, cmsswDir, inputFilesDir, file_type)
 else:
-    command = "python batchScriptForRates.py -j %s -e %s -f %s" %(json_file, cmsswDir, file_type)
+    command = "python condorScriptForRates.py -j %s -e %s -f %s" %(json_file, cmsswDir, file_type)
 
 if isUnusual:
-    command += " -n %s -q %s" %(n, queue)
+    command += " -n %s -q %s" %(n, flavour)
 
 command += " -m %s" %maps
 os.system(command)

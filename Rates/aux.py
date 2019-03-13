@@ -2,18 +2,20 @@ import os
 import math
 import shlex
 import subprocess
+import csv
+import ROOT
 #from Menu_HLT import datasetMap as triggersDatasetMap
 
 datasets_for_corr=[
 "NoBPTX",
-"DoubleEG",
-"SingleElectron",
-"SinglePhoton",
-"BTagCSV",
+#"DoubleEG",
+#"SingleElectron",
+#"SinglePhoton",
+#"BTagCSV",
 "BTagMu",
 "DisplacedJet",
 "EGamma",
-"HTMHT",
+#"HTMHT",
 "JetHT",
 "MET",
 "Tau",
@@ -75,37 +77,6 @@ def belongsToPAG(triggerName):
                     break
     return result
 
-
-
-def goodPhysicsStream(stream):
-    result = False
-
-    badStrings = [
-    "PhysicsHLTPhysics",
-    "PhysicsZeroBias",
-    "PhysicsParking",
-    "PhysicsScoutingMonitor",
-    ]
-
-    if stream.startswith("Physics"):
-        result = True
-        for string in badStrings:
-            if stream.startswith(string):
-                result = False
-                break
-    return result
-
-
-def physicsStreamOK_forDatasets(datasetName):
-    from Menu_HLT import datasetStreamMap
-    result=False
-    if datasetName in datasetStreamMap.keys():
-        stream = datasetStreamMap[datasetName]
-        if goodPhysicsStream(stream):
-            result = True
-    return result
-
-
 def physicsStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
@@ -113,9 +84,8 @@ def physicsStreamOK(triggerName):
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
-                if goodPhysicsStream(stream):
+                if (stream.startswith("Physics")) and not (stream.startswith("PhysicsHLTPhysics")) and not (stream.startswith("PhysicsZeroBias")) and not (stream.startswith("PhysicsParking")) and not (stream.startswith("PhysicsScoutingMonitor")):
                     result = True
-                    break
     return result
 
 def scoutingStreamOK(triggerName):
@@ -127,7 +97,6 @@ def scoutingStreamOK(triggerName):
             for stream in triggersStreamMap[mapKey]:
                 if (stream.startswith("Scouting")):
                     result = True
-                    break
     return result
 
 def parkingStreamOK(triggerName):
@@ -139,7 +108,6 @@ def parkingStreamOK(triggerName):
             for stream in triggersStreamMap[mapKey]:
                 if ("Parking" in stream):
                     result = True
-                    break
     return result
 
 def datasetOK(dataset):
@@ -194,8 +162,93 @@ def reorderList(list_in, reorderingMap):
     return newList
 
 
-def makeListsOfRawOutputs(files_dir):
+def findFileNumber(sstring):
+    lastpoint = sstring.rfind('.')
+    secondlastpoint = sstring.rfind('.', 0, lastpoint-1)
+    file_number = sstring[secondlastpoint:lastpoint+1]
+    return file_number
+    
 
+def makeListsOfRawOutputs(files_dir, fig):
+
+    bad_jobs=[]
+
+    total_dir = files_dir + "/Global"
+    ls_command = runCommand("ls " + total_dir)
+    stdout, stderr = ls_command.communicate()
+    for line in stdout.splitlines():
+        file_string = total_dir + "/" + line
+        try:
+            with open(file_string) as ffile:
+                reader=csv.reader(ffile, delimiter=',')
+                for row in reader:
+                    r = row[0]
+                    break
+        except:
+            bad_jobs.append(findFileNumber(file_string))
+
+    if fig:
+        total_dir = files_dir + "/Root"
+        ls_command = runCommand("ls " + total_dir)
+        stdout, stderr = ls_command.communicate()
+        for line in stdout.splitlines():
+            file_string = total_dir + "/" + line
+            ffile = ROOT.TFile(file_string,"R")
+            if ffile.IsZombie() or not ffile.TestBit(TFile.kRecovered):
+                nnumber = findFileNumber(file_string)
+                if not nnumber in bad_jobs:
+                    bad_jobs.append(nnumber)
+
+    for name in mergeNames:
+        key = name+".csv"
+
+        total_dir = files_dir + "/" + mergeNames[name]
+        ls_command = runCommand("ls " + total_dir )
+        stdout, stderr = ls_command.communicate()
+        for line in stdout.splitlines():
+            file_string = total_dir + "/" + line
+            try:
+                with open(file_string) as ffile:
+                    reader=csv.reader(ffile, delimiter=',')
+                    for row in reader:
+                        r = row[1]
+                        break
+            except:
+                nnumber = findFileNumber(file_string)
+                if not nnumber in bad_jobs:
+                    bad_jobs.append(nnumber)
+
+
+    print bad_jobs
+    globalFiles = []
+    total_dir = files_dir + "/Global"
+    ls_command = runCommand("ls " + total_dir)
+    stdout, stderr = ls_command.communicate()
+    for line in stdout.splitlines():
+        file_string = total_dir + "/" + line
+        bad = False
+        for number in bad_jobs:
+            if number in file_string:
+                bad = True
+                break
+        if not bad:
+            globalFiles.append(file_string)
+
+    rootFiles = []
+    if fig:
+        total_dir = files_dir + "/Root"
+        ls_command = runCommand("ls " + total_dir)
+        stdout, stderr = ls_command.communicate()
+        for line in stdout.splitlines():
+            file_string = total_dir + "/" + line
+            bad = False
+            for number in bad_jobs:
+                if number in file_string:
+                    bad = True
+                    break
+            if not bad:
+                rootFiles.append(file_string)
+    
     masterDic = {}
     for name in mergeNames:
         key = name+".csv"
@@ -205,22 +258,14 @@ def makeListsOfRawOutputs(files_dir):
         ls_command = runCommand("ls " + total_dir )
         stdout, stderr = ls_command.communicate()
         for line in stdout.splitlines():
-            masterDic[key].append(total_dir + "/" + line)
+            file_string = total_dir + "/" + line
+            bad = False
+            for number in bad_jobs:
+                if number in file_string:
+                    bad = True
+                    break
+            if not bad:
+                masterDic[key].append(file_string)
 
-
-    rootFiles = []
-    total_dir = files_dir + "/Root"
-    ls_command = runCommand("ls " + total_dir)
-    stdout, stderr = ls_command.communicate()
-    for line in stdout.splitlines():
-        rootFiles.append(total_dir + "/" + line)
-
-
-    globalFiles = []
-    total_dir = files_dir + "/Global"
-    ls_command = runCommand("ls " + total_dir)
-    stdout, stderr = ls_command.communicate()
-    for line in stdout.splitlines():
-        globalFiles.append(total_dir + "/" + line)
 
     return masterDic, rootFiles, globalFiles
