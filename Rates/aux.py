@@ -194,7 +194,7 @@ def makeListsOfRawOutputs(files_dir, fig):
         for line in stdout.splitlines():
             file_string = total_dir + "/" + line
             ffile = ROOT.TFile(file_string,"R")
-            if ffile.IsZombie() or not ffile.TestBit(TFile.kRecovered):
+            if ffile.IsZombie() or ffile.TestBit(ROOT.TFile.kRecovered):
                 nnumber = findFileNumber(file_string)
                 if not nnumber in bad_jobs:
                     bad_jobs.append(nnumber)
