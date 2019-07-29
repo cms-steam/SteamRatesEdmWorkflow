@@ -1,3 +1,39 @@
+datasetStreamMap = {
+        'DoubleEG'       : 'PhysicsEGamma',
+        'SingleElectron' : 'PhysicsEGamma',
+        'SinglePhoton'   : 'PhysicsEGamma',
+        'EGamma'         : 'PhysicsEGamma',
+        'BTagCSV'        : 'PhysicsHadronsTaus',
+        'BTagMu'         : 'PhysicsHadronsTaus',
+        'DisplacedJet'   : 'PhysicsHadronsTaus',
+        'HTMHT'          : 'PhysicsHadronsTaus',
+        'JetHT'          : 'PhysicsHadronsTaus',
+        'MET'            : 'PhysicsHadronsTaus',
+        'Tau'            : 'PhysicsHadronsTaus',
+        'Charmonium'     : 'PhysicsMuons',
+        'DoubleMuon'     : 'PhysicsMuons',
+        'DoubleMuonLowMass': 'PhysicsMuons',
+        'SingleMuon'     : 'PhysicsMuons',
+        'MuOnia'         : 'PhysicsMuons',
+        'MuonEG'         : 'PhysicsMuons',
+        'ParkingScoutingMonitor': 'PhysicsParkingScoutingMonitor',
+        'ScoutingCaloCommissioning': 'ScoutingCaloMuon',
+        'ScoutingCaloHT' : 'ScoutingCaloMuon',
+        'ScoutingCaloMuon': 'ScoutingCaloMuon',
+        'ScoutingPFCommissioning': 'ScoutingPF',
+        'ScoutingPFHT'   : 'ScoutingPF',
+        'Commissioning'  : 'PhysicsCommissioning',
+        'HLTPhysics'     : 'PhysicsCommissioning',
+        'HCalNZS'        : 'PhysicsCommissioning',
+        'HighPtLowerPhotons': 'PhysicsCommissioning',
+        'HighPtPhoton30AndZ': 'PhysicsCommissioning',
+        'IsolatedBunch'  : 'PhysicsCommissioning',
+        'NoBPTX'         : 'PhysicsCommissioning',
+        'ZeroBias'        : 'PhysicsCommissioning'
+}
+
+
+
 streamMap = {
 	'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v': ['PhysicsMuons'],
 	'HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v': ['PhysicsCommissioning'],

@@ -24,7 +24,9 @@ def checkTriggerIndex(name,index, names):
     else:
         return True
 
-def check_json(jsonf, runNo_in, LS):
+def check_json(jsonf, runNo_in, LS, bMC):
+    if bMC:
+        return True
     runNo = str(runNo_in)
     try:
         os.system("ls %s"%jsonf)
@@ -45,7 +47,102 @@ def check_json(jsonf, runNo_in, LS):
     return False
 
 
-
+triggersToIgnore = [
+"HLT_AK8PFHT750_TrimMass50_v",
+"HLT_AK8PFHT800_TrimMass50_v",
+"HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np2_v",
+"HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v",
+"HLT_AK8PFJet360_TrimMass30_v",
+"HLT_AK8PFJet380_TrimMass30_v",
+"HLT_AK8PFJet400_TrimMass30_v",
+"HLT_AK8PFJet400_v",
+"HLT_AK8PFJet420_TrimMass30_v",
+"HLT_AK8PFJet450_v",
+"HLT_CaloJet500_NoJetID_v",
+"HLT_CaloMET100_HBHECleaned_v",
+"HLT_CaloMET100_NotCleaned_v",
+"HLT_CaloMET110_NotCleaned_v",
+"HLT_CaloMET250_HBHECleaned_v",
+"HLT_CaloMET300_HBHECleaned_v",
+"HLT_CaloMET350_HBHECleaned_v",
+"HLT_CaloMET70_HBHECleaned_v",
+"HLT_CaloMET80_HBHECleaned_v",
+"HLT_CaloMET80_NotCleaned_v",
+"HLT_CaloMET90_HBHECleaned_v",
+"HLT_CaloMET90_NotCleaned_v",
+"HLT_CaloMHT90_v",
+"HLT_DiJet110_35_Mjj650_PFMET110_v",
+"HLT_DiJet110_35_Mjj650_PFMET120_v",
+"HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
+"HLT_DoubleEle25_CaloIdL_MW_v",
+"HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT350_v",
+"HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched_v",
+"HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v",
+"HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched_v",
+"HLT_DoubleL2Mu23NoVtx_2Cha_v",
+"HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v",
+"HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v",
+"HLT_DoublePhoton70_v",
+"HLT_DoubleTightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v",
+"HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
+"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+"HLT_Ele27_WPTight_Gsf_v",
+"HLT_Ele28_WPTight_Gsf_v",
+"HLT_Ele30_WPTight_Gsf_v",
+"HLT_IsoMu24_eta2p1_v",
+"HLT_IsoMu24_TwoProngs35_v",
+"HLT_IsoMu24_v",
+"HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v",
+"HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v",
+"HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v",
+"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v",
+"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v",
+"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+"HLT_Mu17_TrkIsoVVL_v",
+"HLT_Mu17_v",
+"HLT_Mu18_Mu9_SameSign_v",
+"HLT_Mu3er1p5_PFJet100er2p5_PFMET70_PFMHT70_IDTight_v",
+"HLT_Mu3er1p5_PFJet100er2p5_PFMET80_PFMHT80_IDTight_v",
+"HLT_Mu3er1p5_PFJet100er2p5_PFMET90_PFMHT90_IDTight_v",
+"HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu70_PFMHTNoMu70_IDTight_v",
+"HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu80_PFMHTNoMu80_IDTight_v",
+"HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu90_PFMHTNoMu90_IDTight_v",
+"HLT_Mu50_v",
+"HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5_v",
+"HLT_PFHT500_PFMET100_PFMHT100_IDTight_v",
+"HLT_PFHT700_PFMET85_PFMHT85_IDTight_v",
+"HLT_PFHT800_PFMET75_PFMHT75_IDTight_v",
+"HLT_PFMET100_PFMHT100_IDTight_CaloBTagDeepCSV_3p1_v",
+"HLT_PFMET100_PFMHT100_IDTight_PFHT60_v",
+"HLT_PFMET110_PFMHT110_IDTight_CaloBTagDeepCSV_3p1_v",
+"HLT_PFMET110_PFMHT110_IDTight_v",
+"HLT_PFMET120_PFMHT120_IDTight_PFHT60_v",
+"HLT_PFMET120_PFMHT120_IDTight_v",
+"HLT_PFMET200_HBHE_BeamHaloCleaned_v",
+"HLT_PFMET200_HBHECleaned_v",
+"HLT_PFMET200_NotCleaned_v",
+"HLT_PFMET250_HBHECleaned_v",
+"HLT_PFMET300_HBHECleaned_v",
+"HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v",
+"HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v",
+"HLT_PFMETTypeOne140_PFMHT140_IDTight_v",
+"HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned_v",
+"HLT_Photon110EB_TightID_TightIso_v",
+"HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v",
+"HLT_QuadPFJet103_88_75_15_PFBTagDeepCSV_1p3_VBF2_v",
+"HLT_QuadPFJet103_88_75_15_v",
+"HLT_QuadPFJet105_88_76_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v",
+"HLT_QuadPFJet105_88_76_15_PFBTagDeepCSV_1p3_VBF2_v",
+"HLT_QuadPFJet105_88_76_15_v",
+"HLT_QuadPFJet111_90_80_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v",
+"HLT_RsqMR300_Rsq0p09_MR200_4jet_v",
+"HLT_RsqMR300_Rsq0p09_MR200_v",
+"HLT_TripleJet110_35_35_Mjj650_PFMET110_v",
+"HLT_TripleMu_10_5_5_DZ_v",
+"HLT_TriplePhoton_20_20_20_CaloIdLV2_v",
+"HLT_TriplePhoton_30_30_10_CaloIdLV2_v",
+]
 
 
 triggerList = []
@@ -88,19 +185,21 @@ opts, args = parser.parse_args()
 error_text = '\nError: wrong inputs\n'
 help_text = '\npython triggerRatesFromTriggerResults.py -i <inputfile> -j <json> -s <finalstring> -f <filetype> -m <maps> -M <maxEvents>'
 help_text += '\n<inputfile> (mandatory argument) = one (1) input root file'
-help_text += '\n<json> (mandatory) = text file with the LS range in json format'
+help_text += '\n<json> = text file with the LS range in json format'
 help_text += '\n<finalstring> (mandatory) = string which will provide a unique tag to the output'
 help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW" or "L1Accept"'
 help_text += '\n<maps> (optional) = "nomaps" (default option, use none of the maps), "somemaps" (use all maps except those related to dataset merging), "allmaps" (use all maps, including dataset merging)\n'
 help_text += '\n<maxEvents> (optional) maximum number of events to be processed\n'
 
-if opts.inputFile == "noroot" or opts.jsonFile == "nojson" or opts.finalString == "nostr":
+if opts.inputFile == "noroot" or opts.finalString == "nostr" or opts.jsonFile == "nojson":
     print error_text
     print help_text
     sys.exit(2)
 
+
 isRawFiles = False
 isL1Accept = False
+isMC = False
 if opts.fileType == "custom":
     isRawFiles = False
 elif opts.fileType == "RAW":
@@ -113,6 +212,15 @@ else:
     print error_text
     print help_text
     sys.exit(2)
+
+MCdataset=""
+if not (".txt" in opts.jsonFile or ".json" in opts.jsonFile):
+    print "\nNonsense JSON provided, assuming this is a MC job...\n"
+    MCdataset=opts.jsonFile
+    isRawFiles = False
+    isL1Accept = False
+    isMC = True
+
 
 final_string = opts.finalString
 maxEvents = opts.maxEvents
@@ -209,10 +317,11 @@ for event in events:
     if n<1:
         for name in names.triggerNames():
             name = str(name)
+            strippedTrigger = name.rstrip("0123456789")
+            if strippedTrigger in triggersToIgnore: continue
             if ("HLTriggerFirstPath" in name) or ("HLTriggerFinalPath" in name): continue
             myPaths.append(name)
             if bUseMaps:
-                strippedTrigger = name.rstrip("0123456789")
                 bVersionNumbers = True
                 for key in triggersDatasetMap.keys():
                     if key.rstrip("0123456789") == strippedTrigger:
@@ -304,13 +413,12 @@ for event in events:
                 triggerNewDatasetCorrMatrix[dummy_nonpure] = aux_dic.copy()
 
 
-        print datasets
 
     #check if event is in the json range
     runnbr = event.object().id().run()
     runls = event.object().id().luminosityBlock()
     runstr = str((runnbr,runls))
-    if not check_json(opts.jsonFile, runnbr, runls):
+    if not check_json(opts.jsonFile, runnbr, runls, isMC):
         continue
     if not runstr in runAndLsList:
         nLS = nLS +1
@@ -475,30 +583,32 @@ for event in events:
 n += 1
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
+    outputDir='Jobs'
+    if isMC: outputDir += "/" + MCdataset
 
-    global_info_file =  open('Jobs/output.global.'+final_string+'.csv', 'w')
+    global_info_file =  open('%s/output.global.%s.csv'%(outputDir,final_string), 'w')
     global_info_file.write("N_LS, " + str(nLS) + "\n")
     global_info_file.write("N_eventsInLoop, " + str(n) + "\n")
     global_info_file.write("N_eventsProcessed, " + str(nEvents) + "\n")
     global_info_file.close()
     
-    misc_path_file = open('Jobs/output.path.misc.'+final_string+'.csv', 'w')
+    misc_path_file = open('%s/output.path.misc.%s.csv'%(outputDir,final_string), 'w')
     misc_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
     misc_path_file.write("Total Misc, , , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
 
 
-    root_file=ROOT.TFile("Jobs/histos."+final_string+".root","RECREATE")
+    root_file=ROOT.TFile("%s/histos.%s.root"%(outputDir,final_string),"RECREATE")
     if bUseMaps:
-        physics_path_file = open('Jobs/output.path.physics.'+final_string+'.csv', 'w')
+        physics_path_file = open('%s/output.path.physics.%s.csv'%(outputDir,final_string), 'w')
         physics_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         physics_path_file.write("Total Physics, , , " + str(nPassed_Physics) + ", " + str(nPassed_Physics) +"\n")
         physics_path_file.write("Total Analysis Physics, , , " + str(nPAGAnalysisPath) + ", " + str(nPAGAnalysisPath) +"\n")
         
-        scouting_path_file = open('Jobs/output.path.scouting.'+final_string+'.csv', 'w')
+        scouting_path_file = open('%s/output.path.scouting.%s.csv'%(outputDir,final_string), 'w')
         scouting_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         scouting_path_file.write("Total Scouting, , , " + str(nPassed_Scouting) + ", " + str(nPassed_Scouting) +"\n")
         
-        parking_path_file = open('Jobs/output.path.parking.'+final_string+'.csv', 'w')
+        parking_path_file = open('%s/output.path.parking.%s.csv'%(outputDir,final_string), 'w')
         parking_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         parking_path_file.write("Total Parking, , , " + str(nPassed_Parking) + ", " + str(nPassed_Parking) +"\n")
         
@@ -512,11 +622,11 @@ if atLeastOneEvent:
         if opts.maps == "allmaps":
             triggerNewDataset_histo=ROOT.TH2F("trigger_newDataset_corr","New Trigger-Dataset Correlations",len(newDatasetList)+1,0,len(newDatasetList)+1,len(myPaths),0,len(myPaths))
             newDatasetNewDataset_histo=ROOT.TH2F("newDataset_newDataset_corr","New Dataset-Dataset Correlations",len(newDatasetList),0,len(newDatasetList),len(newDatasetList),0,len(newDatasetList))
-            triggerNewDataset_file = open('Jobs/output.trigger_newDataset_corr.'+final_string+'.csv', 'w')
-            newDatasetNewDataset_file = open('Jobs/output.newDataset_newDataset_corr.'+final_string+'.csv', 'w')
+            triggerNewDataset_file = open('%s/output.trigger_newDataset_corr.%s.csv'%(outputDir,final_string), 'w')
+            newDatasetNewDataset_file = open('%s/output.newDataset_newDataset_corr.%s.csv'%(outputDir,final_string), 'w')
         
-        triggerDataset_file = open('Jobs/output.trigger_dataset_corr.'+final_string+'.csv', 'w')
-        datasetDataset_file = open('Jobs/output.dataset_dataset_corr.'+final_string+'.csv', 'w')
+        triggerDataset_file = open('%s/output.trigger_dataset_corr.%s.csv'%(outputDir,final_string), 'w')
+        datasetDataset_file = open('%s/output.dataset_dataset_corr.%s.csv'%(outputDir,final_string), 'w')
         
         
         
@@ -601,8 +711,8 @@ if atLeastOneEvent:
         if opts.maps == "allmaps":
             triggerNewDataset_file.close()
     
-        physics_dataset_file = open('Jobs/output.dataset.physics.'+final_string+'.csv', 'w')
-        misc_dataset_file = open('Jobs/output.dataset.misc.'+final_string+'.csv', 'w')
+        physics_dataset_file = open('%s/output.dataset.physics.%s.csv'%(outputDir,final_string), 'w')
+        misc_dataset_file = open('%s/output.dataset.misc.%s.csv'%(outputDir,final_string), 'w')
         
         physics_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
         misc_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
@@ -634,7 +744,7 @@ if atLeastOneEvent:
             datasetDataset_file.write("\n")
         
         if opts.maps == "allmaps":
-            newDataset_file = open('Jobs/output.newDataset.physics.'+final_string+'.csv', 'w')
+            newDataset_file = open('%s/output.newDataset.physics.%s.csv'%(outputDir,final_string), 'w')
             newDataset_file.write("Dataset, Counts, Rates (Hz)\n")
             i = 0
             for key in newDatasetList:
@@ -670,7 +780,7 @@ if atLeastOneEvent:
             newDatasetNewDataset_file.close()
         
         
-        group_file = open('Jobs/output.group.'+final_string+'.csv','w')
+        group_file = open('%s/output.group.%s.csv'%(outputDir,final_string),'w')
         group_file.write('Groups, Counts, Rates (Hz), Pure Counts, Pure Rates (Hz), Shared Counts, Shared Rates (Hz)\n')
         for key in groupCounts.keys():
             group_file.write(str(key) + ", " + str(groupCounts[key]) +", " + str(groupCounts[key]) + ", " + str(groupCountsPure[key]) +", " + str(groupCountsPure[key]) + ", " + str(groupCountsShared[key]) +", " + str(groupCountsShared[key]))
@@ -678,7 +788,7 @@ if atLeastOneEvent:
         
         group_file.close()
         
-        stream_file = open('Jobs/output.stream.'+final_string+'.csv','w')
+        stream_file = open('%s/output.stream.%s.csv'%(outputDir,final_string),'w')
         stream_file.write('Streams, Counts, Rates (Hz)\n')
         for stream in streamCounts.keys():
             stream_file.write(str(stream) + ", " + str(streamCounts[stream]) +", " + str(streamCounts[stream]) + "\n")

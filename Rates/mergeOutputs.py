@@ -16,23 +16,26 @@ import csv
 from optparse import OptionParser
 parser=OptionParser()
 parser.set_defaults(figures=False)
+parser.add_option("-w","--which",dest="dataMC",type="str",default="data",help="'data' or specify a MC dataset ?")
 parser.add_option("-l","--lumiin",dest="lumiIn",type="float",default=-1,help="VALUE corresponding to the average instant lumi in your json",metavar="VALUE")
 parser.add_option("-t","--lumitarget",dest="lumiTarget",type="float",default=-1,help="VALUE corresponding to the target instant lumi for which you wish to calculate your rates",metavar="VALUE")
 parser.add_option("-p","--hltps",dest="hltPS",type="int",default=-1,help="PRESCALE of the HLT_physics trigger",metavar="PRESCALE")
-parser.add_option("-d","--dir",dest="inDir",type="str",default="Results/Raw",help="DIR where the output of the batch jobs are located",metavar="DIR")
+parser.add_option("-d","--dir",dest="inDir",type="str",default="Results/Data/Raw",help="DIR where the output of the batch jobs are located",metavar="DIR")
 parser.add_option("-m","--maps",dest="maps",type="str",default="nomaps",help="ARG='nomaps' (default option, don't use maps to get dataste/groups/etc. rates), 'somemaps' (get dataste/groups/etc. rates but with no study of dataset merging), 'allmaps' (get dataste/groups/etc. rates and also study dataset merging)",metavar="ARG")
 parser.add_option("-f", action="store_true", dest="figures")
 opts, args = parser.parse_args()
 
 error_text = '\nError: wrong inputs\n'
-help_text = '\npython mergeOutputs.py -l <lumiin> -t <lumitarget> -p <hltps> -d <dir> -m <merging>\n -f'
+help_text = '\npython mergeOutputs.py -w <dataMC> -l <lumiin> -t <lumitarget> -p <hltps> -d <dir> -m <merging>\n -f'
+help_text += '(optional argument) <dataMC> = write here "data" or "MC" according to your use case\n'
 help_text += '(mandatory argument) <lumiin> = VALUE corresponding to the average instant lumi in your json\n'
 help_text += '(mandatory) <lumitarget> = VALUE corresponding to the target instant lumi for which you wish to calculate your rates\n'
 help_text += '(mandatory) <hltps> = PRESCALE of the HLT_physics trigger\n'
 help_text += '(optional) <dir> = DIR where the output of the batch jobs are located'
 help_text += '\n(optional) <maps> = "nomaps" (default option, use none of the maps), "somemaps" (use all maps except those related to dataset merging), "allmaps" (use all maps, including dataset merging)\n'
 help_text += '\n(optional) -f  : Adding this option merges the root files which are used to produce trigger-dataset and dataset-dataset correlation figures. By default root files are NOT merged\n'
-if opts.lumiIn == -1 or opts.lumiTarget == -1 or opts.hltPS == -1:
+
+if opts.lumiTarget == -1 or (opts.dataMC == "data" and (opts.lumiIn == -1 or opts.hltPS == -1)):
     print error_text
     print help_text
     sys.exit(2)    
@@ -75,15 +78,44 @@ for globalFile in globalFiles:
             
 
 LS_length = 23.31 #seconds
-scaleFactor = opts.lumiTarget/opts.lumiIn * opts.hltPS  /  ( nLS * LS_length ) 
+scaleFactor = 0
+subDir = "argh"
+xs = 0
+if opts.dataMC == "data":
+    scaleFactor = opts.lumiTarget/opts.lumiIn * opts.hltPS  /  ( nLS * LS_length ) 
+    subDir = "Data"
+else:
+    subDir = "MC/"
+    from map_MCdatasets_xs import datasetCrossSectionMap
+    dataset = ""
+    for datasetKey in datasetCrossSectionMap.keys():
+        dataset = datasetKey
+        if dataset == opts.dataMC:
+            xs = datasetCrossSectionMap[datasetKey]
+            subDir += dataset.replace("/","_")
+            break
+        dataset = dataset.lstrip("/")
+        dataset = dataset.replace("/","_")
+        if dataset == opts.dataMC:
+            xs = datasetCrossSectionMap[datasetKey]
+            subDir += dataset
+            break
+    #0.01 = converting from picobarns to 10^-34 cm^2
+    scaleFactor = opts.lumiTarget*(xs*0.01)/n_events
 
+print 'this is %s' %opts.dataMC
 print 'files_directory = %s' %files_dir
-print 'lumi_in = %s'%opts.lumiIn
-print 'lumi_target = %s'%opts.lumiTarget
-print 'hlt_PS = %s'%opts.hltPS
+print 'lumi_target = %s /cm2/s'%opts.lumiTarget
+if opts.dataMC == "data":
+    print 'lumi_in = %se34 /cm2/s'%opts.lumiIn
+    print 'hlt_PS = %s'%opts.hltPS
+else:
+    print 'xs = %s pb'%xs
 print 'scale_factor = %s\n\n\n'%scaleFactor
 
-mergedGlobal = open ("Results/output.global.csv", "w")
+os.system("mkdir Results/%s"%subDir)
+
+mergedGlobal = open ("Results/%s/output.global.csv"%subDir, "w")
 mergedGlobal.write("N_LS, " + str(nLS) + "\n")
 mergedGlobal.write("N_eventsInLoop, " + str(n_eventsLoop) + "\n")
 mergedGlobal.write("N_eventsProcessed, " + str(n_events) + "\n")
@@ -111,7 +143,7 @@ if bUseMaps:
 for i in range(0, len(keyList)):
     key = keyList[i]
 
-    mergedFile = open("Results/"+key, "w")
+    mergedFile = open("Results/%s/%s"%(subDir, key), "w")
     countsDic = {}
     groupsDic = {}
     typesDic = {}
@@ -263,13 +295,13 @@ for i in range(0, len(keyList)):
 #Merge the root files, scale the rates to the target lumi
 #If you've chosen to make the figures
 if opts.figures:
-    hadd_text = "hadd -f Results/histos.root"
+    hadd_text = "hadd -f Results/%s/histos.root"%subDir
     for rootFile in rootList:
         hadd_text += " " + rootFile
     os.system(hadd_text)
 
     if bUseMaps:
-        root_file=ROOT.TFile("Results/histos.root","UPDATE")
+        root_file=ROOT.TFile("Results/%s/histos.root"%subDir,"UPDATE")
         root_file.cd()
         
         tD_histo = root_file.Get("trigger_dataset_corr")

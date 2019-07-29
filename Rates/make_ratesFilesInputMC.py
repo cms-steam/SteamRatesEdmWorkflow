@@ -12,8 +12,8 @@ parser.add_option("-i","--indir",dest="inDir",type="str",default="/eos/cms/store
 opts, args = parser.parse_args()
 print 'input directory = %s'%opts.inDir
 
-outfile = open('filesInput.py', 'w')
-outfile.write("fileInputNames = [\n")
+outfile = open('filesInputMC.py', 'w')
+outfile.write("datasetFilesMap={\n")
 
 keepGoing = True
 nLoop=0
@@ -26,16 +26,22 @@ while(keepGoing):
         dirr = lookhere[i]
         ls_command = runCommand("ls " + dirr)
         stdout, stderr = ls_command.communicate()
+        dataset=""
+        fileNames=""
         for line in stdout.splitlines():
             if ".root" in line:
-                outfile.write('"' + dirr + '/' + line + '",' + '\n')
+                fileNames += '        "' + dirr + '/' + line + '",' + '\n'
+                if dataset == "":
+                    lastSlash = dirr.rfind('/')
+                    dataset = '    "'+dirr[lastSlash+1:]+'"'
             elif "log" in line:
                 continue
             else:
                 lh_buffer.append(dirr + '/' + line)
+        if dataset != "": outfile.write(dataset+': [\n'+fileNames+'    ],\n') 
     lookhere = list(lh_buffer)
     nLoop += 1
     if len(lookhere)==0 or nLoop>=max_layers: keepGoing = False
     if nLoop >= max_layers: print "Too many directory layers (>=%s) before finding any root files, stopping now..." %max_layers
 
-outfile.write(']')
+outfile.write('}\n')
