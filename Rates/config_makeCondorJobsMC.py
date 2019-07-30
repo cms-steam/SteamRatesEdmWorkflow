@@ -21,10 +21,10 @@ import sys
 #Type True if you want to remake them, False otherwise
 makeInputFilesList = True
 #Directory where your input root files are located
-inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/CondorTest4/"
+inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/CondorTest5/"
 
 #Directory where the top of your CMSSW release is located
-cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_4_0_pre4/src/"
+cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_4_0/src/"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
@@ -32,7 +32,7 @@ cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_4_0_pre4/s
 maps = "somemaps" #if you want dataset/group/etc. rates but no dataset merging study
 #maps = "allmaps" #if you want to study dataset merging
 
-#Do you wish to use any unusual (non-default) options for the batch queue, and the number of files processed per job?
+#Do you wish to use any unusual (non-default) options for the job flavour, and the number of files processed per job?
 #If you do, set the following boolean to True
 isUnusual = True
 #If you do, please also specify the following parameters:
@@ -48,9 +48,9 @@ flavour = "espresso"
 #run the script
 command = ""
 if makeInputFilesList:
-    command = "python condorScriptForRates_MC.py -e %s -i %s" %(cmsswDir, inputFilesDir)
+    command = "python condorScriptForRatesMC.py -e %s -i %s" %(cmsswDir, inputFilesDir)
 else:
-    command = "python condorScriptForRates_MC.py -e %s" %cmsswDir
+    command = "python condorScriptForRatesMC.py -e %s" %cmsswDir
 
 if isUnusual:
     command += " -n %s -q %s" %(n, flavour)

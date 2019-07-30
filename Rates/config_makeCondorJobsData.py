@@ -43,7 +43,7 @@ json_file = "/afs/cern.ch/user/g/gennai/public/json_323775.txt"
 maps = "somemaps" #if you want dataset/group/etc. rates but no dataset merging study
 #maps = "allmaps" #if you want to study dataset merging
 
-#Do you wish to use any unusual (non-default) options for the batch queue, and the number of files processed per job?
+#Do you wish to use any unusual (non-default) options for the job flavour, and the number of files processed per job?
 #If you do, set the following boolean to True
 isUnusual = True
 #If you do, please also specify the following parameters:

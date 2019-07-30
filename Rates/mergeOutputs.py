@@ -82,7 +82,7 @@ scaleFactor = 0
 subDir = "argh"
 xs = 0
 if opts.dataMC == "data":
-    scaleFactor = opts.lumiTarget/opts.lumiIn * opts.hltPS  /  ( nLS * LS_length ) 
+    if nLS != 0: scaleFactor = opts.lumiTarget/opts.lumiIn * opts.hltPS  /  ( nLS * LS_length ) 
     subDir = "Data"
 else:
     subDir = "MC/"
@@ -101,7 +101,7 @@ else:
             subDir += dataset
             break
     #0.01 = converting from picobarns to 10^-34 cm^2
-    scaleFactor = opts.lumiTarget*(xs*0.01)/n_events
+    if n_events != 0: scaleFactor = opts.lumiTarget*(xs*0.01)/n_events
 
 print 'this is %s' %opts.dataMC
 print 'files_directory = %s' %files_dir

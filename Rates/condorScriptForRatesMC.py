@@ -57,7 +57,7 @@ if opts.inputFilesDir != "no":
     print 'Making a copy of the old filesInputMC.py : filesInputMC_old.py'
     os.system('cp filesInputMC.py filesInputMC_old.py')
     print 'Making a new filesInputMC.py with input root files from %s'%opts.inputFilesDir
-    os.system('python make_ratesFilesInput_MC.py -i %s'%opts.inputFilesDir)
+    os.system('python make_ratesFilesInputMC.py -i %s'%opts.inputFilesDir)
 else:
     print 'Taking default input files (from filesInputMC.py)'
 from filesInputMC import datasetFilesMap
