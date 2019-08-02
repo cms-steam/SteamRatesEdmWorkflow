@@ -219,7 +219,7 @@ def makeListsOfRawOutputs(files_dir, fig):
                     bad_jobs.append(nnumber)
 
 
-    print bad_jobs
+    print "bad jobs =", bad_jobs
     globalFiles = []
     total_dir = files_dir + "/Global"
     ls_command = runCommand("ls " + total_dir)
