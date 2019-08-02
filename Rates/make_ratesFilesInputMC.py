@@ -15,6 +15,11 @@ print 'input directory = %s'%opts.inDir
 outfile = open('filesInputMC.py', 'w')
 outfile.write("datasetFilesMap={\n")
 
+#copy MC datasets file here so it can be used
+os.system("cp ../MCDatasets/map_MCdatasets_xs.py .")
+
+from map_MCdatasets_xs import datasetCrossSectionMap
+
 keepGoing = True
 nLoop=0
 max_layers=10
@@ -33,7 +38,11 @@ while(keepGoing):
                 fileNames += '        "' + dirr + '/' + line + '",' + '\n'
                 if dataset == "":
                     lastSlash = dirr.rfind('/')
-                    dataset = '    "'+dirr[lastSlash+1:]+'"'
+                    for key in datasetCrossSectionMap.keys():
+                        kkey = key.lstrip('/')
+                        if kkey.replace('/', '_') == dirr[lastSlash+1:]:
+                            dataset = '    "'+dirr[lastSlash+1:]+'"'
+                            break                    
             elif "log" in line:
                 continue
             else:

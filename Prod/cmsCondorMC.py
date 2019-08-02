@@ -62,6 +62,9 @@ except:
 
 sub_total = open("sub_total.jobb","w")
 
+#copy MC datasets file here so it can be used
+os.system("cp ../MCDatasets/map_MCdatasets_xs.py .")
+
 
 fileList=open('list_cff.py','w')
 fileList.write("inputFileNames=[\n")

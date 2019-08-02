@@ -28,7 +28,8 @@ if opts.lumiTarget == -1:
     sys.exit(2)    
 
 
-os.system("cp ../Prod/map_MCdatasets_xs.py .")
+#copy MC datasets file here so it can be used
+os.system("cp ../MCDatasets/map_MCdatasets_xs.py .")
 
 merge_command="python mergeOutputs.py -t %s -m %s" %(opts.lumiTarget, opts.maps)
 if opts.figures: merge_command += " -f"
