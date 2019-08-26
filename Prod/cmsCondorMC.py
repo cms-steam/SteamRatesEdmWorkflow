@@ -33,8 +33,9 @@ parser.add_option("-q","--flavour",dest="jobFlavour",type="str",default="workday
 opts, args = parser.parse_args()
 
 
-help_text = '\n./cmsCondor.py <cfgFileName> <CMSSWrel> <remoteDir> -n <nPerJob> -q <jobFlavour>'
+help_text = '\n./cmsCondor.py <cfgFileName> <proxyPath> <CMSSWrel> <remoteDir> -n <nPerJob> -q <jobFlavour>'
 help_text += '\n<cfgFileName> (mandatory) = name of your configuration file (e.g. hlt_config.py)'
+help_text += '\n<proxyPath> (mandatory) = location of your voms cms proxy. Note: keep your proxy in a private directory.'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<remoteDir> (mandatory) = directory where the files will be transfered (e.g. on EOS)'
 help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=5)'
