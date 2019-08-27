@@ -222,7 +222,7 @@ for event in events:
         for name in names.triggerNames():
             name = str(name)
             strippedTrigger = name.rstrip("0123456789")
-            if strippedTrigger in triggersToIgnore: continue
+            #if strippedTrigger in triggersToIgnore: continue
             if ("HLTriggerFirstPath" in name) or ("HLTriggerFinalPath" in name): continue
             myPaths.append(name)
             if bUseMaps:
