@@ -4,8 +4,8 @@ from hlt_config import *
 # STEAM Customization #
 
 # Options
-nEvents=5              # number of events to process
-switchL1PS=True        # apply L1 PS ratios to switch to tighter column
+nEvents=-1           # number of events to process
+switchL1PS=False       # apply L1 PS ratios to switch to tighter column
 columnL1PS=1           # choose the tighter column ( 0 <=> tightest )
 outputName="hlt.root"  # output file name
 
@@ -61,9 +61,9 @@ process.hltOutput = cms.OutputModule( "PoolOutputModule",
      fileName = cms.untracked.string( outputName ),
      fastCloning = cms.untracked.bool( False ),
      dataset = cms.untracked.PSet(
-     filterName = cms.untracked.string( "" ),
-     dataTier = cms.untracked.string( "RAW" )
-                        ),
+         filterName = cms.untracked.string( "" ),
+         dataTier = cms.untracked.string( "RAW" )
+     ),
      outputCommands = cms.untracked.vstring( 'drop *',
          'keep edmTriggerResults_*_*_MYHLT',
          )

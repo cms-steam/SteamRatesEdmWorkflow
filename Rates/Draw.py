@@ -34,6 +34,7 @@ def newDatasetOK(dataset, newDMap):
 from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-m","--merging",dest="newDataset",type="str",default="no",help="Are you testing the merging of datasets? yes/no, default = no")
+parser.add_option("-d","--directory",dest="inputDir",type="str",default="Results/Data",help="input DIRECTORY", metavar="DIRECTORY")
 
 opts, args = parser.parse_args()
 
@@ -42,6 +43,17 @@ if opts.newDataset == "yes":
 
 
 os.system("mkdir Figures")
+outputDir=""
+if opts.inputDir == "Results/Data":
+    outputDir="Figures/Data"
+    os.system("mkdir %s"%outputDir)
+else:
+    os.system("mkdir Figures/MC")
+    subdir=opts.inputDir
+    lastSlash = subdir.rfind('/')
+    subdir = subdir[lastSlash:]
+    outputDir="Figures/MC/%s"%subdir
+    os.system("mkdir %s"%outputDir)
 
 #Pie charts
 naive_group_label_total1=[]
@@ -57,7 +69,7 @@ colors_pureplusshared=[]
 basic_colors = ['gold', 'goldenrod', 'yellow', 'yellowgreen', 'green', 'lightgreen', 'lime', 'turquoise', 'teal', 'lightblue', 
 #'navy', 
 'orchid', 'pink', 'tomato', 'red', 'crimson', 'orangered', 'orange', 'sienna', 'brown']
-with open("Results/output.group.csv") as group_file:
+with open("%s/output.group.csv"%opts.inputDir) as group_file:
     reader=csv.reader(group_file, delimiter=',')
     skip = True #skip 1st line
     total_rate = 0
@@ -81,14 +93,14 @@ others_pure_rate = 0
 others_pureplusshared_rate = 0
 
 
-with open("Results/output.group.csv") as group_file:
+with open("%s/output.group.csv"%opts.inputDir) as group_file:
 
     reader=csv.reader(group_file, delimiter=',')
     for row in reader:
         if skip:
             skip = False
             continue
-        if (float(row[2])/total_rate > 0.02):
+        if (total_rate > 0 and float(row[2])/total_rate > 0.02):
             naive_group_label_total1.append(row[0])
             naive_group_label_total2.append(str(int(round(float(row[2]),0))))
             naive_group_total.append(float(row[2]))
@@ -96,14 +108,14 @@ with open("Results/output.group.csv") as group_file:
             n_total += 1
         else:
             others_total_rate += float(row[2])
-        if (float(row[4])/pure_rate > 0.02):
+        if (pure_rate > 0 and float(row[4])/pure_rate > 0.02):
             naive_group_label_pure.append(row[0] + "\n" + str(int(round(float(row[4]),0))) + " Hz")
             naive_group_pure.append(float(row[4]))
             colors_pure.append(basic_colors[n_pure % len(basic_colors)])
             n_pure += 1
         else:
             others_pure_rate += float(row[4])
-        if (float(row[6])/pureplusshared_rate > 0.02):
+        if (pureplusshared_rate > 0 and float(row[6])/pureplusshared_rate > 0.02):
             naive_group_pureplusshared.append(float(row[6]))
             naive_group_label_pureplusshared.append(row[0] + "\n" + str(int(round(float(row[6]),0))) + " Hz")
             colors_pureplusshared.append(basic_colors[n_pureplusshared % len(basic_colors)])
@@ -159,21 +171,21 @@ for rect in barchart:
     ax.text(rect.get_x() + rect.get_width()/2., height+0.02, group_label_total2[j], ha='center', va='bottom', fontsize = 10)
     j += 1
 plt.title('Group Total Rates', fontweight='bold', y = 1.02)
-plt.savefig("Figures/group_total.pdf")
+plt.savefig("%s/group_total.pdf"%outputDir)
 
 plt.clf()
 #autopct='%1.1f%%', startangle=140, colors=colors)
 plt.pie(group_pure, labels=group_label_pure, startangle=0, colors=colors_pure, autopct='%1.0f%%')
 plt.title('Pure Group Rates', fontweight='bold', y = 1.08)
 plt.axis('equal')
-plt.savefig("Figures/group_pure.pdf")
+plt.savefig("%s/group_pure.pdf"%outputDir)
 
 
 plt.clf()
 plt.pie(group_pureplusshared, labels=group_label_pureplusshared, startangle=0, colors=colors_pureplusshared, autopct='%1.0f%%')
 plt.title('Shared Group Rates', fontweight='bold', y = 1.08)
 plt.axis('equal')
-plt.savefig("Figures/group_pureplusshared.pdf")
+plt.savefig("%s/group_pureplusshared.pdf"%outputDir)
     
 
 
@@ -206,8 +218,8 @@ for trigger in triggersDatasetMap.keys():
 
 
 #file=ROOT.TFile("final.root","r")
-root_file=ROOT.TFile("Results/histos.root","R")
-#root_file=ROOT.TFile("Results/Raw/Root/corr_histos_120.root","R")
+root_file=ROOT.TFile("%s/histos.root"%opts.inputDir,"R")
+#root_file=ROOT.TFile("%s/Raw/Root/corr_histos_120.root"%opts.inputDir,"R")
 
 tD_histo=root_file.Get("trigger_dataset_corr")
 dD_histo=root_file.Get("dataset_dataset_corr")
@@ -381,7 +393,7 @@ for icount in range(0, len(triggerDataset_histo)):
     triggerDataset_histo[icount].GetXaxis().SetLabelSize(label_size)
     triggerDataset_histo[icount].GetXaxis().LabelsOption("v")
     triggerDataset_histo[icount].Draw("COLZTEXT")
-    c_tD.SaveAs("Figures/"+triggerDataset_histo[icount].GetName()+".pdf")
+    c_tD.SaveAs("%s/%s.pdf"%(outputDir, triggerDataset_histo[icount].GetName()))
     c_tD.Close()
 
 
@@ -405,7 +417,7 @@ if opts.newDataset == "yes":
         triggerNewDataset_histo[icount].GetXaxis().SetLabelSize(label_size)
         triggerNewDataset_histo[icount].GetXaxis().LabelsOption("v")
         triggerNewDataset_histo[icount].Draw("COLZTEXT")
-        c_tD.SaveAs("Figures/"+triggerNewDataset_histo[icount].GetName()+".pdf")
+        c_tD.SaveAs("%s/%s.pdf"%(outputDir, triggerNewDataset_histo[icount].GetName()))
         c_tD.Close()
 
 
@@ -435,7 +447,7 @@ datasetDataset_histo.GetXaxis().LabelsOption("v")
 
 c_dD.cd()
 datasetDataset_histo.Draw("COLZTEXT")
-c_dD.SaveAs("Figures/datasetDataset_corr.pdf")
+c_dD.SaveAs("%s/datasetDataset_corr.pdf"%outputDir)
 c_dD.Close()
 
 c_newdD=ROOT.TCanvas("canvas_newdD","",0,0,900,900)
@@ -473,5 +485,5 @@ if opts.newDataset == "yes":
     
     c_newdD.cd()
     newDatasetNewDataset_histo.Draw("COLZTEXT")
-    c_newdD.SaveAs("Figures/newDatasetNewDataset_corr.pdf")
+    c_newdD.SaveAs("%s/newDatasetNewDataset_corr.pdf"%outputDir)
     c_newdD.Close()

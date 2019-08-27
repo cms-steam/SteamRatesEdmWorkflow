@@ -53,18 +53,18 @@ except:
 
 
 sub_total = open("sub_total.jobb","w")
-sub_total.write("rm Results/Raw/*/*.csv\n")
-sub_total.write("rm Results/Raw/*/*.root\n")
+sub_total.write("rm Results/Data/Raw/*/*.csv\n")
+sub_total.write("rm Results/Data/Raw/*/*.root\n")
 
 
 if opts.inputFilesDir != "no":
-    print 'Making a copy of the old filesInput.py : filesInput_old.py'
-    os.system('cp filesInput.py filesInput_old.py')
-    print 'Making a new filesInput.py with input root files from %s'%opts.inputFilesDir
-    os.system('python make_ratesFilesInput.py -i %s'%opts.inputFilesDir)
+    print 'Making a copy of the old filesInputData.py : filesInputData_old.py'
+    os.system('cp filesInputData.py filesInputData_old.py')
+    print 'Making a new filesInputData.py with input root files from %s'%opts.inputFilesDir
+    os.system('python make_ratesFilesInputData.py -i %s'%opts.inputFilesDir)
 else:
-    print 'Taking default input files (from filesInput.py)'
-from filesInput import fileInputNames
+    print 'Taking default input files (from filesInputData.py)'
+from filesInputData import fileInputNames
 
 nJobs = len(fileInputNames) // opts.nPerJob
 if nJobs == 0: nJobs = 1

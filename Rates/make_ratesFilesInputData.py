@@ -12,7 +12,7 @@ parser.add_option("-i","--indir",dest="inDir",type="str",default="/eos/cms/store
 opts, args = parser.parse_args()
 print 'input directory = %s'%opts.inDir
 
-outfile = open('filesInput.py', 'w')
+outfile = open('filesInputData.py', 'w')
 outfile.write("fileInputNames = [\n")
 
 keepGoing = True
