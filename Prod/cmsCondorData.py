@@ -133,7 +133,6 @@ for i in range(0, nJobs):
 condor_str = "executable = $(filename)\n"
 condor_str += "Proxy_path = %s\n"%proxyPath
 condor_str += "arguments = $(Proxy_path) $Fp(filename) $(ClusterID) $(ProcId)\n"
-condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
 condor_str += "output = $Fp(filename)hlt.stdout\n"
 condor_str += "error = $Fp(filename)hlt.stderr\n"
 condor_str += "log = $Fp(filename)hlt.log\n"
