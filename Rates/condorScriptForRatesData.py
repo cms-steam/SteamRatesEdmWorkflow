@@ -6,6 +6,7 @@ from aux import runCommand
 
 MYDIR=os.getcwd()
 #folder = '/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/Summer16_FlatPU28to62/HLTRates_v4p2_V2_1p25e34_MC_2017feb09J'
+proxyPath = /afs/cern.ch/work/n/ndaci/private/WorkArea/STEAM/HLTNTuples/CMSSW_10_1_9_patch1_RatePlots/src/SteamRatesEdmWorkflow/Rates/x509up_u50698 #ND
 
 #get inputs
 from optparse import OptionParser
@@ -80,6 +81,9 @@ for infile in fileInputNames:
 
     tmp_jobname="sub_%s.sh"%(str(i))
     tmp_job=open(MYDIR+'/Jobs/sub_raw/'+tmp_jobname,'w')
+    tmp_job.write("export X509_USER_PROXY=$1\n")     #ND
+    tmp_job.write("voms-proxy-info -all\n")          #ND
+    tmp_job.write("voms-proxy-info -all -file $1\n") #ND
     tmp_job.write("cd %s\n"%(MYDIR))
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
@@ -106,7 +110,9 @@ for infile in fileInputNames:
     i+=1
 
 condor_str = "executable = $(filename)\n"
-condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
+#condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
+condor_str += "Proxy_path = %s\n"%proxyPath                                      #ND
+condor_str += "arguments = $(Proxy_path) $Fp(filename) $(ClusterID) $(ProcId)\n" #ND 
 condor_str += "output = $Fp(filename)counts.stdout\n"
 condor_str += "error = $Fp(filename)counts.stderr\n"
 condor_str += "log = $Fp(filename)counts.log\n"
