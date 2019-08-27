@@ -47,102 +47,6 @@ def check_json(jsonf, runNo_in, LS, bMC):
     return False
 
 
-triggersToIgnore = [
-"HLT_AK8PFHT750_TrimMass50_v",
-"HLT_AK8PFHT800_TrimMass50_v",
-"HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np2_v",
-"HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v",
-"HLT_AK8PFJet360_TrimMass30_v",
-"HLT_AK8PFJet380_TrimMass30_v",
-"HLT_AK8PFJet400_TrimMass30_v",
-"HLT_AK8PFJet400_v",
-"HLT_AK8PFJet420_TrimMass30_v",
-"HLT_AK8PFJet450_v",
-"HLT_CaloJet500_NoJetID_v",
-"HLT_CaloMET100_HBHECleaned_v",
-"HLT_CaloMET100_NotCleaned_v",
-"HLT_CaloMET110_NotCleaned_v",
-"HLT_CaloMET250_HBHECleaned_v",
-"HLT_CaloMET300_HBHECleaned_v",
-"HLT_CaloMET350_HBHECleaned_v",
-"HLT_CaloMET70_HBHECleaned_v",
-"HLT_CaloMET80_HBHECleaned_v",
-"HLT_CaloMET80_NotCleaned_v",
-"HLT_CaloMET90_HBHECleaned_v",
-"HLT_CaloMET90_NotCleaned_v",
-"HLT_CaloMHT90_v",
-"HLT_DiJet110_35_Mjj650_PFMET110_v",
-"HLT_DiJet110_35_Mjj650_PFMET120_v",
-"HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
-"HLT_DoubleEle25_CaloIdL_MW_v",
-"HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT350_v",
-"HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched_v",
-"HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v",
-"HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched_v",
-"HLT_DoubleL2Mu23NoVtx_2Cha_v",
-"HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v",
-"HLT_DoublePFJets116MaxDeta1p6_DoubleCaloBTagDeepCSV_p71_v",
-"HLT_DoublePhoton70_v",
-"HLT_DoubleTightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v",
-"HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
-"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
-"HLT_Ele27_WPTight_Gsf_v",
-"HLT_Ele28_WPTight_Gsf_v",
-"HLT_Ele30_WPTight_Gsf_v",
-"HLT_IsoMu24_eta2p1_v",
-"HLT_IsoMu24_TwoProngs35_v",
-"HLT_IsoMu24_v",
-"HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v",
-"HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v",
-"HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v",
-"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v",
-"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v",
-"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
-"HLT_Mu17_TrkIsoVVL_v",
-"HLT_Mu17_v",
-"HLT_Mu18_Mu9_SameSign_v",
-"HLT_Mu3er1p5_PFJet100er2p5_PFMET70_PFMHT70_IDTight_v",
-"HLT_Mu3er1p5_PFJet100er2p5_PFMET80_PFMHT80_IDTight_v",
-"HLT_Mu3er1p5_PFJet100er2p5_PFMET90_PFMHT90_IDTight_v",
-"HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu70_PFMHTNoMu70_IDTight_v",
-"HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu80_PFMHTNoMu80_IDTight_v",
-"HLT_Mu3er1p5_PFJet100er2p5_PFMETNoMu90_PFMHTNoMu90_IDTight_v",
-"HLT_Mu50_v",
-"HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5_v",
-"HLT_PFHT500_PFMET100_PFMHT100_IDTight_v",
-"HLT_PFHT700_PFMET85_PFMHT85_IDTight_v",
-"HLT_PFHT800_PFMET75_PFMHT75_IDTight_v",
-"HLT_PFMET100_PFMHT100_IDTight_CaloBTagDeepCSV_3p1_v",
-"HLT_PFMET100_PFMHT100_IDTight_PFHT60_v",
-"HLT_PFMET110_PFMHT110_IDTight_CaloBTagDeepCSV_3p1_v",
-"HLT_PFMET110_PFMHT110_IDTight_v",
-"HLT_PFMET120_PFMHT120_IDTight_PFHT60_v",
-"HLT_PFMET120_PFMHT120_IDTight_v",
-"HLT_PFMET200_HBHE_BeamHaloCleaned_v",
-"HLT_PFMET200_HBHECleaned_v",
-"HLT_PFMET200_NotCleaned_v",
-"HLT_PFMET250_HBHECleaned_v",
-"HLT_PFMET300_HBHECleaned_v",
-"HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v",
-"HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v",
-"HLT_PFMETTypeOne140_PFMHT140_IDTight_v",
-"HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned_v",
-"HLT_Photon110EB_TightID_TightIso_v",
-"HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v",
-"HLT_QuadPFJet103_88_75_15_PFBTagDeepCSV_1p3_VBF2_v",
-"HLT_QuadPFJet103_88_75_15_v",
-"HLT_QuadPFJet105_88_76_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v",
-"HLT_QuadPFJet105_88_76_15_PFBTagDeepCSV_1p3_VBF2_v",
-"HLT_QuadPFJet105_88_76_15_v",
-"HLT_QuadPFJet111_90_80_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v",
-"HLT_RsqMR300_Rsq0p09_MR200_4jet_v",
-"HLT_RsqMR300_Rsq0p09_MR200_v",
-"HLT_TripleJet110_35_35_Mjj650_PFMET110_v",
-"HLT_TripleMu_10_5_5_DZ_v",
-"HLT_TriplePhoton_20_20_20_CaloIdLV2_v",
-"HLT_TriplePhoton_30_30_10_CaloIdLV2_v",
-]
 
 
 triggerList = []
@@ -266,7 +170,7 @@ else:
 
 
 #Looping over the inputfiles
-n = -1
+nLoop = -1
 nPassed_Physics = 0
 nPassed_Scouting = 0
 nPassed_Parking = 0
@@ -300,12 +204,12 @@ save=0
 s_strippedTrigger=""
 s_dataset1=""
 for event in events: 
-    n += 1
+    nLoop += 1
 
-    if n%1000==0:
-        print "Processing entry ",n
+    if nLoop%1000==0:
+        print "Processing entry ",nLoop
 
-    if maxEvents>0 and n >= maxEvents: 
+    if maxEvents>0 and nLoop >= maxEvents: 
         break
 
     #taking trigger informations: names, bits and products
@@ -314,7 +218,7 @@ for event in events:
 
 
     #initializing stuff
-    if n<1:
+    if nLoop<1:
         for name in names.triggerNames():
             name = str(name)
             strippedTrigger = name.rstrip("0123456789")
@@ -580,7 +484,7 @@ for event in events:
 
     nEvents += 1
 
-n += 1
+nLoop += 1
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
     outputDir='Jobs'
@@ -588,7 +492,7 @@ if atLeastOneEvent:
 
     global_info_file =  open('%s/output.global.%s.csv'%(outputDir,final_string), 'w')
     global_info_file.write("N_LS, " + str(nLS) + "\n")
-    global_info_file.write("N_eventsInLoop, " + str(n) + "\n")
+    global_info_file.write("N_eventsInLoop, " + str(nLoop) + "\n")
     global_info_file.write("N_eventsProcessed, " + str(nEvents) + "\n")
     global_info_file.close()
     
