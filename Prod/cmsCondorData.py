@@ -109,7 +109,7 @@ for i in range(0, nJobs):
     tmp_job.write("cd %s\n"%(cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")
-    #tmp_job.write("cp -f %s* .\n"%(jobDir))
+    tmp_job.write("cp -f %s* .\n"%(jobDir))
     tmp_job.write("cmsRun run_cfg.py\n")
     tmp_job.write("echo 'sending the file back'\n")
     tmp_job.write("cp hlt.root %s/hlt_%s.root\n"%(remoteDir, str(i)))
