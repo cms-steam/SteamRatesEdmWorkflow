@@ -19,9 +19,9 @@ import sys
 '''
 #If you already have a list of input files with the proper format, you may not want to remake it
 #Type True if you want to remake them, False otherwise
-makeInputFilesList = False
+makeInputFilesList = True
 #Directory where your input root files are located
-inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/HLTPhysics_GRunV74_run319941/"
+inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/CondorTest2"
 
 #Were your input files produced by STEAM? If yes, file_type = "custom"
 #Are these raw data files?
@@ -32,10 +32,10 @@ file_type = "custom"
 #file_type = "L1Accept"
 
 #Directory where the top of your CMSSW release is located
-cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/CMSSW_10_1_9_patch1/src"
+cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_1_9_patch1/src"
 
 #Json file
-json_file = "/afs/cern.ch/work/c/chench/public/json_319941.txt"
+json_file = "/afs/cern.ch/work/d/dbeghin/Work/Rates/EnvDev/SteamRatesEdmWorkflow/Rates/json_323775.txt"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
@@ -43,14 +43,14 @@ json_file = "/afs/cern.ch/work/c/chench/public/json_319941.txt"
 maps = "somemaps" #if you want dataset/group/etc. rates but no dataset merging study
 #maps = "allmaps" #if you want to study dataset merging
 
-#Do you wish to use any unusual (non-default) options for the batch queue, and the number of files processed per job?
+#Do you wish to use any unusual (non-default) options for the job flavour, and the number of files processed per job?
 #If you do, set the following boolean to True
 isUnusual = True
 #If you do, please also specify the following parameters:
 #number of files processed per job
-n = 5
+n = 3
 #Job flavour
-flavour = "workday"
+flavour = "microcentury"
 '''
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
@@ -59,9 +59,9 @@ flavour = "workday"
 #run the script
 command = ""
 if makeInputFilesList:
-    command = "python condorScriptForRates.py -j %s -e %s -i %s -f %s" %(json_file, cmsswDir, inputFilesDir, file_type)
+    command = "python condorScriptForRatesData.py -j %s -e %s -i %s -f %s" %(json_file, cmsswDir, inputFilesDir, file_type)
 else:
-    command = "python condorScriptForRates.py -j %s -e %s -f %s" %(json_file, cmsswDir, file_type)
+    command = "python condorScriptForRatesData.py -j %s -e %s -f %s" %(json_file, cmsswDir, file_type)
 
 if isUnusual:
     command += " -n %s -q %s" %(n, flavour)

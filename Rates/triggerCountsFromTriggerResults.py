@@ -24,7 +24,9 @@ def checkTriggerIndex(name,index, names):
     else:
         return True
 
-def check_json(jsonf, runNo_in, LS):
+def check_json(jsonf, runNo_in, LS, bMC):
+    if bMC:
+        return True
     runNo = str(runNo_in)
     try:
         os.system("ls %s"%jsonf)
@@ -43,7 +45,6 @@ def check_json(jsonf, runNo_in, LS):
             if LS >= part_LS[0] and LS <= part_LS[1]:
                 return True
     return False
-
 
 
 
@@ -88,19 +89,21 @@ opts, args = parser.parse_args()
 error_text = '\nError: wrong inputs\n'
 help_text = '\npython triggerRatesFromTriggerResults.py -i <inputfile> -j <json> -s <finalstring> -f <filetype> -m <maps> -M <maxEvents>'
 help_text += '\n<inputfile> (mandatory argument) = one (1) input root file'
-help_text += '\n<json> (mandatory) = text file with the LS range in json format'
+help_text += '\n<json> = text file with the LS range in json format'
 help_text += '\n<finalstring> (mandatory) = string which will provide a unique tag to the output'
 help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW" or "L1Accept"'
 help_text += '\n<maps> (optional) = "nomaps" (default option, use none of the maps), "somemaps" (use all maps except those related to dataset merging), "allmaps" (use all maps, including dataset merging)\n'
 help_text += '\n<maxEvents> (optional) maximum number of events to be processed\n'
 
-if opts.inputFile == "noroot" or opts.jsonFile == "nojson" or opts.finalString == "nostr":
+if opts.inputFile == "noroot" or opts.finalString == "nostr" or opts.jsonFile == "nojson":
     print error_text
     print help_text
     sys.exit(2)
 
+
 isRawFiles = False
 isL1Accept = False
+isMC = False
 if opts.fileType == "custom":
     isRawFiles = False
 elif opts.fileType == "RAW":
@@ -113,6 +116,15 @@ else:
     print error_text
     print help_text
     sys.exit(2)
+
+MCdataset=""
+if not (".txt" in opts.jsonFile or ".json" in opts.jsonFile):
+    print "\nNonsense JSON provided, assuming this is a MC job...\n"
+    MCdataset=opts.jsonFile
+    isRawFiles = False
+    isL1Accept = False
+    isMC = True
+
 
 final_string = opts.finalString
 maxEvents = opts.maxEvents
@@ -158,7 +170,7 @@ else:
 
 
 #Looping over the inputfiles
-n = -1
+nLoop = -1
 nPassed_Physics = 0
 nPassed_Scouting = 0
 nPassed_Parking = 0
@@ -192,12 +204,12 @@ save=0
 s_strippedTrigger=""
 s_dataset1=""
 for event in events: 
-    n += 1
+    nLoop += 1
 
-    if n%1000==0:
-        print "Processing entry ",n
+    if nLoop%1000==0:
+        print "Processing entry ",nLoop
 
-    if maxEvents>0 and n >= maxEvents: 
+    if maxEvents>0 and nLoop >= maxEvents: 
         break
 
     #taking trigger informations: names, bits and products
@@ -206,13 +218,14 @@ for event in events:
 
 
     #initializing stuff
-    if n<1:
+    if nLoop<1:
         for name in names.triggerNames():
             name = str(name)
+            strippedTrigger = name.rstrip("0123456789")
+            #if strippedTrigger in triggersToIgnore: continue
             if ("HLTriggerFirstPath" in name) or ("HLTriggerFinalPath" in name): continue
             myPaths.append(name)
             if bUseMaps:
-                strippedTrigger = name.rstrip("0123456789")
                 bVersionNumbers = True
                 for key in triggersDatasetMap.keys():
                     if key.rstrip("0123456789") == strippedTrigger:
@@ -304,13 +317,12 @@ for event in events:
                 triggerNewDatasetCorrMatrix[dummy_nonpure] = aux_dic.copy()
 
 
-        print datasets
 
     #check if event is in the json range
     runnbr = event.object().id().run()
     runls = event.object().id().luminosityBlock()
     runstr = str((runnbr,runls))
-    if not check_json(opts.jsonFile, runnbr, runls):
+    if not check_json(opts.jsonFile, runnbr, runls, isMC):
         continue
     if not runstr in runAndLsList:
         nLS = nLS +1
@@ -472,33 +484,35 @@ for event in events:
 
     nEvents += 1
 
-n += 1
+nLoop += 1
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
+    outputDir='Jobs'
+    if isMC: outputDir += "/" + MCdataset
 
-    global_info_file =  open('Jobs/output.global.'+final_string+'.csv', 'w')
+    global_info_file =  open('%s/output.global.%s.csv'%(outputDir,final_string), 'w')
     global_info_file.write("N_LS, " + str(nLS) + "\n")
-    global_info_file.write("N_eventsInLoop, " + str(n) + "\n")
+    global_info_file.write("N_eventsInLoop, " + str(nLoop) + "\n")
     global_info_file.write("N_eventsProcessed, " + str(nEvents) + "\n")
     global_info_file.close()
     
-    misc_path_file = open('Jobs/output.path.misc.'+final_string+'.csv', 'w')
+    misc_path_file = open('%s/output.path.misc.%s.csv'%(outputDir,final_string), 'w')
     misc_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
     misc_path_file.write("Total Misc, , , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
 
 
-    root_file=ROOT.TFile("Jobs/histos."+final_string+".root","RECREATE")
+    root_file=ROOT.TFile("%s/histos.%s.root"%(outputDir,final_string),"RECREATE")
     if bUseMaps:
-        physics_path_file = open('Jobs/output.path.physics.'+final_string+'.csv', 'w')
+        physics_path_file = open('%s/output.path.physics.%s.csv'%(outputDir,final_string), 'w')
         physics_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         physics_path_file.write("Total Physics, , , " + str(nPassed_Physics) + ", " + str(nPassed_Physics) +"\n")
         physics_path_file.write("Total Analysis Physics, , , " + str(nPAGAnalysisPath) + ", " + str(nPAGAnalysisPath) +"\n")
         
-        scouting_path_file = open('Jobs/output.path.scouting.'+final_string+'.csv', 'w')
+        scouting_path_file = open('%s/output.path.scouting.%s.csv'%(outputDir,final_string), 'w')
         scouting_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         scouting_path_file.write("Total Scouting, , , " + str(nPassed_Scouting) + ", " + str(nPassed_Scouting) +"\n")
         
-        parking_path_file = open('Jobs/output.path.parking.'+final_string+'.csv', 'w')
+        parking_path_file = open('%s/output.path.parking.%s.csv'%(outputDir,final_string), 'w')
         parking_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
         parking_path_file.write("Total Parking, , , " + str(nPassed_Parking) + ", " + str(nPassed_Parking) +"\n")
         
@@ -512,11 +526,11 @@ if atLeastOneEvent:
         if opts.maps == "allmaps":
             triggerNewDataset_histo=ROOT.TH2F("trigger_newDataset_corr","New Trigger-Dataset Correlations",len(newDatasetList)+1,0,len(newDatasetList)+1,len(myPaths),0,len(myPaths))
             newDatasetNewDataset_histo=ROOT.TH2F("newDataset_newDataset_corr","New Dataset-Dataset Correlations",len(newDatasetList),0,len(newDatasetList),len(newDatasetList),0,len(newDatasetList))
-            triggerNewDataset_file = open('Jobs/output.trigger_newDataset_corr.'+final_string+'.csv', 'w')
-            newDatasetNewDataset_file = open('Jobs/output.newDataset_newDataset_corr.'+final_string+'.csv', 'w')
+            triggerNewDataset_file = open('%s/output.trigger_newDataset_corr.%s.csv'%(outputDir,final_string), 'w')
+            newDatasetNewDataset_file = open('%s/output.newDataset_newDataset_corr.%s.csv'%(outputDir,final_string), 'w')
         
-        triggerDataset_file = open('Jobs/output.trigger_dataset_corr.'+final_string+'.csv', 'w')
-        datasetDataset_file = open('Jobs/output.dataset_dataset_corr.'+final_string+'.csv', 'w')
+        triggerDataset_file = open('%s/output.trigger_dataset_corr.%s.csv'%(outputDir,final_string), 'w')
+        datasetDataset_file = open('%s/output.dataset_dataset_corr.%s.csv'%(outputDir,final_string), 'w')
         
         
         
@@ -601,8 +615,8 @@ if atLeastOneEvent:
         if opts.maps == "allmaps":
             triggerNewDataset_file.close()
     
-        physics_dataset_file = open('Jobs/output.dataset.physics.'+final_string+'.csv', 'w')
-        misc_dataset_file = open('Jobs/output.dataset.misc.'+final_string+'.csv', 'w')
+        physics_dataset_file = open('%s/output.dataset.physics.%s.csv'%(outputDir,final_string), 'w')
+        misc_dataset_file = open('%s/output.dataset.misc.%s.csv'%(outputDir,final_string), 'w')
         
         physics_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
         misc_dataset_file.write("Dataset, Counts, Rates (Hz)\n")
@@ -634,7 +648,7 @@ if atLeastOneEvent:
             datasetDataset_file.write("\n")
         
         if opts.maps == "allmaps":
-            newDataset_file = open('Jobs/output.newDataset.physics.'+final_string+'.csv', 'w')
+            newDataset_file = open('%s/output.newDataset.physics.%s.csv'%(outputDir,final_string), 'w')
             newDataset_file.write("Dataset, Counts, Rates (Hz)\n")
             i = 0
             for key in newDatasetList:
@@ -670,7 +684,7 @@ if atLeastOneEvent:
             newDatasetNewDataset_file.close()
         
         
-        group_file = open('Jobs/output.group.'+final_string+'.csv','w')
+        group_file = open('%s/output.group.%s.csv'%(outputDir,final_string),'w')
         group_file.write('Groups, Counts, Rates (Hz), Pure Counts, Pure Rates (Hz), Shared Counts, Shared Rates (Hz)\n')
         for key in groupCounts.keys():
             group_file.write(str(key) + ", " + str(groupCounts[key]) +", " + str(groupCounts[key]) + ", " + str(groupCountsPure[key]) +", " + str(groupCountsPure[key]) + ", " + str(groupCountsShared[key]) +", " + str(groupCountsShared[key]))
@@ -678,7 +692,7 @@ if atLeastOneEvent:
         
         group_file.close()
         
-        stream_file = open('Jobs/output.stream.'+final_string+'.csv','w')
+        stream_file = open('%s/output.stream.%s.csv'%(outputDir,final_string),'w')
         stream_file.write('Streams, Counts, Rates (Hz)\n')
         for stream in streamCounts.keys():
             stream_file.write(str(stream) + ", " + str(streamCounts[stream]) +", " + str(streamCounts[stream]) + "\n")
