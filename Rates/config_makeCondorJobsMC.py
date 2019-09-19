@@ -19,12 +19,12 @@ import sys
 '''
 #If you already have a list of input files with the proper format, you may not want to remake it
 #Type True if you want to remake them, False otherwise
-makeInputFilesList = True
+makeInputFilesList = False
 #Directory where your input root files are located
-inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/CondorTest5/"
+inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/CondorTest7/"
 
 #Directory where the top of your CMSSW release is located
-cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_4_0/src/"
+cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_1_9_patch1/src/"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
@@ -37,7 +37,7 @@ maps = "somemaps" #if you want dataset/group/etc. rates but no dataset merging s
 isUnusual = True
 #If you do, please also specify the following parameters:
 #number of files processed per job
-n = 3
+n = 1
 #Job flavour
 flavour = "espresso"
 '''

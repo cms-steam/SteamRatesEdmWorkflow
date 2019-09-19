@@ -27,15 +27,15 @@ inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGro
 #Are these raw data files?
 #If yes, are you running specifically on L1Accept files? Then file_type = "L1Accept"
 #Are you running on other non-L1Accept data files? Then file_type = "RAW"
-#file_type = "custom"
-file_type = "RAW"
+file_type = "custom"
+#file_type = "RAW"
 #file_type = "L1Accept"
 
 #Directory where the top of your CMSSW release is located
 cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_1_9_patch1/src"
 
 #Json file
-json_file = "/afs/cern.ch/user/g/gennai/public/json_323775.txt"
+json_file = "/afs/cern.ch/work/d/dbeghin/Work/Rates/EnvDev/SteamRatesEdmWorkflow/Rates/json_323775.txt"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
@@ -50,7 +50,7 @@ isUnusual = True
 #number of files processed per job
 n = 3
 #Job flavour
-flavour = "longlunch"
+flavour = "microcentury"
 '''
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''

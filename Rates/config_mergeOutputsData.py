@@ -12,7 +12,7 @@ import sys
 '''
 #Write the average instant lumi of the json you ran over
 #Units: 10e34 /cm^2/s
-lumi_in = 1.6533
+lumi_in = 1.624
 
 #Write the TARGET lumi for which you wish to calculate rates
 #Units: 10e34 /cm^2/s
@@ -35,7 +35,7 @@ makeFigures = False
 #If you do, set the following boolean to True
 diffLoc = False
 #If yes, please specify the directory where the job outputs are located
-files_dir = "Results/Raw"
+files_dir = "Results/Data/Raw"
 '''
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''

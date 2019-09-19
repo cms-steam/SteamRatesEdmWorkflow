@@ -93,7 +93,7 @@ for infile in fileInputNames:
 
     tmp_text = tmp_text + tmp_job_dir + "\n"
     k+=1
-    if k==loop_mark or i==len(fileInputNames):
+    if k==loop_mark or i==len(fileInputNames)-1:
         k=0
         Tjobsname = "sub_%s.sh"%i
         Tjob_dir = '%s/Jobs/Job_%s/'%(MYDIR, str(i))
