@@ -19,26 +19,27 @@ from optparse import OptionParser
 parser=OptionParser()
 parser.add_option("-n",dest="nPerJob",type="int",default=1,help="NUMBER of files processed per job",metavar="NUMBER")
 parser.add_option("-q","--flavour",dest="jobFlavour",type="str",default="workday",help="job FLAVOUR",metavar="FLAVOUR")
+parser.add_option("-p","--proxy",dest="proxyPath",type="str",default="noproxy",help="Proxy path")
 
 opts, args = parser.parse_args()
 
 
-help_text = '\n./cmsCondor.py <cfgFileName> <proxyPath> <CMSSWrel> <remoteDir> -n <nPerJob> -q <jobFlavour>'
+help_text = '\n./cmsCondor.py <cfgFileName> <CMSSWrel> <remoteDir> -p <proxyPath> -n <nPerJob> -q <jobFlavour>'
 help_text += '\n<cfgFileName> (mandatory) = name of your configuration file (e.g. hlt_config.py)'
-help_text += '\n<proxyPath> (mandatory) = location of your voms cms proxy. Note: keep your proxy in a private directory.'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<remoteDir> (mandatory) = directory where the files will be transfered (e.g. on EOS)'
+help_text += '\n<proxyPath> (optional) = location of your voms cms proxy. Note: keep your proxy in a private directory.'
 help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=5)'
 help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 
 
 cfgFileName = str(args[0])
-proxyPath = str(args[1])
-cmsEnv = str(args[2])
-remoteDir = str(args[3])
+cmsEnv = str(args[1])
+remoteDir = str(args[2])
 
 print 'config file = %s'%cfgFileName
 print 'CMSSWrel = %s'%cmsEnv
+print 'proxy = %s'%opts.proxyPath
 print 'remote directory = %s'%remoteDir
 print 'job flavour = %s'%opts.jobFlavour
 
@@ -99,9 +100,10 @@ for i in range(0, nJobs):
     tmp_jobname="sub_%s.sh"%(str(i))
     tmp_job=open(jobDir+tmp_jobname,'w')
     tmp_job.write("#!/bin/sh\n")
-    tmp_job.write("export X509_USER_PROXY=$1\n")
-    tmp_job.write("voms-proxy-info -all\n")
-    tmp_job.write("voms-proxy-info -all -file $1\n")
+    if opts.proxyPath != "noproxy":
+        tmp_job.write("export X509_USER_PROXY=$1\n")
+        tmp_job.write("voms-proxy-info -all\n")
+        tmp_job.write("voms-proxy-info -all -file $1\n")
     tmp_job.write("ulimit -v 5000000\n")
     tmp_job.write("cd $TMPDIR\n")
     tmp_job.write("mkdir Job_%s\n"%str(i))
@@ -131,8 +133,11 @@ for i in range(0, nJobs):
 
 
 condor_str = "executable = $(filename)\n"
-condor_str += "Proxy_path = %s\n"%proxyPath
-condor_str += "arguments = $(Proxy_path) $Fp(filename) $(ClusterID) $(ProcId)\n"
+if opts.proxyPath != "noproxy":
+    condor_str += "Proxy_path = %s\n"%opts.proxyPath
+    condor_str += "arguments = $(Proxy_path) $Fp(filename) $(ClusterID) $(ProcId)\n"
+else:
+    condor_str += "arguments = $Fp(filename) $(ClusterID) $(ProcId)\n"
 condor_str += "output = $Fp(filename)hlt.stdout\n"
 condor_str += "error = $Fp(filename)hlt.stderr\n"
 condor_str += "log = $Fp(filename)hlt.log\n"
