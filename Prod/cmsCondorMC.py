@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+hardCodedDataset = "/RelValZEE_13/CMSSW_10_4_0-103X_upgrade2018_realistic_v8-v1/GEN-SIM-DIGI-RAW"
+
 import os, sys,  imp, re, pprint, string
 from optparse import OptionParser
 
@@ -67,27 +69,28 @@ sub_total = open("sub_total.jobb","w")
 #copy MC datasets file here so it can be used
 os.system("cp ../MCDatasets/map_MCdatasets_xs.py .")
 
-
-fileList=open('list_cff.py','w')
-fileList.write("inputFileNames=[\n")
-
 fileDatasetMap={}
 
 #retrieve MC datasets, query DAS, and make a list of input files
-from map_MCdatasets_xs import datasetCrossSectionMap
-for dataset in datasetCrossSectionMap.keys():
-    das_command = runCommand('dasgoclient --query="file dataset=%s"'%dataset)
-    stdout, stderr = das_command.communicate()
-
-    for line in stdout.splitlines():
-        fileList.write("'"+line+"',\n")
-        fileDatasetMap[line]=dataset
-
-fileList.write("]\n")
-fileList.close()
-
-
-
+if opts.proxyPath != "noproxy":
+    fileList=open('list_cff.py','w')
+    fileList.write("inputFileNames=[\n")
+    from map_MCdatasets_xs import datasetCrossSectionMap
+    for dataset in datasetCrossSectionMap.keys():
+        das_command = runCommand('dasgoclient --query="file dataset=%s"'%dataset)
+        stdout, stderr = das_command.communicate()
+    
+        for line in stdout.splitlines():
+            fileList.write("'"+line+"',\n")
+            fileDatasetMap[line]=dataset
+    
+    fileList.write("]\n")
+    fileList.close()
+else:
+    from list_cff import inputFileNames
+    for ffile in inputFileNames:
+        fileDatasetMap[ffile]=hardCodedDataset
+    print fileDatasetMap
 
 # load cfg script
 handle = open(cfgFileName, 'r')
@@ -119,10 +122,15 @@ else:
     print "(approximate) number of jobs to be created: ", nJobs
         
     
+datasetList=[]
+if opts.proxyPath == "noproxy":
+    datasetList.append(hardCodedDataset)
+else:
+    datasetCrossSectionMap.keys()
 
 jobCount=0
 last_kFileMax=0
-for dataset in datasetCrossSectionMap.keys():
+for dataset in datasetList:
     datasetName=dataset.lstrip("/")
     datasetName=datasetName.replace("/","_")
     datasetJobDir='Jobs/'+datasetName
