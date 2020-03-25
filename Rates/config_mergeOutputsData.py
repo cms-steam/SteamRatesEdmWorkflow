@@ -11,25 +11,25 @@ import sys
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
 #Write the average instant lumi of the json you ran over
-#Units: 10e34 /cm^2/s
-lumi_in = 1.624
+#Units: 1e34 /cm^2/s
+lumi_in = 2.0
 
 #Write the TARGET lumi for which you wish to calculate rates
-#Units: 10e34 /cm^2/s
+#Units: 1e34 /cm^2/s
 lumi_target = 2.0
 
 #Write the HLT prescale used in the json you ran over
 hlt_ps = 1100
 
 #Maps option should be the same one you use to make the batch jobs
-#maps = "nomaps"
-maps = "somemaps"
+maps = "nomaps"
+#maps = "somemaps"
 #maps = "allmaps"
 
 #Do you wish to draw the figures? If you have a slow connection, drawing might take a while
 #This boolean will be set to False if you used the "nomaps" option
-makeFigures = False
-#makeFigures = True
+#makeFigures = False
+makeFigures = True
 
 #Do you wish to take input files from an unusual location (different from the default one)?
 #If you do, set the following boolean to True

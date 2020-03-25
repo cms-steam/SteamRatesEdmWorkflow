@@ -106,7 +106,7 @@ else:
 print '\n\n\n'
 print 'this is %s' %opts.dataMC
 print 'files_directory = %s' %files_dir
-print 'lumi_target = %s /cm2/s'%opts.lumiTarget
+print 'lumi_target = %se34 /cm2/s'%opts.lumiTarget
 if opts.dataMC == "data":
     print 'lumi_in = %se34 /cm2/s'%opts.lumiIn
     print 'hlt_PS = %s'%opts.hltPS
