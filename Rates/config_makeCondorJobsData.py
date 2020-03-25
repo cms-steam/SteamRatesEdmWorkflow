@@ -21,7 +21,7 @@ import sys
 #Type True if you want to remake them, False otherwise
 makeInputFilesList = True
 #Directory where your input root files are located
-inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/CondorTest2"
+inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/NoCustom"
 
 #Were your input files produced by STEAM? If yes, file_type = "custom"
 #Are these raw data files?
@@ -32,10 +32,10 @@ file_type = "custom"
 #file_type = "L1Accept"
 
 #Directory where the top of your CMSSW release is located
-cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_1_9_patch1/src"
+cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/2020NewPF/NoCustom/CMSSW_11_1_0_pre4/src"
 
 #Json file
-json_file = "/afs/cern.ch/work/d/dbeghin/Work/Rates/EnvDev/SteamRatesEdmWorkflow/Rates/json_323775.txt"
+json_file = "/afs/cern.ch/work/d/dbeghin/public/json/json_323775.txt"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"

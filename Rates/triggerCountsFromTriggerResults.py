@@ -487,17 +487,18 @@ for event in events:
     nEvents += 1
 
 nLoop += 1
+outputDir='Jobs'
+
+global_info_file =  open('%s/output.global.%s.csv'%(outputDir,final_string), 'w')
+global_info_file.write("N_LS, " + str(nLS) + "\n")
+global_info_file.write("N_eventsInLoop, " + str(nLoop) + "\n")
+global_info_file.write("N_eventsProcessed, " + str(nEvents) + "\n")
+global_info_file.close()
+    
 #We'll only write the results if there's at least one event
 if atLeastOneEvent:
-    outputDir='Jobs'
     if isMC: outputDir += "/" + MCdataset
 
-    global_info_file =  open('%s/output.global.%s.csv'%(outputDir,final_string), 'w')
-    global_info_file.write("N_LS, " + str(nLS) + "\n")
-    global_info_file.write("N_eventsInLoop, " + str(nLoop) + "\n")
-    global_info_file.write("N_eventsProcessed, " + str(nEvents) + "\n")
-    global_info_file.close()
-    
     misc_path_file = open('%s/output.path.misc.%s.csv'%(outputDir,final_string), 'w')
     misc_path_file.write("Path, Groups, Type, Total Count, Total Rate (Hz), Pure Count, Pure Rate (Hz)\n")
     misc_path_file.write("Total Misc, , , " + str(nPassed_Misc) + ", " + str(nPassed_Misc) +"\n")
