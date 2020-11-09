@@ -72,7 +72,7 @@ os.system("cp ../MCDatasets/map_MCdatasets_xs.py .")
 fileDatasetMap={}
 
 #retrieve MC datasets, query DAS, and make a list of input files
-if opts.proxyPath != "noproxy":
+if False: #opts.proxyPath != "noproxy": FIXME
     fileList=open('list_cff.py','w')
     fileList.write("inputFileNames=[\n")
     from map_MCdatasets_xs import datasetCrossSectionMap
@@ -126,7 +126,7 @@ datasetList=[]
 if opts.proxyPath == "noproxy":
     datasetList.append(hardCodedDataset)
 else:
-    datasetCrossSectionMap.keys()
+    datasetList=datasetCrossSectionMap.keys()
 
 jobCount=0
 last_kFileMax=0
