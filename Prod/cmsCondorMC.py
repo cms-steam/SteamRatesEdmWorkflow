@@ -126,7 +126,7 @@ datasetList=[]
 if opts.proxyPath == "noproxy":
     datasetList.append(hardCodedDataset)
 else:
-    datasetCrossSectionMap.keys()
+    datasetList=datasetCrossSectionMap.keys()
 
 jobCount=0
 last_kFileMax=0
