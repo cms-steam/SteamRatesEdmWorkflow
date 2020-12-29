@@ -53,6 +53,9 @@ command += " -m %s" %maps
 if maps =="nomaps":
     makeFigures = False
 
+if makeFigures:
+    command += " -f"
+
 os.system(command)
 if makeFigures: 
     comm2 = "python Draw.py"
