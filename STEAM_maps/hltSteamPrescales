@@ -1,0 +1,1091 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, time, string, cx_Oracle #ND
+import sys, imp, re
+import operator
+import FWCore.ParameterSet.Config as cms
+
+WriteOut=True
+
+mode = 'text'
+try:
+  if sys.argv[1] == '--csv':
+    mode = 'csv'
+    del sys.argv[1]
+except:
+  pass
+
+if mode=='csv':
+  outputfile = open('outputfile.csv','w')
+else:
+  outputfile = open('outputfile.tsv','w')
+
+clean=False
+try:
+  if sys.argv[1] == '--clean':
+    clean=True
+    del sys.argv[1]
+except:
+  pass
+
+useSteamDB=False
+try:
+  if sys.argv[1] == '--steamdb':
+    useSteamDB=True
+    del sys.argv[1]
+except:
+  pass
+if useSteamDB:
+  from SteamDB import *
+
+usePredictions=False
+try:
+  if sys.argv[1] == '--usePredictions':
+    usePredictions=True
+    del sys.argv[1]
+except:
+  pass
+
+# define utility function
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+# parse the HLT configuration from standard input or from the given file
+hlt = imp.new_module('hlt')
+try:
+  configname = sys.argv[1]
+except:
+  config = sys.stdin
+else:
+  config = open(configname)
+exec config in globals(), hlt.__dict__
+config.close()
+
+if 'process' in hlt.__dict__:
+  process = hlt.process
+elif 'fragment' in hlt.__dict__:
+  process = hlt.fragment
+else:
+  sys.stderr.write("Error: the input is not a valid HLT configuration")
+  sys.exit(1)
+
+
+########## STEAM ADD-ON ##########
+
+# Check table
+tableName = str(process.HLTConfigVersion.tableName).split("'")[1]
+print "TABLE: ",tableName
+
+# ConfDB query
+#
+conn = cx_Oracle.connect(user='cms_hlt_gdr_r',password='convertMe!',dsn='cmsr')
+if "cdaq" in tableName:
+  conn = cx_Oracle.connect(user='cms_hlt_gdr_r',password='convertMe!',dsn='cms_orcon_adg')
+#
+curs = conn.cursor()
+curs.arraysize=50
+thepaths=[]
+query="select b.name,d.description,d.contact,d.id from u_confversions a,u_paths b, u_pathid2conf c, u_pathids d where a.name='"+tableName+"' and c.id_confver=a.id and d.id=c.id_pathid and b.id=d.id_path"
+print query
+curs.execute(query)
+
+# Extract descriptions
+descriptions={}
+for rows in curs:
+     path=rows[0]
+     description=rows[1]
+     if not("HLT_" in path or "AlCa_" in path or "DST_" in path or "MC_" in path):
+        continue
+     thepaths.append(path)
+     descriptions[path]=str(description)
+
+# Extract groups, rates, types
+theGroupMap    = {}
+theRateMap     = {}
+theRateLowMap  = {}
+outRateMap     = {}
+outRateLowMap  = {}
+theTypeMap     = {}
+theStatusMap   = {}
+theEnableMap   = {}
+theL1TPSMap    = {}
+theHLTPSMap    = {}
+thePredictMap  = {}
+mapSeed        = {}
+
+# Extract predicted rate from relevant csv file
+if usePredictions:
+  fPredict = open('predictions.csv','r')
+  for line in fPredict:
+    #
+    fields = line.split(',')
+    if len(fields)<2:
+      continue
+    #
+    path = str(fields[0])
+    if not("HLT_" in path or "AlCa_" in path or "DST_" in path or "MC_" in path):
+      continue
+    rate = float(fields[1])
+    #
+    thePredictMap[path]=rate
+
+# Extract other informations from descriptions
+for path in thepaths:
+
+    path = path
+
+    print "======================"
+    print path
+    print descriptions[path]
+    print "======================"
+
+    # Use STEAM DB ? #
+    if useSteamDB:
+
+      path2 = path.rstrip("0123456789")
+
+      if path2 in groupMap:
+        theGroupMap[path]      = groupMap[path2]
+      else:
+        print "WARNING: Path '"+path2+"' not found in SteamDB groupMap"
+
+      if path2 in targetMap:
+        theRateMap[path] = targetMap[path2]
+        t = targetMap[path2][0]
+        if is_number(t):
+          outRateMap[path]       = float(t)
+        else:
+          outRateMap[path]       = -1
+      else:
+        print "WARNING: Path '"+path2+"' not found in SteamDB targetMap"
+
+      if path2 in flatnessMap:
+        theRateLowMap[path] = flatnessMap[path2]
+        t = flatnessMap[path2][0]
+      else:
+        print "WARNING: Path '"+path2+"' not found in SteamDB flatnessMap"
+
+      if path2 in typeMap:
+        theTypeMap[path]     = typeMap[path2]
+      else:
+        print "WARNING: Path '"+path2+"' not found in SteamDB typeMap"
+
+      if path2 in statusMap:
+        theStatusMap[path]     = statusMap[path2]
+      else:
+        print "WARNING: Path '"+path2+"' not found in SteamDB statusMap"
+
+      if path2 in enableMap:
+        theEnableMap[path]     = enableMap[path2]
+      else:
+        print "WARNING: Path '"+path2+"' not found in SteamDB enableMap"
+
+      continue
+    ### end use STEAM DB ###
+
+    theDesc = {}
+    
+    ### Reformat ###
+    if descriptions[path] is not None:
+        theDesc = str(descriptions[path]).splitlines()
+
+    # Extract relevant lines in description
+    groupLine=''
+    rateLine =''
+    typeLine =''
+    #
+    countGroup=0
+    countRate =0
+    countType =0
+    #
+    for line in theDesc:
+       if 'group' in line.lower():
+          if countGroup==0:
+             groupLine=line
+          countGroup += 1
+       #if 'rate' in line.lower() and not 'hz' in line.lower(): # fixme test
+       if 'rate' in line.lower() and ('hz' in line.lower() or 'hertz' in line.lower()):
+          if countRate==0:
+             rateLine=line
+          countRate += 1
+       if 'type' in line.lower():
+          if countType==0:
+             typeLine=line
+          countType += 1
+
+    # Issue warnings
+    if countGroup>1:
+       print "WARNING! path: ",path," => keyword 'group' appears ",countGroup," times"
+    if countRate>1:
+       print "WARNING! path: ",path," => keyword 'rate' appears " ,countRate ," times"
+    if countType>1:
+       print "WARNING! path: ",path," => keyword 'type' appears " ,countType ," times"
+
+    # Extract type
+    theType = ['unknown']
+    theType2= []
+    #
+    if len(typeLine)>0:
+       typeExtract = typeLine.split(":")
+       ###print "TYPE1! ",typeExtract
+       if len(typeExtract)>1:
+          theType = typeExtract[1].split()
+          ###print "TYPE2! ",theType
+    #
+    for elem in theType:
+       elemList = []
+       #
+       if "/" in elem:
+          elemList = elem.split("/")
+       elif "," in elem:
+          elemList = elem.split(",")
+       else:
+          elemList = [elem]
+       #
+       for word in elemList:
+          word2 = word.lower()
+          if(word2=="signal" or word2=="backup" or word2=="safety" or word2=="control" or word2=="unknown"):
+            theType2.append(word2)
+    #
+    if len(theType2)==0:
+      theType2 = ["unknown"]
+    theTypeMap[path] = theType2
+
+    # Extract rate
+    rate=''
+    rate2=''
+    rate3=''
+    unit=''
+    lumi=''
+
+    if len(rateLine)>0:
+       rateList = rateLine.split()
+
+       # particular check
+       doPrint=False
+       if path=="NONE":
+          doPrint=True
+          print "PRINT0! ", rateLine
+
+       # initialize utility variables
+       lastword=''
+       rate=''
+       unit=''
+       lumi=''
+
+       # loop over words in rate sentence
+       for word in rateList:
+          #
+          if doPrint:
+             print "PRINT1!", word.lower()
+          #
+          if(word.lower()=="khz" or word.lower()=="hz"):
+             rate = lastword
+             unit = word
+             if doPrint:
+                print "PRINT2! rate=", rate, " unit=", unit
+          #   
+          elif "khz" in word.lower():
+             word2 = word.lower().split('khz')
+             if word2[0]=='':
+                rate = lastword
+             else:
+                rate  = word2[0]
+             unit  = 'kHz'
+             if doPrint:
+                print "PRINT3! word2=", word2
+                print "PRINT3! rate=", rate, " unit=", unit
+          #
+          elif "hz" in word.lower():
+             word2 = word.lower().split('hz')
+             if word2[0]=='':
+                rate = lastword
+             else:
+                rate  = word2[0]
+             unit  = 'Hz'
+             if doPrint:
+                print "PRINT4! word2=", word2
+                print "PRINT4! rate=", rate, " unit=", unit
+          elif ("e33" in word.lower() or "e34" in word.lower() or "bx" in word.lower()):
+             lumi = word
+          #
+          lastword=word
+
+       # Clean rate info
+       rate2 = rate
+       if '+/-' in rate:
+          rate2 = rate.split('+/-')[0]
+       elif '+-' in rate:
+          rate2 = rate.split('+-')[0]
+       #
+       rate3 = rate2
+       if ':' in rate2:
+          rate3 = rate2.split(':')[1]
+       if '~' in rate2:
+          rate3 = rate2.split('~')[1]
+       if '+' in rate2:
+          rate3 = rate2.split('+')[1]
+       if '-' in rate2:
+          rate3 = rate2.split('-')[1]
+
+    # Default character
+    if rate3=='':
+      rate3='/'
+    if unit=='':
+      unit='/'
+    if lumi=='':
+      lumi='/'
+
+    # Record rate info
+    theRateMap[path] = [rate3,unit,lumi]
+    
+
+    # Extract group
+    theGroupMap[path] = []
+    groupList2 = []
+    groupList = groupLine.split(':')
+
+    if len(groupList)>1:
+
+       groupList = groupList[1].split(' ')
+
+       # Parse groupList
+       for elem in groupList:
+
+          if elem==' ' or elem=='' or '?' in elem: # trivial cases
+             continue
+
+          # split further groupList if applicable
+          if "/" in elem: # slash-separated list
+             groupList2 = elem.split('/')
+          elif "," in elem: # comma-separated list
+             groupList2 = elem.split(',')
+          else: # elem is a single group, not a list
+             groupList2.append(elem)
+
+       # parse further-splitted groupList2
+       for group in groupList2:
+          if group==' ' or group=='' or '?' in elem: # trivial cases
+             continue
+          if ('DPG' in group.upper() or 'POG' in group.upper() or 'PAG' in group.upper()): # avoid generic components
+             continue
+
+          # standardize the name of the group
+          if 'alca' in group.lower():
+             group='ALCA'
+          elif ('l' in group.lower() and '1' in group):
+             group='L1'
+          elif 'ecal' in group.lower():
+             group='ECAL'
+          elif 'hcal' in group.lower():
+             group='HCAL'
+          elif 'trk' in group.lower():
+             group='TRK'
+          elif 'muo' in group.lower():
+             group='MUO'
+          elif 'btv' in group.lower():
+             group='BTV'
+          elif 'gamma' in group.lower():
+             group='EGM'
+          elif ('jet' in group.lower() or 'met' in group.lower() or 'jme' in group.lower()):
+             group='JME'
+          elif 'tau' in group.lower():
+             group='TAU'
+          elif 'b2g' in group.lower():
+             group='B2G'
+          elif 'bph' in group.lower():
+             group='BPH'
+          elif 'exo' in group.lower():
+             group='EXO'
+          elif 'hig' in group.lower():
+             group='HIG'
+          elif 'smp' in group.lower():
+             group='SMP'
+          elif 'sus' in group.lower():
+             group='SUS'
+          elif 'top' in group.lower():
+             group='TOP'
+          elif 'fsq' in group.lower():
+             group='FSQ'
+          elif 'hin' in group.lower():
+             group='HIN'
+          else:
+             continue
+
+          theGroupMap[path].append(group)
+
+       if len(theGroupMap[path])==0:
+          theGroupMap[path]=['null']
+
+    else:
+       print path," : null"
+       theGroupMap[path] = ['null']
+
+########## END STEAM ADD-ON ##########
+
+
+# read global prescale service
+prescale = dict()
+prescaleNames = [ '' ]
+columns  = 1
+if 'PrescaleService' in process.__dict__:
+  prescaleNames = process.PrescaleService.lvl1Labels.value()
+  columns = len(prescaleNames)
+  for entry in process.PrescaleService.prescaleTable:
+    prescale[entry.pathName.value()] = entry.prescales.value()
+
+
+# search a path for a single module with a certain name
+class SearchModuleByName(object):
+  def __init__(self, target, barrier = None):
+    self.target  = target
+    self.barrier = barrier
+    self.found   = [ ]
+    self.stop    = False
+
+  def enter(self, node):
+    if self.stop:
+      return
+
+    if isinstance(node, cms._Module):
+      if node.label_() == self.barrier:
+        self.stop = True
+        return
+      if node.label_() == self.target:
+        self.found.append(node)
+    
+  def leave(self, node):
+    pass
+
+
+# search a path for a single module of a certain type
+class SearchModuleByType(object):
+  def __init__(self, target, barrier = None):
+    self.target  = target
+    self.barrier = barrier
+    self.found   = [ ]
+    self.stop    = False
+
+  def enter(self, node):
+    if self.stop:
+      return
+
+    if isinstance(node, cms._Module):
+      if node.label_() == self.barrier:
+        self.stop = True
+        return
+      if node.type_() == self.target:
+        self.found.append(node)
+    
+  def leave(self, node):
+    pass
+
+
+# search a path for a "dumb" prescaler
+class SearchDumbPrescale(SearchModuleByType):
+  def __init__(self, barrier = None):
+    super(SearchDumbPrescale, self).__init__('HLTPrescaler', barrier)
+    
+
+# search a path for a "smart" prescaler
+class SearchSmartPrescale(SearchModuleByType):
+  def __init__(self, barrier = None):
+    super(SearchSmartPrescale, self).__init__('HLTHighLevelDev', barrier)
+
+
+# search a path for a "smart" prescaler
+class SearchNewSmartPrescale(SearchModuleByType):
+  def __init__(self, barrier = None):
+    super(SearchNewSmartPrescale, self).__init__('TriggerResultsFilter', barrier)
+
+
+# extract the L1 seed for a given path
+def getL1Seed(path):
+  searchSeed = SearchModuleByType('HLTL1TSeed')
+  path.visit(searchSeed)
+  if searchSeed.found:
+    return [ seed.L1SeedsLogicalExpression.value() for seed in searchSeed.found ]
+  else:
+    return [ ]
+
+# extract L1 PS column labels
+def getLabelsL1PS(filename):
+  labels = []
+  infile = open(filename,'r')
+  for line in infile:
+    fields = line.split(',')
+    labels = fields[2:]
+    break
+  infile.close()
+  return labels
+
+# extract L1 PS table from output file
+def getTableL1PS(filename):
+  tableL1PS = {}
+  infile = open(filename,'r')
+  for line in infile:
+    if not "L1_" in line:
+      continue
+    fields = line.split(',')
+    tableL1PS[fields[1]] = fields[2:]
+  infile.close()
+  return tableL1PS
+
+# produce L1 PS description
+def getL1PSDescription(seeds, TableL1PS, LabelsL1PS, mapL1, name):
+  pre = getL1PS(seeds, TableL1PS, LabelsL1PS, mapL1, name)
+  if mode == 'text':
+    return '\t'.join('%6d' % p for p in pre)
+  elif mode == 'csv':
+    return '; '.join('%s' % p for p in pre)
+  else:
+    return 'n/a'
+
+# extract L1 PS per HLT path
+def getL1PS(seeds, TableL1PS, LabelsL1PS, mapL1, name):
+
+  nColumns = int(len(LabelsL1PS))
+  prescales = [0]*nColumns
+
+  print "SEED: ", seeds
+
+  if len(seeds)==0:
+    prescales = [1]*nColumns
+    mapL1[name] = prescales
+    return prescales
+  else:
+    theSeed = seeds[0]
+
+  listSeeds = theSeed.split(' OR ')
+  #print "L1PS: SEEDS: ",listSeeds
+
+  # Loop over PS columns
+  for i in range(nColumns):
+
+    print "L1PS: -- Column #",i
+
+    # Search for minimal non-zero PS
+    minPS = sys.maxint
+    for seed in listSeeds:
+      # check format
+      if not 'L1_' in seed:
+        continue
+      seed = seed.strip()
+      # get prescale value from table
+      thePS=-1
+      if seed in TableL1PS:
+        thePS = int(TableL1PS[seed][i])
+      print "L1PS: --- "+str(seed)+" = "+str(thePS)+"  (minPS="+str(minPS)+")"
+      # search for a minimal non-zero PS
+      if thePS<minPS and thePS>0:
+        print "L1PS: ---- "+str(thePS)+"<"+str(minPS)
+        minPS=thePS
+
+    # did not find a non-zero PS
+    if minPS==sys.maxint:
+      minPS=0
+    # record minimal PS
+    prescales[i] = int(minPS)
+    print "L1PS: -- Final PS=",prescales[i]
+
+  # return prescales
+  print "L1PS: ",prescales
+  mapL1[name] = prescales
+  return prescales
+
+# prepare a description of the L1 seed for a given path
+def getL1SeedDescription(seeds):
+  #seeds = getL1Seed(path)
+  if len(seeds) == 0:
+    seedDesc = '(none)'
+  elif len(seeds) == 1:
+    seedDesc = seeds[0]
+  else:
+    seedDesc = '(' + ') AND ('.join(seeds) + ')'
+
+  return seedDesc
+
+# get the BPTX coincidenxe information for the given path
+def getBPTXMatching(path):
+  searchSeed  = SearchModuleByName('hltL1sL1BPTX')
+  searchPlus  = SearchModuleByName('hltL1sL1BPTXPlusOnly')
+  searchMinus = SearchModuleByName('hltL1sL1BPTXMinusOnly')
+  searchZero  = SearchModuleByName('hltL1sZeroBias')
+  searchBPTX  = SearchModuleByName('hltBPTXCoincidence')
+  path.visit(searchSeed)
+  path.visit(searchPlus)
+  path.visit(searchMinus)
+  path.visit(searchZero)
+  path.visit(searchBPTX)
+  if searchSeed.found or searchPlus.found or searchMinus.found or searchZero.found:
+    bptx = 2
+  elif searchBPTX.found:
+    bptx = 1
+  else:
+    bptx = 0
+  return bptx
+
+# get the BPTX coincidenxe information for the given path, formatted as a charachter
+def getBPTXMatchingDescription(path):
+  code = r' ~='
+  bptx = getBPTXMatching(path)
+  return code[bptx]
+
+# get the types from theTypeMap #ND
+def getTypes(name):
+  if name in theTypeMap:
+    types = theTypeMap[name]
+  else:
+    types = ['unknown']
+  return types
+
+# get the types descriptions #ND
+def getTypesDescription(name):
+  types = getTypes(name)
+  ###print "TEST: ",types
+  if mode == 'text':
+    return ','.join('%s' % g for g in types)
+  elif mode == 'csv':
+    return ','.join('%s' % g for g in types)
+  else:
+    return 'n/a'
+
+# get the status
+def getStatus(name):
+  if name in theStatusMap:
+    statuses = theStatusMap[name]
+  else:
+    statuses = ['unknown']
+  return statuses
+
+# get the types descriptions #ND
+def getStatusDescription(name):
+  types = getStatus(name)
+  ###print "TEST: ",types
+  if mode == 'text':
+    return ','.join('%s' % g for g in types)
+  elif mode == 'csv':
+    return ','.join('%s' % g for g in types)
+  else:
+    return 'n/a'
+
+# get the status
+def getEnable(name):
+  if name in theEnableMap:
+    enablees = theEnableMap[name]
+  else:
+    enablees = ['unknown']
+  return enablees
+
+# get the types descriptions #ND
+def getEnableDescription(name):
+  types = getEnable(name)
+  ###print "TEST: ",types
+  if mode == 'text':
+    return ','.join('%s' % g for g in types)
+  elif mode == 'csv':
+    return ','.join('%s' % g for g in types)
+  else:
+    return 'n/a'
+
+# get the groups from theGroupMap #ND
+def getGroups(name):
+  if name in theGroupMap:
+    groups = theGroupMap[name]
+  else:
+    groups = ['null']
+  return groups
+
+# get the groups descriptions #ND
+def getGroupsDescription(name):
+  groups = getGroups(name)
+  ###print "TEST: ",groups
+  if mode == 'text':
+    return ','.join('%s' % g for g in groups)
+  elif mode == 'csv':
+    return ','.join('%s' % g for g in groups)
+  else:
+    return 'n/a'
+
+# get the rates from theRateMap #ND
+def getRates(name,target="High"):
+  theMapHere = theRateMap
+  if target=="Low":
+    theMapHere = theRateLowMap
+
+  if name in theRateMap:
+    rates = theRateMap[name]
+  else:
+    rates = ['/','/','/']
+  return rates
+
+# get the rates descriptions #ND
+def getRatesDescription(name,target="High"):
+  rates = getRates(name,target)
+  ###print "TEST: ",rates
+  if mode == 'text':
+    return '\t'.join('%s' % r for r in rates)
+  elif mode == 'csv':
+    return '; '.join('%s' % r for r in rates)
+  else:
+    return 'n/a'
+
+# get a tuple with the prescale factors for a path in a given endpath
+def getPrescales(name, out, end, mapHLT):
+  # look for a gobal prescale for the given path
+  if name in prescale:
+    pre = prescale[name]
+  else:
+    pre = [1] * columns
+
+  # check for a valid EndPath
+  if out and end:
+    endp = process.endpaths[end]
+
+    # look for a local dumb prescaler in the output path
+    dumb = SearchDumbPrescale(out)
+    endp.visit(dumb)
+    if dumb.found and end in prescale:
+      pre = map(operator.mul, pre, prescale[end])
+
+    # look for an old-style local smart prescaler in the output path
+    smart = SearchSmartPrescale(out)
+    endp.visit(smart)
+    # FIXME wildcards are not supported yet
+    for found in smart.found:
+      if name in found.HLTPaths.value():
+        index = found.HLTPaths.value().index(name)
+        scale = found.HLTPathsPrescales.value()[index] * found.HLTOverallPrescale.value()
+        pre = [ scale * p for p in pre ]
+      else:
+        pre = [ 0 ] * columns
+
+    # look for a new-style local smart prescaler in the output path
+    smart = SearchNewSmartPrescale(out)
+    endp.visit(smart)
+    # FIXME wildcards are not supported yet
+    # FIXME arbitrary expressions are not supported yet, only "HLT_Xxx" and "HLT_Xxx / N"
+    match_pre = re.compile(r'%s\s*/\s*(\d+)' % name)
+    for found in smart.found:
+      scale = 0
+      for condition in found.triggerConditions.value():
+        if name == condition:
+          scale = 1
+        elif match_pre.match(condition):
+          scale = int(match_pre.match(condition).groups()[0])
+      # apply the smart prescale to all columns 
+      pre = [ scale * p for p in pre ]
+
+  mapHLT[name] = pre
+  
+  return pre
+
+
+# get the prescale factors for a path in a given endpath
+def getPrescalesDescription(name, out, end, mapHLT):
+  pre = getPrescales(name, out, end, mapHLT)
+  if mode == 'text':
+    return '\t'.join('%6d' % p for p in pre)
+  elif mode == 'csv':
+    return '; '.join('%s' % p for p in pre)
+  else:
+    return 'n/a'
+
+# get the names of the prescale columns
+def getPrescaleNames():
+  if mode == 'text':
+    return '\t'.join('%s' % p for p in prescaleNames)
+  elif mode == 'csv':
+    return '; '.join('%s' % p for p in prescaleNames)
+  else:
+    return 'n/a'
+
+def getL1PrescaleNames(LabelsL1PS):
+  if mode == 'text':
+    return '\t'.join('%s' % p for p in LabelsL1PS)
+  elif mode == 'csv':
+    return '; '.join('%s' % p for p in LabelsL1PS)
+  else:
+    return 'n/a'  
+
+# format the information about a path associated to a specific endpath
+def dumpPath(stream, dataset, name, out, end, TableL1PS, LabelsL1PS, mapSeed, mapL1, mapHLT):
+  if name not in process.paths:
+    return '        %-*s*** missing ***' % (length, name)
+
+  path = process.paths[name]
+
+  # look for owners #ND
+  groupDesc = getGroupsDescription(name)
+
+  # look for types
+  typeDesc = getTypesDescription(name)
+
+  # look for rates #ND
+  rateDesc = getRatesDescription(name)
+
+  # look for rates #ND
+  #rateLowDesc = getRatesDescription(name,"Low")
+  rateLowDesc = rateDesc
+
+  # look for status
+  statusDesc = getStatusDescription(name)
+
+  # look for enabling
+  enableDesc = getEnableDescription(name)
+  
+  # look for prescales
+  preDesc = getPrescalesDescription(name, out, end, mapHLT)
+
+  # look for BPTX coincidence in the given path
+  bptxDesc = getBPTXMatchingDescription(path)
+
+  # look for L1 seed
+  seeds    = getL1Seed(path)
+  seedDesc = getL1SeedDescription(seeds)
+  mapSeed[name] = "'"+str(seedDesc)+"'"
+
+  # look for L1 prescales
+  #psL1     = getL1PS(seeds, TableL1PS, LabelsL1PS)
+  print "L1PS: HLT: ",name
+  psL1Desc = getL1PSDescription(seeds, TableL1PS, LabelsL1PS, mapL1, name)
+
+  # Check map filling
+  #print "TEST: mapL1[name]=" , mapL1[ name]
+  #print "TEST: mapHLT[name]=", mapHLT[name]
+
+  if bptxDesc != "" and bptxDesc != " ":
+    print "CHECKBPTX|",name,"|",bptxDesc
+
+  if useSteamDB:
+    if mode == 'text':
+      #return '\t\t%s %-*s%s\t%s\t%s\t%s\t%s' % (bptxDesc, length, name, groupDesc, typeDesc, rateDesc, preDesc, seedDesc)
+      return '\t\t%-*s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % (length, name, groupDesc, typeDesc, statusDesc, enableDesc, rateDesc, rateLowDesc, preDesc, seedDesc, psL1Desc)
+    elif mode == 'csv':
+      return '%s; %s; %s; %s; %s; %s; %s; %s; %s; %s; %s; %s' % (stream, dataset, name, groupDesc, typeDesc, statusDesc, enableDesc, rateDesc, rateLowDesc, preDesc, seedDesc, psL1Desc)
+    else:
+      return 'n/a'
+
+  else:
+    if mode == 'text':
+      #return '\t\t%s %-*s%s\t%s\t%s\t%s\t%s' % (bptxDesc, length, name, groupDesc, typeDesc, rateDesc, preDesc, seedDesc)
+      return '\t\t%-*s\t%s\t%s\t%s\t%s\t%s\t%s' % (length, name, groupDesc, typeDesc, rateDesc, preDesc, seedDesc, psL1Desc)
+    elif mode == 'csv':
+      return '%s; %s; %s; %s; %s; %s; %s; %s; %s' % (stream, dataset, name, groupDesc, typeDesc, rateDesc, preDesc, seedDesc, psL1Desc)
+    else:
+      return 'n/a'
+
+def getEndPath(output):
+  # look for the EndPath with the corresponding output module
+  out = ''
+  for o in process.endpaths.itervalues():
+    searchOut = SearchModuleByName(output)
+    o.visit(searchOut)
+    if searchOut.found:
+      out = o.label_()
+      break
+  return out
+
+
+def dumpHeader(LabelsL1PS):
+  header = ''
+  print getL1PrescaleNames(LabelsL1PS)
+
+  if useSteamDB:
+    if mode == 'csv':
+      header = str('stream; dataset; path; group; type; status; enabling; target rate 2.0e34; target rate 1.4e34; %s; L1 seed; %s' % (getPrescaleNames(), getL1PrescaleNames(LabelsL1PS)) )+'\n'
+    elif mode == 'text':
+      header = str('stream\tdataset\tpath\tgroup\ttype\tstatus\tenabling\ttarget rate 2.0e34\ttarget rate 1.4e34\t%s\tL1 seed\t%s' % (getPrescaleNames(), getL1PrescaleNames(LabelsL1PS)) )+'\n'
+
+  else:
+    if mode == 'csv':
+      header = str('stream; dataset; path; group; type; rate; unit; lumi; %s; L1 seed; %s' % (getPrescaleNames(), getL1PrescaleNames(LabelsL1PS)) )+'\n'
+    elif mode == 'text':
+      header = str('stream\tdataset\tpath\tgroup\ttype\trate\tunit\tlumi\t%s\tL1 seed\t%s' % (getPrescaleNames(), getL1PrescaleNames(LabelsL1PS)) )+'\n'
+
+  outputfile.write(header)
+
+def dumpStream(stream,TableL1PS, LabelsL1PS, datasetMap, streamsMap):
+  assigned = set()
+  allpaths = set()
+
+  if mode == 'text':
+    outputfile.write('stream '+stream+'\n')
+  out = 'hltOutput%s' % stream
+  end = getEndPath(out)
+  if end:
+    output = eval('process.hltOutput%s' % stream)
+    allpaths = set( path for path in output.SelectEvents.SelectEvents )
+
+  pds = sorted( process.streams.__dict__[stream] )
+  for pd in pds:
+    if mode == 'text':
+      outputfile.write('\tdataset '+pd+'\n')
+    if pd in process.datasets.__dict__:
+      paths = sorted( path for path in process.datasets.__dict__[pd] )
+      assigned.update( paths )
+      for path in paths:
+        path = path
+        outputfile.write(str(dumpPath(stream, pd, path, out, end, TableL1PS, LabelsL1PS, mapSeed, theL1TPSMap, theHLTPSMap))+'\n')
+        if not path in streamsMap:
+          streamsMap[path] = []
+        if not path in datasetMap:
+          datasetMap[path] = []
+        streamsMap[path].append(stream)
+        datasetMap[path].append(pd)
+    else:
+      if mode == 'text':
+        #outputfile.write('        *** not found ***'+'\n')
+        print '*** PD "',pd,'" not found ***\n'
+
+  unassigned = allpaths - assigned
+  if unassigned:
+    if mode == 'text':
+      outputfile.write('\tunassigned'+'\n')
+    for path in sorted(unassigned):
+      path = path
+      outputfile.write(str(dumpPath(stream, '(unassigned)', path, out, end, TableL1PS, LabelsL1PS, mapSeed, theL1TPSMap, theHLTPSMap))+'\n')
+
+  if not end:
+    #outputfile.write(str('    *** corresponding EndPath not found ***')+'\n')
+    print '*** STREAM "',stream,'" : EndPath not found ***\n'
+  else:
+    missing    = assigned - allpaths
+    if missing:
+      if mode == 'text':
+        #outputfile.write('    *** paths missing from the EndPath\'s output module ***'+'\n')
+        print '*** STREAM "',stream,'" : paths missing from the EndPath output module ***\n'
+      for path in sorted(missing):
+        path = path
+        #outputfile.write(str(dumpPath(stream, '(missing)', path, out, end, TableL1PS, LabelsL1PS, mapSeed, theL1TPSMap, theHLTPSMap))+'\n')
+        print str(dumpPath(stream, '(missing)', path, out, end, TableL1PS, LabelsL1PS, mapSeed, theL1TPSMap, theHLTPSMap))+'\n'
+
+### EXECUTION ###
+
+# get Level-1 Prescales
+fileL1PS   = 'Table_L1PS.csv'
+LabelsL1PS = getLabelsL1PS(fileL1PS)
+TableL1PS  = getTableL1PS( fileL1PS)
+
+# read the list of streams
+streams = process.streams._Parameterizable__parameterNames
+streams.sort()
+
+# figure the longest path name
+length   = 32
+length_p = max(len(p) for p in process.paths)
+length_d = max(len(p) for d in process.datasets.__dict__ if not d.startswith('_') for p in process.datasets.__dict__[d])
+length = max(length_p, length_d, length) + 4
+
+# Dump header
+dumpHeader(LabelsL1PS)
+
+# Record datasets and streams
+datasetMap = {}
+streamsMap = {}
+
+# Dump streams
+listExcluded = ['DQM','Calibration','Express','HLTMonitor','NanoDST','EndOfFill']
+for stream in streams:
+  doTheDump=True
+  if clean:
+    for s in listExcluded:
+      if s in stream:
+        doTheDump=False
+  if doTheDump:
+    dumpStream(stream,TableL1PS, LabelsL1PS, datasetMap, streamsMap)
+
+# Build map <L1 seed, HLT path>
+mapSeedToPath  = {}
+mapSeedToGroup = {}
+for path in mapSeed:
+  seed   = str(mapSeed[path]).replace("'","")
+  print "TESTMAP:",seed
+  if seed in mapSeedToPath:
+    mapSeedToPath[ seed ].append( path )
+  else:
+    mapSeedToPath[ seed ] = [ path ]
+  #
+  if path in theGroupMap:
+    groups = theGroupMap[path]
+    if seed in mapSeedToGroup:
+      for group in groups:
+        if group not in mapSeedToGroup[ seed ]:
+          mapSeedToGroup[ seed].append( group )
+
+# Write out maps
+if WriteOut:
+  outputMaps = open("outputMaps.py", "w")
+
+  outputMaps.write("groupMap = {\n")
+  for path in theGroupMap:
+    outputMaps.write("\t'"+path+"': "+str(theGroupMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("typeMap = {\n")
+  for path in theTypeMap:
+    outputMaps.write("\t'"+path+"': "+str(theTypeMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("statusMap = {\n")
+  for path in theStatusMap:
+    outputMaps.write("\t'"+path+"': "+str(theStatusMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("streamsMap = {\n")
+  for path in streamsMap:
+    outputMaps.write("\t'"+path+"': "+str(streamsMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("datasetMap = {\n")
+  for path in datasetMap:
+    outputMaps.write("\t'"+path+"': "+str(datasetMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("psL1TMap = {\n")
+  for path in theL1TPSMap:
+    outputMaps.write("\t'"+path+"': "+str(theL1TPSMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("seedMap = {\n")
+  for path in mapSeed:
+    outputMaps.write("\t'"+path+"': "+str(mapSeed[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("seedToPathMap = {\n")
+  for seed in mapSeedToPath:
+    outputMaps.write("\t'"+seed+"': "+str(mapSeedToPath[seed])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("psHLTMap = {\n")
+  for path in theHLTPSMap:
+    outputMaps.write("\t'"+path+"': "+str(theHLTPSMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("predictMap = {\n")
+  for path in thePredictMap:
+    outputMaps.write("\t'"+path+"': "+str(thePredictMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("rateMap = {\n")
+  for path in outRateMap:
+    outputMaps.write("\t'"+path+"': "+str(outRateMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("rateLowMap = {\n")
+  for path in outRateLowMap:
+    outputMaps.write("\t'"+path+"': "+str(outRateLowMap[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.write("seedToGroupMap = {\n")
+  for path in mapSeedToGroup:
+    outputMaps.write("\t'"+path+"': "+str(mapSeedToGroup[path])+",\n")
+  outputMaps.write("}\n\n")
+  #
+  outputMaps.close()
+
