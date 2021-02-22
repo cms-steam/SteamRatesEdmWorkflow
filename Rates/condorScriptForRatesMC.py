@@ -21,11 +21,11 @@ opts, args = parser.parse_args()
 
 
 error_text = '\n\nError: wrong <CMSSWrel>=%s input\n' %opts.cmsEnv
-help_text = '\npython batchScriptForRates.py -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
+help_text = '\npython condorScriptForRatesMC.py -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<infilesDir> (optional) = directory where the input root files are located (default = will take whatever is in the filesInputMC.py file)'
 help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW"'
-help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=5)'
+help_text += '\n<nPerJob> (optional) = number of files processed per condor job (default=5)'
 help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 help_text += '\n<maps> (optional) = "nomaps" (default option) or "somemaps" or "allmaps""\n'
 

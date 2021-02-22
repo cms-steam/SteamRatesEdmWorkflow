@@ -1,3 +1,7 @@
+"""
+Just a list of auxiliary functions used by scripts in this directory
+"""
+
 import os
 import math
 import shlex
@@ -6,6 +10,7 @@ import csv
 import ROOT
 #from Menu_HLT import datasetMap as triggersDatasetMap
 
+#List of datasets to be used for the overlap study:
 datasets_for_corr=[
 "NoBPTX",
 #"DoubleEG",
@@ -27,7 +32,7 @@ datasets_for_corr=[
 "SingleMuon",
 ]
 
-#Dictionary relating rates output files with their directories
+#Dictionary relating each category of output file with the directory where they can be found
 mergeNames = {
 "output.stream"               : "Stream",
 "output.path.physics"         : "PathPhysics",
@@ -45,6 +50,7 @@ mergeNames = {
 }
 
 
+#List of PAGs (used for the "total physics analysis" rate)
 PAGlist=[
 "B2G",
 "BPH",
@@ -59,6 +65,7 @@ PAGlist=[
 
 
 def runCommand(commandLine):
+    #run a shell command (like you would run on a terminal) and return the output
     #sys.stdout.write("%s\n" % commandLine)
     args = shlex.split(commandLine)
     retVal = subprocess.Popen(args, stdout = subprocess.PIPE)
@@ -66,6 +73,7 @@ def runCommand(commandLine):
 
 
 def belongsToPAG(triggerName):
+    #Check if a given trigger name belongs to a PAG, using the PAG list
     from Menu_HLT import groupMap as triggersGroupMap
     result=False
     for mapKey in triggersGroupMap.keys():
@@ -78,17 +86,20 @@ def belongsToPAG(triggerName):
     return result
 
 def physicsStreamOK(triggerName):
+    #Check if a given trigger belongs to a "physics" stream (defined below)
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
     for mapKey in triggersStreamMap.keys():
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
+                #"physics" streams are defined in the "if" statement below:
                 if (stream.startswith("Physics")) and not (stream.startswith("PhysicsHLTPhysics")) and not (stream.startswith("PhysicsZeroBias")) and not (stream.startswith("PhysicsParking")) and not (stream.startswith("PhysicsScoutingMonitor")):
                     result = True
     return result
 
 def scoutingStreamOK(triggerName):
+    #Check if a given trigger belongs to a "scouting" stream (defined below)
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
     for mapKey in triggersStreamMap.keys():
@@ -100,6 +111,7 @@ def scoutingStreamOK(triggerName):
     return result
 
 def parkingStreamOK(triggerName):
+    #Check if a given trigger belongs to a "parking" stream (defined below)
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
     for mapKey in triggersStreamMap.keys():
@@ -111,12 +123,15 @@ def parkingStreamOK(triggerName):
     return result
 
 def datasetOK(dataset):
+    #check if a given dataset belongs to the list to be considered for the correlation study
     result=False
     if dataset in datasets_for_corr: result=True
     return result
 
 
 def makeIncreasingList(map_in):
+    #function that takes in a map and returns a list of keys of the map, ordered from lowest to highest
+    #this can be replaced by the native Python function "sorted" which does this better
     sorted_list = []
     mmap = map_in.copy()
     while len(mmap) > 0:
@@ -133,6 +148,7 @@ def makeIncreasingList(map_in):
     
 
 def mapForDecreasingOrder(list_in):
+    #Obsolete?
     newToOldMap = {}
     llist = list(list_in)
     processed_elements = []
@@ -151,6 +167,7 @@ def mapForDecreasingOrder(list_in):
     return newToOldMap
 
 def reorderList(list_in, reorderingMap):
+    #Obsolete?
     newList = []
     for j in range(0,len(list_in)):
         #j is the new index
@@ -163,6 +180,10 @@ def reorderList(list_in, reorderingMap):
 
 
 def findFileNumber(sstring):
+    #Functions that takes the full name of a file and finds the tag assigned at the end
+    #The full name of a file is something like 'output.category.tag.csv' or 'output.category.tag.root'
+    #This functions looks for the tag by looking between the last and second to last points
+    #The tag is called "file number" because it will be a number if you created the condor jobs using the automated scripts
     lastpoint = sstring.rfind('.')
     secondlastpoint = sstring.rfind('.', 0, lastpoint-1)
     file_number = sstring[secondlastpoint:lastpoint+1]
@@ -170,9 +191,14 @@ def findFileNumber(sstring):
     
 
 def makeListsOfRawOutputs(files_dir, fig):
+    #Makes lists of the output files for the counting jobs
+    #One list for each category of output
+    #Categories="global", "root", "physics path", "group", etc.
 
+    #First we try to find the jobs where the output is corrupt
     bad_jobs=[]
 
+    #search for corrupt global files
     total_dir = files_dir + "/Global"
     ls_command = runCommand("ls " + total_dir)
     stdout, stderr = ls_command.communicate()
@@ -187,6 +213,7 @@ def makeListsOfRawOutputs(files_dir, fig):
         except:
             bad_jobs.append(findFileNumber(file_string))
 
+    #search for corrupt root files, but only if we specify the "fig" option
     if fig:
         total_dir = files_dir + "/Root"
         ls_command = runCommand("ls " + total_dir)
@@ -199,6 +226,7 @@ def makeListsOfRawOutputs(files_dir, fig):
                 if not nnumber in bad_jobs:
                     bad_jobs.append(nnumber)
 
+    #search for corrupt files in all the other categories
     for name in mergeNames:
         key = name+".csv"
 
@@ -220,6 +248,9 @@ def makeListsOfRawOutputs(files_dir, fig):
 
 
     print "bad jobs =", bad_jobs
+
+    #Now we create the lists of output files that will need to be merged
+    #The "global" and "root" files are special and put in their own separate lists
     globalFiles = []
     total_dir = files_dir + "/Global"
     ls_command = runCommand("ls " + total_dir)
@@ -249,6 +280,7 @@ def makeListsOfRawOutputs(files_dir, fig):
             if not bad:
                 rootFiles.append(file_string)
     
+    #For categories other than "root" or "global", we put the lists in a dictionary
     masterDic = {}
     for name in mergeNames:
         key = name+".csv"

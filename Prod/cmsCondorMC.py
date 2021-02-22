@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 
+#Create condor jobs for running over MC files
+#Check cmsCondorData.py for more comments, the structure of the script is very similar
+#The main difference: in MC we run over many datasets at once, and the recommended option is to generate automatically "list_cff.py"
+
+#The hard coded dataset is only used when running with no proxy, you may wish to drop it
 hardCodedDataset = "/RelValZEE_13/CMSSW_10_4_0-103X_upgrade2018_realistic_v8-v1/GEN-SIM-DIGI-RAW"
 
 import os, sys,  imp, re, pprint, string
-from optparse import OptionParser
 
 # cms specific
 import FWCore.ParameterSet.Config as cms
 
 import time
 import datetime
-import os
-import sys
 import shlex
 import subprocess
 
@@ -36,12 +38,12 @@ parser.add_option("-p","--proxy",dest="proxyPath",type="str",default="noproxy",h
 opts, args = parser.parse_args()
 
 
-help_text = '\n./cmsCondor.py <cfgFileName> <CMSSWrel> <remoteDir> -p <proxyPath> -n <nPerJob> -q <jobFlavour>'
+help_text = '\n./cmsCondorMC.py <cfgFileName> <CMSSWrel> <remoteDir> -p <proxyPath> -n <nPerJob> -q <jobFlavour>'
 help_text += '\n<cfgFileName> (mandatory) = name of your configuration file (e.g. hlt_config.py)'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<remoteDir> (mandatory) = directory where the files will be transfered (e.g. on EOS)'
 help_text += '\n<proxyPath> (optional) = location of your voms cms proxy. Note: keep your proxy in a private directory.'
-help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=5)'
+help_text += '\n<nPerJob> (optional) = number of files processed per condor job (default=1)'
 help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 
 
@@ -69,27 +71,29 @@ sub_total = open("sub_total.jobb","w")
 #copy MC datasets file here so it can be used
 os.system("cp ../MCDatasets/map_MCdatasets_xs.py .")
 
-fileDatasetMap={}
+fileDatasetMap={}  #create map from the input files to the datasets
 
-#retrieve MC datasets, query DAS, and make a list of input files
-if opts.proxyPath != "noproxy":
+if opts.proxyPath != "noproxy": #if you're using a proxy (recommended)
+    #retrieve MC datasets, query DAS, and make a list of input files
+    #The list of input files is created automatically, this will override any existing "list_cff.py"
     fileList=open('list_cff.py','w')
     fileList.write("inputFileNames=[\n")
     from map_MCdatasets_xs import datasetCrossSectionMap
     for dataset in datasetCrossSectionMap.keys():
-        das_command = runCommand('dasgoclient --query="file dataset=%s"'%dataset)
+        #find the files corresponding to each dataset
+        das_command = runCommand('dasgoclient --query="file dataset=%s"'%dataset) 
         stdout, stderr = das_command.communicate()
     
-        for line in stdout.splitlines():
-            fileList.write("'"+line+"',\n")
-            fileDatasetMap[line]=dataset
+        for line in stdout.splitlines(): #Each line corresponds to one file
+            fileList.write("'"+line+"',\n")  #update list of files
+            fileDatasetMap[line]=dataset  #update file->dataset map
     
     fileList.write("]\n")
     fileList.close()
-else:
-    from list_cff import inputFileNames
+else:  #if you're NOT using a proxy (not recommended)
+    from list_cff import inputFileNames   #you need to enter the file names manually into "list_cff.py"
     for ffile in inputFileNames:
-        fileDatasetMap[ffile]=hardCodedDataset
+        fileDatasetMap[ffile]=hardCodedDataset   #all files should belong to your hardcoded dataset. The code doesn't check this, you need to check it yourself.
     print fileDatasetMap
 
 # load cfg script
@@ -119,18 +123,22 @@ else:
         nJobs = nJobs + 1
         
     #print "dataset: ", dataset
-    print "(approximate) number of jobs to be created: ", nJobs
+    print "(approximate) number of jobs to be created: ", nJobs #the number of jobs could be off by one if the number of files per job doesn't exactly divide the total number of files
         
-    
+
+#Create a list of datasets    
 datasetList=[]
 if opts.proxyPath == "noproxy":
     datasetList.append(hardCodedDataset)
 else:
     datasetList=datasetCrossSectionMap.keys()
 
+
+#Run over the list of datasets
 jobCount=0
-last_kFileMax=0
+last_kFileMax=0 
 for dataset in datasetList:
+    #Replace the "/" in the dataset names by "_" so we can create a proper directory name from the dataset name
     datasetName=dataset.lstrip("/")
     datasetName=datasetName.replace("/","_")
     datasetJobDir='Jobs/'+datasetName
@@ -139,18 +147,19 @@ for dataset in datasetList:
     os.system('mkdir '+datasetRemoteDir)
 
     print "dataset: ", dataset
-    #make job scripts
+    #loop creating jobs
     keepGoing=True
     i=0
-    while (keepGoing):
+    while (keepGoing): #start JOB WHILE loop
         #print 'total: %d/%d  ;  %.1f %% processed '%(j,my_sum,(100*float(j)/float(my_sum)))
-    
+        
+        #Create dedicated directory for each job
         jobDir = MYDIR+"/"+datasetJobDir+'/Job_%s/'%str(i)
         os.system('mkdir %s'%jobDir)
     
-        tmp_jobname="sub_%s.sh"%(str(i))
-        tmp_job=open(jobDir+tmp_jobname,'w')
-        tmp_job.write("#!/bin/sh\n")
+        tmp_jobname="sub_%s.sh"%(str(i))  #name for the condor job file
+        tmp_job=open(jobDir+tmp_jobname,'w')  #open the condor file
+        tmp_job.write("#!/bin/sh\n")  #explain to condor it's *.sh script
         if opts.proxyPath != "noproxy":
             tmp_job.write("export X509_USER_PROXY=$1\n")
             tmp_job.write("voms-proxy-info -all\n")
@@ -173,21 +182,25 @@ for dataset in datasetList:
         print "preparing job number %s"%str(jobCount)
         jobCount += 1
 
+        #in the list of input files, select only a few (number determined by option)
         kFileMin = last_kFileMax+i*opts.nPerJob
         kFileMax = last_kFileMax+(i+1)*opts.nPerJob
 
         i+=1
 
 
-        if (kFileMax < len(fullSource.fileNames)):
+        if (kFileMax < len(fullSource.fileNames)): #check that we're not going over the total number of input files
             while (fileDatasetMap[fullSource.fileNames[kFileMax-1]] != dataset):
-                kFileMax -= 1
-                keepGoing=False
-            if fileDatasetMap[fullSource.fileNames[kFileMax]] != dataset: keepGoing=False
-        else:
+                #if the last file we want to use for this job DOES NOT belong to the correct dataset
+                #last file is "fileNames[kFileMax-1]" because "kFileMax" is an EXCLUSIVE upper limit
+                kFileMax -= 1    #lower the upper limit by 1 (until we find a file belonging to the CORRECT dataset)
+                keepGoing=False  #tells us we're done with this dataset, ready to move to the next
+            if fileDatasetMap[fullSource.fileNames[kFileMax]] != dataset: keepGoing=False  #tells us we're done with this dataset, ready to move to the next
+        else:  #we ARE over the total number of input files
             keepGoing=False
-        if not keepGoing: last_kFileMax = kFileMax
+        if not keepGoing: last_kFileMax = kFileMax  #variable telling where to start looking for files for the NEXT dataset
               
+        #input files
         process.source.fileNames = fullSource.fileNames[kFileMin:kFileMax]
 
 

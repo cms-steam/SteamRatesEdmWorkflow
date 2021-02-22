@@ -1,5 +1,6 @@
 '''
                        Prepare the merging jobs for MC
+                        One for each dataset
 ''' 
 import math
 import os
@@ -17,9 +18,9 @@ parser.add_option("-f", action="store_true", dest="figures",help="Add this optio
 opts, args = parser.parse_args()
 
 error_text = '\nError: wrong inputs\n'
-help_text = '\npython prepareMergeOutputsMC.py -t <lumitarget> -d <dir> -m <merging>\n -f'
+help_text = '\npython prepareMergeOutputsMC.py -t <lumitarget> -d <dir> -m <maps> -f\n'
 help_text += '(mandatory) <lumitarget> = VALUE corresponding to the target instant lumi for which you wish to calculate your rates\n'
-help_text += '(optional) <dir> = DIR where the output of the batch jobs are located'
+help_text += '(optional) <dir> = DIR where the output of the condor jobs are located. Provide here the directory where all the dataset names appear.'
 help_text += '\n(optional) <maps> = "nomaps" (default option, use none of the maps), "somemaps" (use all maps except those related to dataset merging), "allmaps" (use all maps, including dataset merging)\n'
 help_text += '\n(optional) -f  : Adding this option merges the root files which are used to produce trigger-dataset and dataset-dataset correlation figures. By default root files are NOT merged\n'
 if opts.lumiTarget == -1:
@@ -31,13 +32,16 @@ if opts.lumiTarget == -1:
 #copy MC datasets file here so it can be used
 os.system("cp ../MCDatasets/map_MCdatasets_xs.py .")
 
+#Write the part of the mergeOutputs.py command that's the same for all datasets
 merge_command="python mergeOutputs.py -t %s -m %s" %(opts.lumiTarget, opts.maps)
 if opts.figures: merge_command += " -f"
 
 files_dir = opts.inDir
-ls_command = runCommand("ls " + files_dir)
+ls_command = runCommand("ls " + files_dir)  #this should return a list of all MC datasets
 stdout, stderr = ls_command.communicate()
 for line in stdout.splitlines():
+    #run mergeOutputs.py once for each dataset
+    #write the part that's specific for this dataset
     tmp_merge_command = merge_command + " -d %s/%s/Raw -w %s" %(opts.inDir, line, line)
     os.system(tmp_merge_command)
     if opts.figures: os.system("python Draw.py -d %s/%s" %(opts.inDir, line))

@@ -4,6 +4,10 @@ import shlex
 import subprocess
 from aux import runCommand
 
+#Script to automatically generate the list of input files for MC.
+#python make_ratesFilesInputMC.py -i /full/path/to/input/dir
+#Provide as input directory the directory where all subdirectories are the different MC datasets considered
+
 
 from optparse import OptionParser
 parser=OptionParser()
@@ -35,19 +39,25 @@ while(keepGoing):
         fileNames=""
         for line in stdout.splitlines():
             if ".root" in line:
+                #if we find a ROOT file, we look for the dataset name in the file path
+                #the dataset name should be the last subdirectory before the file
+                #we find the last subdirectory by looking for the last slash in the full path to the ROOT 
                 fileNames += '        "' + dirr + '/' + line + '",' + '\n'
                 if dataset == "":
                     lastSlash = dirr.rfind('/')
                     for key in datasetCrossSectionMap.keys():
                         kkey = key.lstrip('/')
-                        if kkey.replace('/', '_') == dirr[lastSlash+1:]:
+                        #the dataset name is given with "_" rather than slashes when it's a directory, because slashes have a special meaning!
+                        #so we need to replace "/" with "_" to go from the official dataset name to its modified version
+                        #then a proper comparison can be made
+                        if kkey.replace('/', '_') == dirr[lastSlash+1:]:  
                             dataset = '    "'+dirr[lastSlash+1:]+'"'
                             break                    
             elif "log" in line:
                 continue
             else:
                 lh_buffer.append(dirr + '/' + line)
-        if dataset != "": outfile.write(dataset+': [\n'+fileNames+'    ],\n') 
+        if dataset != "": outfile.write(dataset+': [\n'+fileNames+'    ],\n')  #we write the name of the dataset together with the file names we just found
     lookhere = list(lh_buffer)
     nLoop += 1
     if len(lookhere)==0 or nLoop>=max_layers: keepGoing = False
