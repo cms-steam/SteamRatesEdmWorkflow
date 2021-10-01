@@ -30,13 +30,13 @@ help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 help_text += '\n<maps> (optional) = "nomaps" (default option) or "somemaps" or "allmaps""\n'
 
 if opts.cmsEnv == "noenv":
-    print error_text
-    print help_text
+    print(error_text)
+    print(help_text)
     sys.exit(2)
 
-print 'CMSSWrel = %s'%opts.cmsEnv
-print 'file type = %s'%opts.fileType
-print 'job flavour = %s'%opts.jobFlavour
+print('CMSSWrel = %s'%opts.cmsEnv)
+print('file type = %s'%opts.fileType)
+print('job flavour = %s'%opts.jobFlavour)
 
 
 #make directories for the jobs
@@ -44,7 +44,7 @@ try:
     os.system('rm -rf Jobs')
     os.system('mkdir Jobs')
 except:
-    print "err!"
+    print("err!")
     pass
 
 
@@ -54,24 +54,24 @@ sub_total.write("rm Results/MC/*/Raw/*/*.root\n")
 
 
 if opts.inputFilesDir != "no":
-    print 'Making a copy of the old filesInputMC.py : filesInputMC_old.py'
+    print('Making a copy of the old filesInputMC.py : filesInputMC_old.py')
     os.system('cp filesInputMC.py filesInputMC_old.py')
-    print 'Making a new filesInputMC.py with input root files from %s'%opts.inputFilesDir
+    print('Making a new filesInputMC.py with input root files from %s'%opts.inputFilesDir)
     os.system('python make_ratesFilesInputMC.py -i %s'%opts.inputFilesDir)
 else:
-    print 'Taking default input files (from filesInputMC.py)'
+    print('Taking default input files (from filesInputMC.py)')
 from filesInputMC import datasetFilesMap
 
 
-for dataset in datasetFilesMap.keys():
+for dataset in list(datasetFilesMap.keys()):
     os.system('mkdir Jobs/%s'%dataset)
     os.system('mkdir Jobs/%s/sub_raw'%dataset)
     filesList = datasetFilesMap[dataset]
     nJobs = len(filesList) // opts.nPerJob
     if nJobs == 0: nJobs = 1
-    print '\n-------------------------------------------'
-    print '%s files in dataset %s'%(len(filesList), dataset)
-    print 'files processed per job = %s, number of jobs for this dataset = %s'%(opts.nPerJob, nJobs)
+    print('\n-------------------------------------------')
+    print('%s files in dataset %s'%(len(filesList), dataset))
+    print('files processed per job = %s, number of jobs for this dataset = %s'%(opts.nPerJob, nJobs))
 
     i=0
     k=0

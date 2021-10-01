@@ -1,0 +1,1 @@
+condor_submit /afs/cern.ch/work/s/savarghe/private/RateValidation/CMSSW_12_0_1/src/SteamRatesEdmWorkflow/Prod/condor_cluster.sub

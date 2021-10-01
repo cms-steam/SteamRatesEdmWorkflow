@@ -40,7 +40,7 @@ for run_nbr in run_numbers:
         full_path = ""
         while keep_looking:
             for path in paths:
-                print paths
+                print(paths)
                 ls_command = runCommand("ls " + path)
                 stdout, stderr = ls_command.communicate()
                 status = ls_command.returncode

@@ -1,0 +1,7 @@
+executable = $(filename)
+arguments = $Fp(filename) $(ClusterID) $(ProcId)
+output = $Fp(filename)counts.stdout
+error = $Fp(filename)counts.stderr
+log = $Fp(filename)counts.log
++JobFlavour = "espresso"
+queue filename matching (/afs/cern.ch/work/s/savarghe/private/RateValidation/CMSSW_12_0_1/src/SteamRatesEdmWorkflow/Rates/Jobs/Job_*/*.sh)

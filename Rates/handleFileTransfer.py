@@ -30,7 +30,7 @@ os.system("mkdir %s/Root"%rawDir)
 os.system("mkdir %s/Global"%rawDir)
 
 
-for filename in mergeNames.keys():
+for filename in list(mergeNames.keys()):
     os.system("cp %s/%s.%s.csv %s/%s/"%(inDir, filename, opts.fstr, rawDir, mergeNames[filename]))
     os.system("rm -f %s/%s.%s.csv"%(inDir, filename, opts.fstr))
 

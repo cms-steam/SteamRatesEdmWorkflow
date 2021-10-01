@@ -23,8 +23,8 @@ help_text += '(optional) <dir> = DIR where the output of the batch jobs are loca
 help_text += '\n(optional) <maps> = "nomaps" (default option, use none of the maps), "somemaps" (use all maps except those related to dataset merging), "allmaps" (use all maps, including dataset merging)\n'
 help_text += '\n(optional) -f  : Adding this option merges the root files which are used to produce trigger-dataset and dataset-dataset correlation figures. By default root files are NOT merged\n'
 if opts.lumiTarget == -1:
-    print error_text
-    print help_text
+    print(error_text)
+    print(help_text)
     sys.exit(2)    
 
 

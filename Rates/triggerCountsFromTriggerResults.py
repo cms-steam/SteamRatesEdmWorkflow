@@ -13,10 +13,10 @@ def checkTriggerIndex(name,index, names):
         firstTriggerError = True
     if index>=names.size():
         if firstTriggerError:
-            for tr in names: print tr
-            print
-            print name," not found!"
-            print
+            for tr in names: print(tr)
+            print()
+            print(name," not found!")
+            print()
             firstTriggerError = False
             return False
         else:
@@ -91,8 +91,8 @@ help_text += '\n<maps> (optional) = "nomaps" (default option, use none of the ma
 help_text += '\n<maxEvents> (optional) maximum number of events to be processed\n'
 
 if opts.inputFile == "noroot" or opts.finalString == "nostr" or opts.jsonFile == "nojson":
-    print error_text
-    print help_text
+    print(error_text)
+    print(help_text)
     sys.exit(2)
 
 
@@ -107,14 +107,14 @@ elif opts.fileType == "L1Accept":
     isRawFiles = True
     isL1Accept = True
 else:
-    print "<filetype> input '%s' is wrong" %opts.fileType
-    print error_text
-    print help_text
+    print("<filetype> input '%s' is wrong" %opts.fileType)
+    print(error_text)
+    print(help_text)
     sys.exit(2)
 
 MCdataset=""
 if not (".txt" in opts.jsonFile or ".json" in opts.jsonFile):
-    print "\nNonsense JSON provided, assuming this is a MC job...\n"
+    print("\nNonsense JSON provided, assuming this is a MC job...\n")
     MCdataset=opts.jsonFile
     isRawFiles = False
     isL1Accept = False
@@ -123,7 +123,7 @@ else:
     try:
         os.system("ls %s"%opts.jsonFile)
     except:
-        print "\n\n\n!!! JSON file not found!!!\n\n\n"
+        print("\n\n\n!!! JSON file not found!!!\n\n\n")
         sys.exit(2)
 
 
@@ -157,9 +157,9 @@ elif opts.maps == "somemaps":
 elif opts.maps == "nomaps":
     bUseMaps = False
 else:
-    print "<maps> input '%s' is wrong" %opts.maps
-    print error_text
-    print help_text
+    print("<maps> input '%s' is wrong" %opts.maps)
+    print(error_text)
+    print(help_text)
     sys.exit(2)
     
 
@@ -191,10 +191,10 @@ if opts.maps == "allmaps":
     newDatasetNewDatasetCorrMatrix = {}
 
 
-print "before loading input"
+print("before loading input")
 #get rates from input file
 events = Events (opts.inputFile)
-print "after loading input"
+print("after loading input")
 
 #Looping over events in inputfile
 
@@ -209,7 +209,7 @@ for event in events:
     nLoop += 1
 
     if nLoop%1000==0:
-        print "Processing entry ",nLoop
+        print("Processing entry ",nLoop)
 
     if maxEvents>0 and nLoop >= maxEvents: 
         break
@@ -229,7 +229,7 @@ for event in events:
             myPaths.append(name)
             if bUseMaps:
                 bVersionNumbers = True
-                for key in triggersDatasetMap.keys():
+                for key in list(triggersDatasetMap.keys()):
                     if key.rstrip("0123456789") == strippedTrigger:
                         if key.endswith("v"): bVersionNumbers = False
                         break
@@ -251,8 +251,8 @@ for event in events:
                 else:
                     groups.update({str(strippedTrigger):default_name})
                     if datasetKnown:
-                        print "group UNKNOWN while dataset is known"
-                        print strippedTrigger
+                        print("group UNKNOWN while dataset is known")
+                        print(strippedTrigger)
 
                 if actualKey in triggersStreamMap:
                     streams.update({str(strippedTrigger):triggersStreamMap[actualKey]})
@@ -270,7 +270,7 @@ for event in events:
                     if not dataset in primaryDatasetList: primaryDatasetList.append(dataset)
                     if opts.maps == "allmaps":
                         newDataset = dataset
-                        if dataset in newDatasetMap.keys():
+                        if dataset in list(newDatasetMap.keys()):
                             newDataset = newDatasetMap[dataset]
                         if newDataset not in newDatasetList:
                             newDatasetCounts.update({str(newDataset):0})
@@ -356,11 +356,11 @@ for event in events:
     for i in range(0, len(myPaths)):
         triggerCountsBool[myPaths[i]] = False
     if bUseMaps:
-        datasetsLatestCounts = primaryDatasetCounts.fromkeys(primaryDatasetCounts.keys(),0)
+        datasetsLatestCounts = primaryDatasetCounts.fromkeys(list(primaryDatasetCounts.keys()),0)
         if opts.maps == "allmaps":
-            newDatasetsLatestCounts = newDatasetCounts.fromkeys(newDatasetCounts.keys(),0)
-        groupCountsBool = groupCounts.fromkeys(groupCounts.keys(),False)
-        streamCountsBool = streamCounts.fromkeys(streamCounts.keys(),False)
+            newDatasetsLatestCounts = newDatasetCounts.fromkeys(list(newDatasetCounts.keys()),0)
+        groupCountsBool = groupCounts.fromkeys(list(groupCounts.keys()),False)
+        streamCountsBool = streamCounts.fromkeys(list(streamCounts.keys()),False)
         myGroupFired = []
     for triggerName in myPaths:
         index = names.triggerIndex(triggerName)
@@ -384,25 +384,25 @@ for event in events:
                     #we loop over the dictionary keys to see if the paths is in that key, and in case we increase the counter
                     strippedTrigger = triggerName.rstrip("0123456789")
                     if physicsStreamOK(strippedTrigger): triggerCounts += 1
-                    if strippedTrigger in datasets.keys():
+                    if strippedTrigger in list(datasets.keys()):
                         for dataset in datasets[strippedTrigger]:
                             if datasetsLatestCounts[dataset] == 0 :
                                 primaryDatasetCounts[dataset] = primaryDatasetCounts[dataset] + 1
                             datasetsLatestCounts[dataset] += 1
                             if opts.maps == "allmaps":
                                 newDataset = dataset
-                                if dataset in newDatasetMap.keys():
+                                if dataset in list(newDatasetMap.keys()):
                                     newDataset = newDatasetMap[dataset]
                                 if newDatasetsLatestCounts[newDataset] == 0 :
                                     newDatasetCounts[newDataset] += 1
                                 newDatasetsLatestCounts[newDataset] += 1
-                    if strippedTrigger in groups.keys():
+                    if strippedTrigger in list(groups.keys()):
                         for group in groups[strippedTrigger]:
                             if not physicsStreamOK(strippedTrigger): continue
                             if group not in myGroupFired: 
                                 myGroupFired.append(group)
                                 groupCounts[group] = groupCounts[group] + 1
-                    if strippedTrigger in streams.keys():
+                    if strippedTrigger in list(streams.keys()):
                         for stream in streams[strippedTrigger]:
                             if streamCountsBool[stream] == False:
                                 streamCountsBool[stream] = True
@@ -452,7 +452,7 @@ for event in events:
                 if not triggerCountsBool[trigger]: continue
                 strippedTrigger = trigger.rstrip("0123456789")
                 triggerDatasetCorrMatrix[dataset1][strippedTrigger] += 1 #somehow this is increasing the non-pure rate when dataset1 = unassigned
-                if strippedTrigger in datasets.keys():
+                if strippedTrigger in list(datasets.keys()):
                     if (dataset1 in datasets[strippedTrigger]) and datasetsLatestCounts[dataset1] > 1:
                         triggerDatasetCorrMatrix[dummy_nonpure][strippedTrigger] += 1
         if opts.maps == "allmaps":
@@ -466,12 +466,12 @@ for event in events:
                     strippedTrigger = trigger.rstrip("0123456789")
                     triggerNewDatasetCorrMatrix[dataset1][strippedTrigger] += 1
                     bUseDummy = False
-                    if strippedTrigger in datasets.keys():
+                    if strippedTrigger in list(datasets.keys()):
                         if newDatasetsLatestCounts[dataset1] > 1:
                             if dataset1 in datasets[strippedTrigger]:
                                 bUseDummy = True
                             elif not (dataset1 in primaryDatasetList):
-                                for old_dataset in newDatasetMap.keys():
+                                for old_dataset in list(newDatasetMap.keys()):
                                     if not (dataset1 in newDatasetMap[old_dataset]): continue
                                     if old_dataset in datasets[strippedTrigger]:
                                         bUseDummy = True
@@ -564,7 +564,7 @@ if atLeastOneEvent:
             misc_path_file.write('{}, {}, {}, {}, {}, {}, {}'.format(trigger, group_string, type_string, myPassedEvents[trigger][0], myPassedEvents[trigger][0], myPassedEvents[trigger][1], myPassedEvents[trigger][1]))
             misc_path_file.write('\n')
         else:
-            if strippedTrigger in groups.keys():
+            if strippedTrigger in list(groups.keys()):
                 for group in groups[strippedTrigger]:
                     group_string = group_string + group + " "
                 for ttype in types[strippedTrigger]:
@@ -629,7 +629,7 @@ if atLeastOneEvent:
         
             for trigger in myPaths:
                 strippedTrigger = trigger.rstrip("0123456789")
-                if not strippedTrigger in datasets.keys(): continue
+                if not strippedTrigger in list(datasets.keys()): continue
                 if physicsStreamOK(strippedTrigger) and (key in datasets[strippedTrigger]): isPhysicsDataset = True
             if isPhysicsDataset:
                 physics_dataset_file.write(str(key) + ", " + str(primaryDatasetCounts[key]) +", " + str(primaryDatasetCounts[key]))
@@ -663,7 +663,7 @@ if atLeastOneEvent:
                         if (key in datasets[strippedTrigger]):
                             isPhysicsDataset = True
                         elif not (key in primaryDatasetList):
-                            for old_dataset in newDatasetMap.keys():
+                            for old_dataset in list(newDatasetMap.keys()):
                                 if not (key in newDatasetMap[old_dataset]): continue
                                 if old_dataset in datasets[strippedTrigger]:
                                     isPhysicsDataset = True
@@ -689,7 +689,7 @@ if atLeastOneEvent:
         
         group_file = open('%s/output.group.%s.csv'%(outputDir,final_string),'w')
         group_file.write('Groups, Counts, Rates (Hz), Pure Counts, Pure Rates (Hz), Shared Counts, Shared Rates (Hz)\n')
-        for key in groupCounts.keys():
+        for key in list(groupCounts.keys()):
             group_file.write(str(key) + ", " + str(groupCounts[key]) +", " + str(groupCounts[key]) + ", " + str(groupCountsPure[key]) +", " + str(groupCountsPure[key]) + ", " + str(groupCountsShared[key]) +", " + str(groupCountsShared[key]))
             group_file.write('\n')
         
@@ -697,7 +697,7 @@ if atLeastOneEvent:
         
         stream_file = open('%s/output.stream.%s.csv'%(outputDir,final_string),'w')
         stream_file.write('Streams, Counts, Rates (Hz)\n')
-        for stream in streamCounts.keys():
+        for stream in list(streamCounts.keys()):
             stream_file.write(str(stream) + ", " + str(streamCounts[stream]) +", " + str(streamCounts[stream]) + "\n")
         
         stream_file.close()
