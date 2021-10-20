@@ -1,5 +1,5 @@
 # Import HLT configuration #
-from hltData_config import *
+from hlt_config import *
 
 # STEAM Customization #
 
