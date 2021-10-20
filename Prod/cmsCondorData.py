@@ -34,8 +34,8 @@ help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 
 
 cfgFileName = str(args[0])
-cmsEnv = "/afs/cern.ch/work/s/savarghe/private/RateValidation/CMSSW_12_0_1/src/"#str(args[1])
-remoteDir = "/afs/cern.ch/work/s/savarghe/private/RateValidation/CMSSW_12_0_1/src/SteamRatesEdmWorkflow/Prod/"#str(args[2])
+cmsEnv = str(args[1])
+remoteDir = str(args[2])
 
 print ('config file = %s'%cfgFileName)
 print ('CMSSWrel = %s'%cmsEnv)
@@ -95,7 +95,7 @@ for i in range(0, nJobs):
     #print 'total: %d/%d  ;  %.1f %% processed '%(j,my_sum,(100*float(j)/float(my_sum)))
 
     jobDir = MYDIR+'/Jobs/Job_%s/'%str(i)
-    os.system('mkdir %s'%jobDir)
+    os.system('mkdir -p %s'%jobDir)
 
     tmp_jobname="sub_%s.sh"%(str(i))
     tmp_job=open(jobDir+tmp_jobname,'w')
