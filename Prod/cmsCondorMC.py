@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 hardCodedDataset = "/RelValZEE_13/CMSSW_10_4_0-103X_upgrade2018_realistic_v8-v1/GEN-SIM-DIGI-RAW"
 
@@ -49,18 +49,18 @@ cfgFileName = str(args[0])
 cmsEnv = str(args[1])
 remoteDir = str(args[2])
 
-print 'config file = %s'%cfgFileName
-print 'CMSSWrel = %s'%cmsEnv
-print 'proxy = %s'%opts.proxyPath
-print 'remote directory = %s'%remoteDir
-print 'job flavour = %s'%opts.jobFlavour
+print('config file = %s'%cfgFileName)
+print('CMSSWrel = %s'%cmsEnv)
+print('proxy = %s'%opts.proxyPath)
+print('remote directory = %s'%remoteDir)
+print('job flavour = %s'%opts.jobFlavour)
 
 #make directories for the jobs
 try:
     os.system('rm -rf Jobs')
     os.system('mkdir Jobs')
 except:
-    print "err!"
+    print("err!")
     pass
 
 
@@ -76,7 +76,7 @@ if opts.proxyPath != "noproxy":
     fileList=open('list_cff.py','w')
     fileList.write("inputFileNames=[\n")
     from map_MCdatasets_xs import datasetCrossSectionMap
-    for dataset in datasetCrossSectionMap.keys():
+    for dataset in list(datasetCrossSectionMap.keys()):
         das_command = runCommand('dasgoclient --query="file dataset=%s"'%dataset)
         stdout, stderr = das_command.communicate()
     
@@ -90,7 +90,7 @@ else:
     from list_cff import inputFileNames
     for ffile in inputFileNames:
         fileDatasetMap[ffile]=hardCodedDataset
-    print fileDatasetMap
+    print(fileDatasetMap)
 
 # load cfg script
 handle = open(cfgFileName, 'r')
@@ -107,10 +107,10 @@ nJobs = -1
 try:
     process.source.fileNames
 except:
-    print 'No input file. Exiting.'
+    print('No input file. Exiting.')
     sys.exit(2)
 else:
-    print "Number of files in the source:",len(process.source.fileNames), ":"
+    print("Number of files in the source:",len(process.source.fileNames), ":")
     pprint.pprint(process.source.fileNames)
        
     nFiles = len(process.source.fileNames)
@@ -119,14 +119,14 @@ else:
         nJobs = nJobs + 1
         
     #print "dataset: ", dataset
-    print "(approximate) number of jobs to be created: ", nJobs
+    print("(approximate) number of jobs to be created: ", nJobs)
         
     
 datasetList=[]
 if opts.proxyPath == "noproxy":
     datasetList.append(hardCodedDataset)
 else:
-    datasetList=datasetCrossSectionMap.keys()
+    datasetList=list(datasetCrossSectionMap.keys())
 
 jobCount=0
 last_kFileMax=0
@@ -138,7 +138,7 @@ for dataset in datasetList:
     os.system('mkdir '+datasetJobDir)
     os.system('mkdir '+datasetRemoteDir)
 
-    print "dataset: ", dataset
+    print("dataset: ", dataset)
     #make job scripts
     keepGoing=True
     i=0
@@ -146,7 +146,7 @@ for dataset in datasetList:
         #print 'total: %d/%d  ;  %.1f %% processed '%(j,my_sum,(100*float(j)/float(my_sum)))
     
         jobDir = MYDIR+"/"+datasetJobDir+'/Job_%s/'%str(i)
-        os.system('mkdir %s'%jobDir)
+        os.system('mkdir -p %s'%jobDir)
     
         tmp_jobname="sub_%s.sh"%(str(i))
         tmp_job=open(jobDir+tmp_jobname,'w')
@@ -170,7 +170,7 @@ for dataset in datasetList:
         tmp_job.close()
         os.system("chmod +x %s"%(jobDir+tmp_jobname))
     
-        print "preparing job number %s"%str(jobCount)
+        print("preparing job number %s"%str(jobCount))
         jobCount += 1
 
         kFileMin = last_kFileMax+i*opts.nPerJob
