@@ -81,8 +81,9 @@ if opts.proxyPath != "noproxy":
         stdout, stderr = das_command.communicate()
     
         for line in stdout.splitlines():
-            fileList.write("'"+line+"',\n")
-            fileDatasetMap[line]=dataset
+            newline = str(line).replace("b","")
+            fileList.write("'"+newline+"',\n")
+            fileDatasetMap[newline]=dataset
     
     fileList.write("]\n")
     fileList.close()
