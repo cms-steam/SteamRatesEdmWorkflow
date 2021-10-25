@@ -21,7 +21,7 @@ opts, args = parser.parse_args()
 
 
 error_text = '\n\nError: wrong <CMSSWrel>=%s input\n' %opts.cmsEnv
-help_text = '\npython batchScriptForRates.py -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
+help_text = '\npython3 batchScriptForRates.py -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<infilesDir> (optional) = directory where the input root files are located (default = will take whatever is in the filesInputMC.py file)'
 help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW"'
@@ -57,7 +57,7 @@ if opts.inputFilesDir != "no":
     print('Making a copy of the old filesInputMC.py : filesInputMC_old.py')
     os.system('cp filesInputMC.py filesInputMC_old.py')
     print('Making a new filesInputMC.py with input root files from %s'%opts.inputFilesDir)
-    os.system('python make_ratesFilesInputMC.py -i %s'%opts.inputFilesDir)
+    os.system('python3 make_ratesFilesInputMC.py -i %s'%opts.inputFilesDir)
 else:
     print('Taking default input files (from filesInputMC.py)')
 from filesInputMC import datasetFilesMap
@@ -87,8 +87,8 @@ for dataset in list(datasetFilesMap.keys()):
         tmp_job.write("cd %s\n"%(opts.cmsEnv))
         tmp_job.write("eval `scramv1 runtime -sh`\n")
         tmp_job.write("cd -\n")
-        tmp_job.write("python triggerCountsFromTriggerResults.py -i %s -s %s -j %s -f %s -m %s\n"%(infile, str(i), dataset, opts.fileType, opts.maps))
-        tmp_job.write("\npython handleFileTransfer.py -d %s -m %s -s %s"%(MYDIR, dataset, str(i)))
+        tmp_job.write("python3 triggerCountsFromTriggerResults.py -i %s -s %s -j %s -f %s -m %s\n"%(infile, str(i), dataset, opts.fileType, opts.maps))
+        tmp_job.write("\npython3 handleFileTransfer.py -d %s -m %s -s %s"%(MYDIR, dataset, str(i)))
         tmp_job.close()
         tmp_job_dir = MYDIR+'/Jobs/%s/sub_raw/%s'%(dataset, tmp_jobname)
         os.system("chmod +x %s"%(tmp_job_dir))

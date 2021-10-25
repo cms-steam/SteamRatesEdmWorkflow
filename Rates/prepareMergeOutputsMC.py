@@ -17,7 +17,7 @@ parser.add_option("-f", action="store_true", dest="figures",help="Add this optio
 opts, args = parser.parse_args()
 
 error_text = '\nError: wrong inputs\n'
-help_text = '\npython prepareMergeOutputsMC.py -t <lumitarget> -d <dir> -m <merging>\n -f'
+help_text = '\npython3 prepareMergeOutputsMC.py -t <lumitarget> -d <dir> -m <merging>\n -f'
 help_text += '(mandatory) <lumitarget> = VALUE corresponding to the target instant lumi for which you wish to calculate your rates\n'
 help_text += '(optional) <dir> = DIR where the output of the batch jobs are located'
 help_text += '\n(optional) <maps> = "nomaps" (default option, use none of the maps), "somemaps" (use all maps except those related to dataset merging), "allmaps" (use all maps, including dataset merging)\n'
@@ -31,7 +31,7 @@ if opts.lumiTarget == -1:
 #copy MC datasets file here so it can be used
 os.system("cp ../MCDatasets/map_MCdatasets_xs.py .")
 
-merge_command="python mergeOutputs.py -t %s -m %s" %(opts.lumiTarget, opts.maps)
+merge_command="python3 mergeOutputs.py -t %s -m %s" %(opts.lumiTarget, opts.maps)
 if opts.figures: merge_command += " -f"
 
 files_dir = opts.inDir
@@ -40,4 +40,4 @@ stdout, stderr = ls_command.communicate()
 for line in stdout.splitlines():
     tmp_merge_command = merge_command + " -d %s/%s/Raw -w %s" %(opts.inDir, line, line)
     os.system(tmp_merge_command)
-    if opts.figures: os.system("python Draw.py -d %s/%s" %(opts.inDir, line))
+    if opts.figures: os.system("python3 Draw.py -d %s/%s" %(opts.inDir, line))

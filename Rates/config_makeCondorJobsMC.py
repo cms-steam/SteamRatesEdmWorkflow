@@ -19,12 +19,12 @@ import sys
 '''
 #If you already have a list of input files with the proper format, you may not want to remake it
 #Type True if you want to remake them, False otherwise
-makeInputFilesList = False
+makeInputFilesList = True
 #Directory where your input root files are located
-inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/CondorTest7/"
+inputFilesDir = "/eos/home-s/savarghe/QCD_Pt-120To170_EMEnriched_TuneCP5_14TeV-pythia8_Run3Winter21DRMiniAOD-FlatPU30to80FEVT_112X_mcRun3_2021_realistic_v16-v2_GEN-SIM-DIGI-RAW"
 
 #Directory where the top of your CMSSW release is located
-cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/slc7_arch/CMSSW_10_1_9_patch1/src/"
+cmsswDir = "/afs/cern.ch/work/s/savarghe/private/HLTratesMC/CMSSW_12_0_2_patch1/src/"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
@@ -48,9 +48,9 @@ flavour = "espresso"
 #run the script
 command = ""
 if makeInputFilesList:
-    command = "python condorScriptForRatesMC.py -e %s -i %s" %(cmsswDir, inputFilesDir)
+    command = "python3 condorScriptForRatesMC.py -e %s -i %s" %(cmsswDir, inputFilesDir)
 else:
-    command = "python condorScriptForRatesMC.py -e %s" %cmsswDir
+    command = "python3 condorScriptForRatesMC.py -e %s" %cmsswDir
 
 if isUnusual:
     command += " -n %s -q %s" %(n, flavour)

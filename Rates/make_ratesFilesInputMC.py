@@ -34,8 +34,10 @@ while(keepGoing):
         dataset=""
         fileNames=""
         for line in stdout.splitlines():
-            if ".root" in line:
-                fileNames += '        "' + dirr + '/' + line + '",' + '\n'
+            newline = str(line).replace("b'","'")
+            if ".root" in newline:
+                print(newline)
+                fileNames += '        "' + dirr + '/' + newline + '",' + '\n'
                 if dataset == "":
                     lastSlash = dirr.rfind('/')
                     for key in list(datasetCrossSectionMap.keys()):
@@ -43,10 +45,10 @@ while(keepGoing):
                         if kkey.replace('/', '_') == dirr[lastSlash+1:]:
                             dataset = '    "'+dirr[lastSlash+1:]+'"'
                             break                    
-            elif "log" in line:
+            elif "log" in newline:
                 continue
             else:
-                lh_buffer.append(dirr + '/' + line)
+                lh_buffer.append(dirr + '/' + newline)
         if dataset != "": outfile.write(dataset+': [\n'+fileNames+'    ],\n') 
     lookhere = list(lh_buffer)
     nLoop += 1
