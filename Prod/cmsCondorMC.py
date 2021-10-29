@@ -82,7 +82,7 @@ if opts.proxyPath != "noproxy":
     
         for line in stdout.splitlines():
             newline = str(line).replace("b","")
-            fileList.write("'"+newline+"',\n")
+            fileList.write("'"+newline+",\n")
             fileDatasetMap[newline]=dataset
     
     fileList.write("]\n")
