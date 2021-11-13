@@ -39,6 +39,7 @@ ls_command = runCommand("ls " + files_dir)
 stdout, stderr = ls_command.communicate()
 for line in stdout.splitlines():
     newline = str(line).replace("b'","")
+    newline = newline.replace("'","")
     tmp_merge_command = merge_command + " -d %s/%s/Raw -w %s" %(opts.inDir,newline,newline)
     os.system(tmp_merge_command)
     if opts.figures: os.system("python3 Draw.py -d %s/%s" %(opts.inDir,newline))
