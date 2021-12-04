@@ -71,6 +71,6 @@ process.hltOutput = cms.OutputModule( "PoolOutputModule",
 
 process.HLTOutput = cms.EndPath( process.hltOutput )
 if process.schedule_() != None:
-process.schedule_().append(process.HLTOutput)
+    process.schedule_().append(process.HLTOutput)
 
 
