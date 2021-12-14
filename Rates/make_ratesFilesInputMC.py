@@ -34,14 +34,16 @@ while(keepGoing):
         dataset=""
         fileNames=""
         for line in stdout.splitlines():
-            newline = str(line).replace("b'","'")
+            newline = str(line).replace("b'","")
+            newline = newline.replace("'","")
             if ".root" in newline:
                 print(newline)
                 fileNames += '        "' + dirr + '/' + newline + '",' + '\n'
                 if dataset == "":
                     lastSlash = dirr.rfind('/')
                     for key in list(datasetCrossSectionMap.keys()):
-                        kkey = key.lstrip('/')
+                        newkey = str(key).replace("b'","")
+                        kkey = newkey.lstrip('/')
                         if kkey.replace('/', '_') == dirr[lastSlash+1:]:
                             dataset = '    "'+dirr[lastSlash+1:]+'"'
                             break                    
