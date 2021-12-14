@@ -76,13 +76,14 @@ if opts.proxyPath != "noproxy":
     fileList=open('list_cff.py','w')
     fileList.write("inputFileNames=[\n")
     from map_MCdatasets_xs import datasetCrossSectionMap
-    for dataset in list(datasetCrossSectionMap.keys()):
+    for dataset in datasetCrossSectionMap.keys():
         das_command = runCommand('dasgoclient --query="file dataset=%s"'%dataset)
         stdout, stderr = das_command.communicate()
     
         for line in stdout.splitlines():
-            newline = str(line).replace("b","")
-            fileList.write("'"+newline+",\n")
+            newline = str(line).replace("b'","")
+            newline = newline.replace("'","")
+            fileList.write("'" + newline+"',\n")
             fileDatasetMap[newline]=dataset
     
     fileList.write("]\n")
@@ -115,7 +116,7 @@ else:
     pprint.pprint(process.source.fileNames)
        
     nFiles = len(process.source.fileNames)
-    nJobs = nFiles / opts.nPerJob
+    nJobs = int(nFiles / opts.nPerJob)
     if (nJobs!=0 and (nFiles % opts.nPerJob) > 0) or nJobs==0:
         nJobs = nJobs + 1
         
@@ -132,7 +133,8 @@ else:
 jobCount=0
 last_kFileMax=0
 for dataset in datasetList:
-    datasetName=dataset.lstrip("/")
+    newdataset = str(dataset).replace("b'","")
+    datasetName=newdataset.lstrip("/")
     datasetName=datasetName.replace("/","_")
     datasetJobDir='Jobs/'+datasetName
     datasetRemoteDir=remoteDir+'/'+datasetName
