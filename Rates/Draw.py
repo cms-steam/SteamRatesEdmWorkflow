@@ -23,7 +23,7 @@ def newDatasetOK(dataset, newDMap):
     if datasetOK(dataset):
         keepGoing = True
     else:
-        for old_dataset in newDMap.keys():
+        for old_dataset in list(newDMap.keys()):
             if not (dataset in newDMap[old_dataset]): continue
             if datasetOK(old_dataset):
                 keepGoing = True
@@ -125,7 +125,7 @@ with open("%s/output.group.csv"%opts.inputDir) as group_file:
 
             
 map_total = mapForDecreasingOrder(naive_group_total)
-print map_total
+print(map_total)
 group_total = reorderList(naive_group_total, map_total)
 group_label_total1 = reorderList(naive_group_label_total1, map_total)
 group_label_total2 = reorderList(naive_group_label_total2, map_total)
@@ -212,7 +212,7 @@ ROOT.gStyle.SetPalette(kInvertedDarkBodyRadiator)
 
 
 datasets = {}
-for trigger in triggersDatasetMap.keys():
+for trigger in list(triggersDatasetMap.keys()):
     strippedTrigger = trigger.rstrip("0123456789")
     datasets.update({str(strippedTrigger):triggersDatasetMap[trigger]})
 
@@ -307,7 +307,7 @@ if opts.newDataset == "yes":
                 if dataset in datasets[trigger]:
                     appendTrigger = True
                 else:
-                    for old_dataset in newDatasetMap.keys():
+                    for old_dataset in list(newDatasetMap.keys()):
                         if not (dataset in newDatasetMap[old_dataset]): continue
                         if old_dataset in datasets[trigger]:
                             appendTrigger = True
@@ -361,7 +361,7 @@ if opts.newDataset == "yes":
                     if dataset2 in datasets[trigger]:
                         doIt = True
                     else:
-                        for old_dataset in newDatasetMap.keys():
+                        for old_dataset in list(newDatasetMap.keys()):
                             if dataset2 in newDatasetMap[old_dataset]:
                                 if old_dataset in datasets[trigger]: doIt = True
                                 break
@@ -375,7 +375,7 @@ if opts.newDataset == "yes":
 
 
 for icount in range(0, len(triggerDataset_histo)):            
-    print triggerDataset_histo[icount].GetName()
+    print(triggerDataset_histo[icount].GetName())
     left_margin=0.45
     height=0.25*900+0.75*900*triggerDataset_histo[icount].GetNbinsY()/max_y_entries
     bottom_margin=0.15*900/height
@@ -399,7 +399,7 @@ for icount in range(0, len(triggerDataset_histo)):
 
 if opts.newDataset == "yes":
     for icount in range(0, len(triggerNewDataset_histo)):            
-        print triggerNewDataset_histo[icount].GetName()
+        print(triggerNewDataset_histo[icount].GetName())
         left_margin=0.45
         height=0.25*900+0.75*900*triggerNewDataset_histo[icount].GetNbinsY()/max_y_entries
         bottom_margin=0.15*900/height
@@ -462,7 +462,7 @@ if opts.newDataset == "yes":
     kk=0
     for k in range(1,newdD_histo.GetNbinsX()+1):
         dataset1 = newdD_histo.GetXaxis().GetBinLabel(k)
-        print dataset1
+        print(dataset1)
         if not newDatasetOK(dataset1, newDatasetMap): continue
         kk+=1
         newDatasetNewDataset_histo.GetXaxis().SetBinLabel(kk, dataset1)

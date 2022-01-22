@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 '''
                        Merge outputs from jobs send on the batch queue,
                      scale them to the target luminosity, sort the rates
@@ -27,7 +26,7 @@ parser.add_option("-f", action="store_true", dest="figures")
 opts, args = parser.parse_args()
 
 error_text = '\nError: wrong inputs\n'
-help_text = '\npython mergeOutputs.py -w <dataMC> -l <lumiin> -t <lumitarget> -p <hltps> -d <dir> -m <merging>\n -f'
+help_text = '\npython3 mergeOutputs.py -w <dataMC> -l <lumiin> -t <lumitarget> -p <hltps> -d <dir> -m <merging>\n -f'
 help_text += '(optional argument) <dataMC> = write here "data" or "MC" according to your use case\n'
 help_text += '(mandatory argument) <lumiin> = VALUE corresponding to the average instant lumi in your json\n'
 help_text += '(mandatory) <lumitarget> = VALUE corresponding to the target instant lumi for which you wish to calculate your rates\n'

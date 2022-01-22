@@ -4,7 +4,7 @@ from hlt_config import *
 # STEAM Customization #
 
 # Options
-nEvents=-1           # number of events to process
+nEvents=-1             # number of events to process
 switchL1PS=False       # apply L1 PS ratios to switch to tighter column
 columnL1PS=1           # choose the tighter column ( 0 <=> tightest )
 outputName="hlt.root"  # output file name
@@ -70,4 +70,7 @@ process.hltOutput = cms.OutputModule( "PoolOutputModule",
      )
 
 process.HLTOutput = cms.EndPath( process.hltOutput )
+if process.schedule_() != None:
+   process.schedule_().append(process.HLTOutput)
+
 

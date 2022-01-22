@@ -68,7 +68,7 @@ def runCommand(commandLine):
 def belongsToPAG(triggerName):
     from Menu_HLT import groupMap as triggersGroupMap
     result=False
-    for mapKey in triggersGroupMap.keys():
+    for mapKey in list(triggersGroupMap.keys()):
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for group in triggersGroupMap[mapKey]:
@@ -80,7 +80,7 @@ def belongsToPAG(triggerName):
 def physicsStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
-    for mapKey in triggersStreamMap.keys():
+    for mapKey in list(triggersStreamMap.keys()):
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
@@ -91,7 +91,7 @@ def physicsStreamOK(triggerName):
 def scoutingStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
-    for mapKey in triggersStreamMap.keys():
+    for mapKey in list(triggersStreamMap.keys()):
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
@@ -102,7 +102,7 @@ def scoutingStreamOK(triggerName):
 def parkingStreamOK(triggerName):
     from Menu_HLT import streamMap as triggersStreamMap
     result=False
-    for mapKey in triggersStreamMap.keys():
+    for mapKey in list(triggersStreamMap.keys()):
         if result: break
         if triggerName == mapKey.rstrip("0123456789"):
             for stream in triggersStreamMap[mapKey]:
@@ -156,7 +156,7 @@ def reorderList(list_in, reorderingMap):
         #j is the new index
         old_index = reorderingMap[j]
         if old_index >= len(list_in):
-            print "Reordering of the list\n", list_in, "\nfailed : the map provided yields an out of range index\n", str(old_index) + " >= " + str(len(list_in))
+            print(("Reordering of the list\n", list_in, "\nfailed : the map provided yields an out of range index\n", str(old_index) + " >= " + str(len(list_in))))
             break
         newList.append(list_in[old_index])
     return newList
@@ -177,9 +177,13 @@ def makeListsOfRawOutputs(files_dir, fig):
     ls_command = runCommand("ls " + total_dir)
     stdout, stderr = ls_command.communicate()
     for line in stdout.splitlines():
-        file_string = total_dir + "/" + line
+        newline = str(line).replace("b'","")
+        newline = newline.replace("'","")
+        file_string = str(total_dir + '/' + newline)
+        #print(file_string)
         try:
             with open(file_string) as ffile:
+                #print(ffile)
                 reader=csv.reader(ffile, delimiter=',')
                 for row in reader:
                     r = row[0]
@@ -192,7 +196,10 @@ def makeListsOfRawOutputs(files_dir, fig):
         ls_command = runCommand("ls " + total_dir)
         stdout, stderr = ls_command.communicate()
         for line in stdout.splitlines():
-            file_string = total_dir + "/" + line
+            newline = str(line).replace("b'","")
+            newline = newline.replace("'","")
+            file_string = total_dir + "/" + newline
+           # print(file_string)
             ffile = ROOT.TFile(file_string,"R")
             if ffile.IsZombie() or ffile.TestBit(ROOT.TFile.kRecovered):
                 nnumber = findFileNumber(file_string)
@@ -206,7 +213,9 @@ def makeListsOfRawOutputs(files_dir, fig):
         ls_command = runCommand("ls " + total_dir )
         stdout, stderr = ls_command.communicate()
         for line in stdout.splitlines():
-            file_string = total_dir + "/" + line
+            newline = str(line).replace("b'","")
+            newline = newline.replace("'","")
+            file_string = total_dir + "/" + newline
             try:
                 with open(file_string) as ffile:
                     reader=csv.reader(ffile, delimiter=',')
@@ -219,13 +228,15 @@ def makeListsOfRawOutputs(files_dir, fig):
                     bad_jobs.append(nnumber)
 
 
-    print "bad jobs =", bad_jobs
+    print(("bad jobs =", bad_jobs))
     globalFiles = []
     total_dir = files_dir + "/Global"
     ls_command = runCommand("ls " + total_dir)
     stdout, stderr = ls_command.communicate()
     for line in stdout.splitlines():
-        file_string = total_dir + "/" + line
+        newline = str(line).replace("b'","")
+        newline = newline.replace("'","")
+        file_string = total_dir + "/" + newline
         bad = False
         for number in bad_jobs:
             if number in file_string:
@@ -240,7 +251,9 @@ def makeListsOfRawOutputs(files_dir, fig):
         ls_command = runCommand("ls " + total_dir)
         stdout, stderr = ls_command.communicate()
         for line in stdout.splitlines():
-            file_string = total_dir + "/" + line
+            newline = str(line).replace("b'","")
+            newline = newline.replace("'","")
+            file_string = total_dir + "/" + newline
             bad = False
             for number in bad_jobs:
                 if number in file_string:
@@ -258,7 +271,9 @@ def makeListsOfRawOutputs(files_dir, fig):
         ls_command = runCommand("ls " + total_dir )
         stdout, stderr = ls_command.communicate()
         for line in stdout.splitlines():
-            file_string = total_dir + "/" + line
+            newline = str(line).replace("b'","")
+            newline = newline.replace("'","")
+            file_string = total_dir + "/" + newline
             bad = False
             for number in bad_jobs:
                 if number in file_string:
