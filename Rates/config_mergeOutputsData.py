@@ -12,7 +12,7 @@ import sys
 '''
 #Write the average instant lumi of the json you ran over
 #Units: 1e34 /cm^2/s
-lumi_in = 1.624
+lumi_in = 1.712
 
 #Write the TARGET lumi for which you wish to calculate rates
 #Units: 1e34 /cm^2/s
