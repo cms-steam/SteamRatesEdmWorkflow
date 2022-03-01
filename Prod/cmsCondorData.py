@@ -104,7 +104,7 @@ for i in range(0, nJobs):
         tmp_job.write("export X509_USER_PROXY=$1\n")
         tmp_job.write("voms-proxy-info -all\n")
         tmp_job.write("voms-proxy-info -all -file $1\n")
-    tmp_job.write("ulimit -v 7000000\n")
+    #tmp_job.write("ulimit -v 7000000\n")
     tmp_job.write("cd $TMPDIR\n")
     tmp_job.write("mkdir Job_%s\n"%str(i))
     tmp_job.write("cd Job_%s\n"%str(i))
