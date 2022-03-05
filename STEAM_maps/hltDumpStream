@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import os, time, string, cx_Oracle #ND
@@ -57,7 +57,7 @@ except:
   config = sys.stdin
 else:
   config = open(configname)
-exec config in globals(), hlt.__dict__
+exec(config.read(), globals(), hlt.__dict__)
 config.close()
 
 if 'process' in hlt.__dict__:
@@ -73,7 +73,7 @@ else:
 
 # Check table
 tableName = str(process.HLTConfigVersion.tableName).split("'")[1]
-print "TABLE: ",tableName
+print("TABLE: ",tableName)
 
 # ConfDB query
 #
@@ -85,7 +85,7 @@ curs = conn.cursor()
 curs.arraysize=50
 thepaths=[]
 query="select b.name,d.description,d.contact,d.id from u_confversions a,u_paths b, u_pathid2conf c, u_pathids d where a.name='"+tableName+"' and c.id_confver=a.id and d.id=c.id_pathid and b.id=d.id_path"
-print query
+print(query)
 curs.execute(query)
 
 # Extract descriptions
@@ -108,10 +108,10 @@ theEnableMap   = {}
 
 for path in thepaths:
 
-    print "======================"
-    print path
-    print descriptions[path]
-    print "======================"
+    print("======================")
+    print(path)
+    print(descriptions[path])
+    print("======================")
 
     # Use STEAM DB ? #
     fallbackConfDB=False
@@ -122,37 +122,37 @@ for path in thepaths:
       if path2 in groupMap:
         theGroupMap[path]      = groupMap[path2]
       else:
-        print "WARNING: Path '"+path2+"' not found in SteamDB groupMap"
+        print("WARNING: Path '"+path2+"' not found in SteamDB groupMap")
         fallbackConfDB=True
 
       if path2 in targetMap:
         theRateMap[path]       = targetMap[path2]
       else:
-        print "WARNING: Path '"+path2+"' not found in SteamDB targetMap"
+        print("WARNING: Path '"+path2+"' not found in SteamDB targetMap")
         fallbackConfDB=True
 
       if path2 in flatnessMap:
         theRateLowMap[path]    = flatnessMap[path2]
       else:
-        print "WARNING: Path '"+path2+"' not found in SteamDB flatnessMap"
+        print("WARNING: Path '"+path2+"' not found in SteamDB flatnessMap")
         fallbackConfDB=True
 
       if path2 in statusMap:
         theStatusMap[path]     = statusMap[path2]
       else:
-        print "WARNING: Path '"+path2+"' not found in SteamDB statusMap"
+        print("WARNING: Path '"+path2+"' not found in SteamDB statusMap")
         fallbackConfDB=True
 
       if path2 in typeMap:
         theTypeMap[path]     = typeMap[path2]
       else:
-        print "WARNING: Path '"+path2+"' not found in SteamDB typeMap"
+        print("WARNING: Path '"+path2+"' not found in SteamDB typeMap")
         fallbackConfDB=True
 
       if path2 in enableMap:
         theEnableMap[path]     = enableMap[path2]
       else:
-        print "WARNING: Path '"+path2+"' not found in SteamDB enableMap"
+        print("WARNING: Path '"+path2+"' not found in SteamDB enableMap")
         fallbackConfDB=True
 
       if not fallbackConfDB:
@@ -165,7 +165,7 @@ for path in thepaths:
     if descriptions[path] is not None:
         theDesc = str(descriptions[path]).splitlines()
 
-    print "HERE4"
+    print("HERE4")
 
     # Extract relevant lines in description
     groupLine=''
@@ -193,11 +193,11 @@ for path in thepaths:
 
     # Issue warnings
     if countGroup>1:
-       print "WARNING! path: ",path," => keyword 'group' appears ",countGroup," times"
+       print("WARNING! path: ",path," => keyword 'group' appears ",countGroup," times")
     if countRate>1:
-       print "WARNING! path: ",path," => keyword 'rate' appears " ,countRate ," times"
+       print("WARNING! path: ",path," => keyword 'rate' appears " ,countRate ," times")
     if countType>1:
-       print "WARNING! path: ",path," => keyword 'type' appears " ,countType ," times"
+       print("WARNING! path: ",path," => keyword 'type' appears " ,countType ," times")
 
     # Extract type
     theType = ['unknown']
@@ -236,7 +236,7 @@ for path in thepaths:
     unit=''
     lumi=''
 
-    print "HERE5"
+    print("HERE5")
 
     if len(rateLine)>0:
        rateList = rateLine.split()
@@ -245,7 +245,7 @@ for path in thepaths:
        doPrint=False
        if path=="NONE":
           doPrint=True
-          print "PRINT0! ", rateLine
+          print("PRINT0! ", rateLine)
 
        # initialize utility variables
        lastword=''
@@ -257,13 +257,13 @@ for path in thepaths:
        for word in rateList:
           #
           if doPrint:
-             print "PRINT1!", word.lower()
+             print("PRINT1!", word.lower())
           #
           if(word.lower()=="khz" or word.lower()=="hz"):
              rate = lastword
              unit = word
              if doPrint:
-                print "PRINT2! rate=", rate, " unit=", unit
+                print("PRINT2! rate=", rate, " unit=", unit)
           #   
           elif "khz" in word.lower():
              word2 = word.lower().split('khz')
@@ -273,8 +273,8 @@ for path in thepaths:
                 rate  = word2[0]
              unit  = 'kHz'
              if doPrint:
-                print "PRINT3! word2=", word2
-                print "PRINT3! rate=", rate, " unit=", unit
+                print("PRINT3! word2=", word2)
+                print("PRINT3! rate=", rate, " unit=", unit)
           #
           elif "hz" in word.lower():
              word2 = word.lower().split('hz')
@@ -284,8 +284,8 @@ for path in thepaths:
                 rate  = word2[0]
              unit  = 'Hz'
              if doPrint:
-                print "PRINT4! word2=", word2
-                print "PRINT4! rate=", rate, " unit=", unit
+                print("PRINT4! word2=", word2)
+                print("PRINT4! rate=", rate, " unit=", unit)
           elif ("e33" in word.lower() or "e34" in word.lower() or "bx" in word.lower()):
              lumi = word
           #
@@ -326,7 +326,7 @@ for path in thepaths:
 
     # Record rate info
     theRateMap[path] = [rate3,unit,lumi]
-    print "CHECK0:",path,theRateMap[path]
+    print("CHECK0:",path,theRateMap[path])
 
     # Extract group
     theGroupMap[path] = []
@@ -406,7 +406,7 @@ for path in thepaths:
           theGroupMap[path]=['null']
 
     else:
-       print path," : null"
+       print(path," : null")
        theGroupMap[path] = ['null']
 
 ########## END STEAM ADD-ON ##########
@@ -535,7 +535,7 @@ def getL1PS(seeds, TableL1PS, LabelsL1PS):
   nColumns = int(len(LabelsL1PS))
   prescales = [0]*nColumns
 
-  print "SEED: ", seeds
+  print("SEED: ", seeds)
 
   if len(seeds)==0:
     prescales = [1]*nColumns
@@ -549,10 +549,10 @@ def getL1PS(seeds, TableL1PS, LabelsL1PS):
   # Loop over PS columns
   for i in range(nColumns):
 
-    print "L1PS: -- Column #",i
+    print("L1PS: -- Column #",i)
 
     # Search for minimal non-zero PS
-    minPS = sys.maxint
+    minPS = sys.maxsize
     for seed in listSeeds:
       # check format
       if not 'L1_' in seed:
@@ -562,21 +562,21 @@ def getL1PS(seeds, TableL1PS, LabelsL1PS):
       thePS=-1
       if seed in TableL1PS:
         thePS = int(TableL1PS[seed][i])
-      print "L1PS: --- "+str(seed)+" = "+str(thePS)+"  (minPS="+str(minPS)+")"
+      print("L1PS: --- "+str(seed)+" = "+str(thePS)+"  (minPS="+str(minPS)+")")
       # search for a minimal non-zero PS
       if thePS<minPS and thePS>0:
-        print "L1PS: ---- "+str(thePS)+"<"+str(minPS)
+        print("L1PS: ---- "+str(thePS)+"<"+str(minPS))
         minPS=thePS
 
     # did not find a non-zero PS
-    if minPS==sys.maxint:
+    if minPS==sys.maxsize:
       minPS=0
     # record minimal PS
     prescales[i] = int(minPS)
-    print "L1PS: -- Final PS=",prescales[i]
+    print("L1PS: -- Final PS=",prescales[i])
 
   # return prescales
-  print "L1PS: ",prescales
+  print("L1PS: ",prescales)
   return prescales
 
 # prepare a description of the L1 seed for a given path
@@ -732,7 +732,7 @@ def getPrescales(name, out, end):
     dumb = SearchDumbPrescale(out)
     endp.visit(dumb)
     if dumb.found and end in prescale:
-      pre = map(operator.mul, pre, prescale[end])
+      pre = list(map(operator.mul, pre, prescale[end]))
 
     # look for an old-style local smart prescaler in the output path
     smart = SearchSmartPrescale(out)
@@ -807,7 +807,7 @@ def dumpPath(stream, dataset, name, out, end, TableL1PS, LabelsL1PS):
 
   # look for rates #ND
   rateDesc = getRatesDescription(name)
-  print "CHECK1:",name,rateDesc,"(",stream,",",dataset,")"
+  print("CHECK1:",name,rateDesc,"(",stream,",",dataset,")")
 
   # look for rates #ND
   rateLowDesc = getRatesDescription(name,"Low")
@@ -830,24 +830,24 @@ def dumpPath(stream, dataset, name, out, end, TableL1PS, LabelsL1PS):
 
   # look for L1 prescales
   #psL1     = getL1PS(seeds, TableL1PS, LabelsL1PS)
-  print "L1PS: HLT: ",name
+  print("L1PS: HLT: ",name)
   psL1Desc = ""
   if TableL1PS != "":
     psL1Desc = getL1PSDescription(seeds, TableL1PS, LabelsL1PS)
 
   if bptxDesc != "" and bptxDesc != " ":
-    print "CHECKBPTX|",name,"|",bptxDesc
+    print("CHECKBPTX|",name,"|",bptxDesc)
 
   #print "CHECK2:",name,"{",rateDesc,"}",len(rateDesc),"{",rateDesc[0],"}"
 
   # If rate descriptions came from ConfDB
   # => insert only the rate value in the output (not unit nor lumi)
   if ";" in rateDesc:
-    print "CHECK2:",name,rateDesc.split(";")[0]
+    print("CHECK2:",name,rateDesc.split(";")[0])
     rateDesc = rateDesc.split(";")[0]
   #
   if ";" in rateLowDesc:
-    print "CHECK2:",name,rateLowDesc.split(";")[0]
+    print("CHECK2:",name,rateLowDesc.split(";")[0])
     rateLowDesc = rateLowDesc.split(";")[0]
 
   if useSteamDB:
@@ -871,7 +871,7 @@ def dumpPath(stream, dataset, name, out, end, TableL1PS, LabelsL1PS):
 def getEndPath(output):
   # look for the EndPath with the corresponding output module
   out = ''
-  for o in process.endpaths.itervalues():
+  for o in process.endpaths.values():
     searchOut = SearchModuleByName(output)
     o.visit(searchOut)
     if searchOut.found:
@@ -882,7 +882,7 @@ def getEndPath(output):
 
 def dumpHeader(LabelsL1PS):
   header = ''
-  print getL1PrescaleNames(LabelsL1PS)
+  print(getL1PrescaleNames(LabelsL1PS))
 
   if useSteamDB:
     if mode == 'csv':
@@ -928,7 +928,7 @@ def dumpStream(stream,TableL1PS, LabelsL1PS, datasetMap, streamsMap, smartMap):
     else:
       if mode == 'text':
         #outputfile.write('        *** not found ***'+'\n')
-        print '*** PD "',pd,'" not found ***\n'
+        print('*** PD "',pd,'" not found ***\n')
 
   unassigned = allpaths - assigned
   if unassigned:
@@ -939,16 +939,16 @@ def dumpStream(stream,TableL1PS, LabelsL1PS, datasetMap, streamsMap, smartMap):
 
   if not end:
     #outputfile.write(str('    *** corresponding EndPath not found ***')+'\n')
-    print '*** STREAM "',stream,'" : EndPath not found ***\n'
+    print('*** STREAM "',stream,'" : EndPath not found ***\n')
   else:
     missing    = assigned - allpaths
     if missing:
       if mode == 'text':
         #outputfile.write('    *** paths missing from the EndPath\'s output module ***'+'\n')
-        print '*** STREAM "',stream,'" : paths missing from the EndPath output module ***\n'
+        print('*** STREAM "',stream,'" : paths missing from the EndPath output module ***\n')
       for path in sorted(missing):
         #outputfile.write(str(dumpPath(stream, '(missing)', path, out, end, TableL1PS, LabelsL1PS))+'\n')
-        print str(dumpPath(stream, '(missing)', path, out, end, TableL1PS, LabelsL1PS))+'\n'
+        print(str(dumpPath(stream, '(missing)', path, out, end, TableL1PS, LabelsL1PS))+'\n')
 
 ### EXECUTION ###
 
