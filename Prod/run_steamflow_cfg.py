@@ -27,9 +27,9 @@ import itertools
 def insert_modules_after(process, target, *modules):
     "Add the `modules` after the `target` in any Sequence, Paths or EndPath that contains the latter."                                                      
     for sequence in itertools.chain(
-        process._Process__sequences.itervalues(),
-        process._Process__paths.itervalues(),
-        process._Process__endpaths.itervalues()
+        process._Process__sequences.values(),
+        process._Process__paths.values(),
+        process._Process__endpaths.values()
     ):                                                                                                                                                      
         try:
             position = sequence.index ( target )
