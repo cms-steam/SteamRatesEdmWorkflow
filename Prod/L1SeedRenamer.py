@@ -1,26 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import fileinput
-
-
-# In[2]:
-
-
 import os
-
-
-# In[3]:
-
-
 text = "hlt.py"
-
-
-# In[4]:
-
 
 match = {
 'L1_DoubleMu0er1p4_OQ_OS_dEta_Max1p6':'L1_DoubleMuOpen_er1p4_OS_dEta_Max1p6',
@@ -55,10 +35,6 @@ match = {
 'L1_DoubleMu18er2p1_SQ':'L1_DoubleMu18er2p1'
 }
 
-
-# In[5]:
-
-
 for line in fileinput.input(text, inplace=True):
     line = line.rstrip()
     if not line:
@@ -67,11 +43,7 @@ for line in fileinput.input(text, inplace=True):
         if f_key in line:
             line = line.replace(f_key, f_value)
     print(line)
-
-
-# In[6]:
-
-
+    
 import re
 
 
@@ -86,10 +58,3 @@ def replace_all(text, dic):
 
 data = replace_all(data,match)
 #print(data) # you can copy and paste the result to whatever file you like
-
-
-# In[ ]:
-
-
-
-
