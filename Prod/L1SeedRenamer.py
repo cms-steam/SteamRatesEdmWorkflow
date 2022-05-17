@@ -3,7 +3,7 @@ import os
 text = "hlt.py"
 
 match = {
-'L1_DoubleMu0er1p4_OQ_OS_dEta_Max1p6':'L1_DoubleMuOpen_er1p4_OS_dEta_Max1p6',
+'L1_DoubleMu0er1p4_OQ_OS_dEta_Max1p6':'L1_SingleMuCosmics',
 'L1_DoubleMu4p5er2p0_SQ_OS_Mass_7to18':'L1_DoubleMu4p5er2p0_SQ_OS_Mass7to18',
 'L1_TripleMu_2_1p5_0OQ_Mass_Max15':'L1_TripleMu_2_1p5_0OQ_Mass_Max_15',
 'L1_TripleMu_2SQ_1p5SQ_0OQ_Mass_Max15':'L1_TripleMu_2SQ_1p5SQ_0OQ_Mass_Max_15',
