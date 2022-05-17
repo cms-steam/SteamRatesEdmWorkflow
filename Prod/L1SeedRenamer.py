@@ -39,7 +39,7 @@ match = {
 'L1_ETMHF90_SingleJet60er2p5_ETMHF90_DPHI_MIN2p094': 'L1_SingleMuCosmics',
 #'L1_MuShower_OneNominal': 'L1_ETMHF100 OR L1_ETMHF110 OR L1_ETM150 OR L1_ETMHF120 OR L1_ETMHF150',
 'L1_DoubleMu0er2p0_SQ_OS_dEta_Max1p6': 'L1_SingleMuCosmics',
- 
+'L1_DoubleMu0er2p0_SQ_OS_dEta_Max1p5': 'L1_DoubleMu0er2p0_SQ_OS_dEta_Max1p5',
 
 }
 
