@@ -33,9 +33,9 @@ match = {
 'L1_DoubleEG10p5_er1p2_dR_Max0p6':'L1_DoubleEG10p5er1p22_dR_0p6',
 'L1_DoubleMu0_upt6_IP_Min1_upt4':'L1_DoubleMu0_upt6ip123_upt4',
 'L1_DoubleMu18er2p1_SQ':'L1_DoubleMu18er2p1',
-'L1_DoubleMu0_Upt15_Upt7': 'FALSE',
-'L1_DoubleMu3er2p0_SQ_OS_dR_Max1p4': 'FALSE',
-'L1_ETMHF90_SingleJet60er2p5_ETMHF90_DPHI_MIN2p094': 'FALSE',
+'L1_DoubleMu0_Upt15_Upt7': 'L1_SingleMuCosmics',
+'L1_DoubleMu3er2p0_SQ_OS_dR_Max1p4': 'L1_SingleMuCosmics',
+'L1_ETMHF90_SingleJet60er2p5_ETMHF90_DPHI_MIN2p094': 'L1_SingleMuCosmics',
 #'L1_MuShower_OneNominal': 'L1_ETMHF100 OR L1_ETMHF110 OR L1_ETM150 OR L1_ETMHF120 OR L1_ETMHF150',
 
 }
