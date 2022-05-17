@@ -8,7 +8,7 @@ match = {
 'L1_TripleMu_2_1p5_0OQ_Mass_Max15':'L1_TripleMu_2_1p5_0OQ_Mass_Max_15',
 'L1_TripleMu_2SQ_1p5SQ_0OQ_Mass_Max15':'L1_TripleMu_2SQ_1p5SQ_0OQ_Mass_Max_15',
 'L1_SingleMuShower_Nominal':'L1_ETMHF100 OR L1_ETMHF110 OR L1_ETM150 OR L1_ETMHF120 OR L1_ETMHF150',
-'L1_SingleMuShower_Tight':'L1_MuShower_OneTight',
+'L1_SingleMuShower_Tight':'L1_ETMHF100 OR L1_ETMHF110 OR L1_ETM150 OR L1_ETMHF120 OR L1_ETMHF150',
 'L1_DoubleMu3_OS_er2p3_Mass_Max14_DoubleEG7p5_er2p1_Mass_Max20':'L1_DoubleMu3_OS_DoubleEG7p5Upsilon',
 'L1_DoubleMu5_OS_er2p3_Mass_8to14_DoubleEG3er2p1_Mass_Max20':'L1_DoubleMu5Upsilon_OS_DoubleEG3',
 'L1_DoubleIsoTau26er2p1_Jet55_RmOvlp_dR0p5':'L1_DoubleIsoTau32er2p1',
