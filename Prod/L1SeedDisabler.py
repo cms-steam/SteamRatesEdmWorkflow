@@ -1,6 +1,7 @@
+# Simple script to disable required L1 seeds. To run $python3 L1SeedDisabler.py (the hlt config file should named hlt.py)
 import fileinput
 import os
-text = "hlt.py"
+text = "hlt.py"       
 
 match = {
 'L1_SingleLooseIsoEG26er1p5':'L1_SingleMuCosmics', 
