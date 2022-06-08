@@ -16,7 +16,7 @@ for line in fileinput.input(text, inplace=True):
     for f_key, f_value in match.items():
         if f_key in line:
             line = line.replace(f_key, f_value)
-   
+    
     
 import re
 
@@ -31,4 +31,4 @@ def replace_all(text, dic):
     return text
 
 data = replace_all(data,match)
-print("Renaming Changes Undone") 
+print("L1 seed Disabling Done") 
