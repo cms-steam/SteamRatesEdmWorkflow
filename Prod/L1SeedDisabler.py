@@ -34,7 +34,7 @@ for line in fileinput.input(text, inplace=True):
     for f_key, f_value in match.items():
         if f_key in line:
             line = line.replace(f_key, f_value)
-    
+    print(line)
     
 import re
 
