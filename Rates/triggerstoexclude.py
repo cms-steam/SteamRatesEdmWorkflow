@@ -1,4 +1,4 @@
-triggerstoexclude=[
+triggerstoexcl=[
 'HLT_DoubleMu4_LowMass_Displaced_v',
 'HLT_DoubleMu4_3_LowMass_v',
 'HLT_L2Mu23NoVtx_2Cha_v',
