@@ -445,7 +445,7 @@ for event in events:
     for trigger in myPaths:
         if not triggerCountsBool[trigger]: continue
         myPassedEvents[trigger][0] += 1
-        if triggerCounts != 1 or not trigger.startswith("HLT_") or trigger not in tnames: continue
+        if triggerCounts != 1 or not trigger.startswith("HLT_") or trigger in tnames: continue
         myPassedEvents[trigger][1] += 1
         
     if bUseMaps:
