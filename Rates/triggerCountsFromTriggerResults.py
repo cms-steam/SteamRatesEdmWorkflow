@@ -4,6 +4,7 @@ import math
 import json
 import sys, getopt
 import os
+from triggerstoexclude import triggerstoexcl
 
 
 #auxiliary functions
@@ -62,6 +63,8 @@ streamCounts = {}
 streams = {}
 
 types = {}
+
+tnames = []
 
 metBx = ROOT.TH1F("metBx","",4000,0.,4000.)
 muonBx = ROOT.TH1F("muonBx","",4000,0.,4000.)
@@ -353,6 +356,10 @@ for event in events:
     kPassedEventAnalysis = False
     triggerCountsBool = {}
     triggerCounts = 0
+    
+    for n in triggerstoexcl:
+       tnames.append(n)
+
     for i in range(0, len(myPaths)):
         triggerCountsBool[myPaths[i]] = False
     if bUseMaps:
@@ -438,7 +445,7 @@ for event in events:
     for trigger in myPaths:
         if not triggerCountsBool[trigger]: continue
         myPassedEvents[trigger][0] += 1
-        if triggerCounts != 1 or not trigger.startswith("HLT_"): continue
+        if triggerCounts != 1 or not trigger.startswith("HLT_") or trigger not in tnames: continue
         myPassedEvents[trigger][1] += 1
         
     if bUseMaps:
