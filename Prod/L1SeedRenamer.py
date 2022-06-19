@@ -57,6 +57,12 @@ match = {
 'L1_DoubleEG_LooseIso22_LooseIso12_er1p5':'L1_SingleMuCosmics',
 'L1_DoubleEG11_er1p2_dR_Max0p6':'L1_SingleMuCosmics',
 'L1_DoubleEG_LooseIso25_LooseIso12_er1p5':'L1_SingleMuCosmics',
+'L1_HTT280er_QuadJet_70_55_40_35_er2p4':'L1_SingleMuCosmics',
+'L1_DoubleMu18er2p1':'L1_SingleMuCosmics',
+'L1_DoubleMu4p5er2p0_SQ_OS_Mass7to18':'L1_SingleMuCosmics',
+'L1_DoubleMu3_OS_DoubleEG7p5Upsilon':'L1_SingleMuCosmics',
+'L1_DoubleMu5Upsilon_OS_DoubleEG3':'L1_SingleMuCosmics',
+
 }
 
 for line in fileinput.input(text, inplace=True):
