@@ -6,6 +6,8 @@ match = {
 'L1_DoubleIsoTau26er2p1_Jet70_RmOvlp_dR0p5':'L1_SingleMuCosmics',
 'L1_Mu18er2p1_Tau26er2p1_Jet70':'L1_SingleMuCosmics',
 'L1_Mu18er2p1_Tau26er2p1_Jet55':'L1_SingleMuCosmics',
+'L1_ETMHF70 OR L1_ETMHF80 OR L1_ETMHF90 OR L1_ETMHF100':'L1_ETMHF100',
+'L1_ETMHF70_HTT60er OR L1_ETMHF80_HTT60er OR L1_ETMHF90_HTT60er':'L1_ETMHF90_HTT60er',
 }
 
 for line in fileinput.input(text, inplace=True):
