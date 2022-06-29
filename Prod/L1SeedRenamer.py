@@ -58,6 +58,7 @@ match = {
 'L1_DoubleEG11_er1p2_dR_Max0p6':'L1_SingleMuCosmics',
 'L1_DoubleEG_LooseIso25_LooseIso12_er1p5':'L1_SingleMuCosmics',
 'L1_ETMHF70_HTT60er OR L1_ETMHF80_HTT60er OR L1_ETMHF90_HTT60er':'L1_ETMHF90_HTT60er',
+'L1_ETMHF70 OR L1_ETMHF80 OR L1_ETMHF90 OR L1_ETMHF100':'L1_ETMHF100',
 }
 
 for line in fileinput.input(text, inplace=True):
