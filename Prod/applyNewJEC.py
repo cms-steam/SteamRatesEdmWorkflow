@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from CondCore.CondDB.CondDB_cfi import CondDB as _CondDB
 
 def applyNewJEC(process):
     process.pfhcESSource = cms.ESSource('PoolDBESSource',
