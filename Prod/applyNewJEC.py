@@ -75,6 +75,6 @@ def applyNewJEC(process):
     )
     process.jescESPrefer = cms.ESPrefer('PoolDBESSource', 'jescESSource')
     #Update HBHE thresholds
-    process.hltParticleFlowRecHitHBHE.producers[0].qualityTests[0].name = "PFRecHitQTestHCALThresholdVsDepth"
-    del process.hltParticleFlowRecHitHBHE.producers[0].qualityTests[0].threshold
+   ## process.hltParticleFlowRecHitHBHE.producers[0].qualityTests[0].name = "PFRecHitQTestHCALThresholdVsDepth"
+   ## del process.hltParticleFlowRecHitHBHE.producers[0].qualityTests[0].threshold
     return process
