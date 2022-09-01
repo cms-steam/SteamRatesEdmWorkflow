@@ -77,4 +77,5 @@ def applyNewJEC(process):
     #Update HBHE thresholds
    ## process.hltParticleFlowRecHitHBHE.producers[0].qualityTests[0].name = "PFRecHitQTestHCALThresholdVsDepth"
    ## del process.hltParticleFlowRecHitHBHE.producers[0].qualityTests[0].threshold
+    process.hltParticleFlowClusterHBHE.pfClusterBuilder.maxIterations = 5 ##maxIter=5
     return process
