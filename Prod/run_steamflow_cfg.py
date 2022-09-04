@@ -56,6 +56,7 @@ if switchL1PS:
 
 # Output
 process.DQMOutput.remove(process.dqmOutput)
+process.options.numberOfThreads = 1 ### for better comparisons without prescale fluctuations
 
 process.hltOutput = cms.OutputModule( "PoolOutputModule",
      fileName = cms.untracked.string( outputName ),
