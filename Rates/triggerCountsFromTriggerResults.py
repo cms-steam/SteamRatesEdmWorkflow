@@ -43,6 +43,13 @@ def check_json(jsonf, runNo_in, LS, bMC):
     return False
 
 
+def strip_filename(filename):
+    root, ext = os.path.splitext(filename)
+    root = root.rstrip('0123456789')
+    return root + ext
+
+
+
 
 
 triggerList = []
@@ -226,7 +233,8 @@ for event in events:
     if nLoop<1:
         for name in names.triggerNames():
             name = str(name)
-            strippedTrigger = name.rstrip("0123456789")
+            #strippedTrigger = name.rstrip("0123456789")
+            strippedTrigger = strip_filename(name)
             #if strippedTrigger in triggersToIgnore: continue
             if ("HLTriggerFirstPath" in name) or ("HLTriggerFinalPath" in name): continue
             myPaths.append(name)
