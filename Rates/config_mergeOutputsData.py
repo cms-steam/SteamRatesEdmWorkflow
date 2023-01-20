@@ -20,7 +20,8 @@ lumi_in = 2.114 #PU71
 lumi_target = 2.0
 
 #Write the HLT prescale used in the json you ran over
-hlt_ps = 450
+#hlt_ps = 450 #PU60
+hlt_ps = 531 #PU71 (to compensate for increased deadtime in this fill)
 
 #Maps option should be the same one you use to make the batch jobs
 maps = "nomaps"
