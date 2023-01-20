@@ -22,7 +22,8 @@ import sys
 makeInputFilesList = True
 #Directory where your input root files are located
 #inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/NoCustom"
-inputFilesDir = "/afs/cern.ch/work/j/jalimena/HLT_saveDisplacedPhotonPath/CMSSW_12_6_0_pre5/src/SteamRatesEdmWorkflow/Prod"
+#inputFilesDir = "/afs/cern.ch/work/j/jalimena/HLT_saveDisplacedPhotonPath/CMSSW_12_6_0_pre5/src/SteamRatesEdmWorkflow/Prod/PU60"
+inputFilesDir = "/afs/cern.ch/work/j/jalimena/HLT_saveDisplacedPhotonPath/CMSSW_12_6_0_pre5/src/SteamRatesEdmWorkflow/Prod/PU71"
 #Were your input files produced by STEAM? If yes, file_type = "custom"
 #Are these raw data files?
 #If yes, are you running specifically on L1Accept files? Then file_type = "L1Accept"
@@ -37,7 +38,8 @@ cmsswDir = "/afs/cern.ch/work/j/jalimena/HLT_saveDisplacedPhotonPath/CMSSW_12_6_
 #Json file
 # json_file = "/afs/cern.ch/work/d/dbeghin/public/json/json_323775.txt"
 #json_file = "/afs/cern.ch/work/s/savarghe/public/L1Skim/myRealjson.txt"
-json_file = "/afs/cern.ch/work/j/jalimena/HLT_saveDisplacedPhotonPath/CMSSW_12_6_0_pre5/src/SteamRatesEdmWorkflow/Prod/json_PU60.txt"
+#json_file = "/afs/cern.ch/work/j/jalimena/HLT_saveDisplacedPhotonPath/CMSSW_12_6_0_pre5/src/SteamRatesEdmWorkflow/Prod/json_PU60.txt"
+json_file = "/afs/cern.ch/work/j/jalimena/HLT_saveDisplacedPhotonPath/CMSSW_12_6_0_pre5/src/SteamRatesEdmWorkflow/Prod/json_PU71.txt"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
