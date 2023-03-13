@@ -4,8 +4,12 @@ import os
 text = "hlt.py"       
 
 match = {
-'L1_HTT280er':'L1_SingleMuCosmics', 
-'L1_HTT320er':'L1_SingleMuCosmics',
+'L1_HTT280er':'L1_HTT360er',
+'L1_HTT320er':'L1_HTT360er',
+'L1_HTT360er_QuadJet_70_55_40_35_er2p5': 'L1_HTT280er_QuadJet_70_55_40_35_er2p5',
+'L1_HTT360er_QuadJet_70_55_40_40_er2p5': 'L1_HTT320er_QuadJet_70_55_40_40_er2p5',
+'L1_HTT360er_QuadJet_80_60_er2p1_50_45_er2p3':'L1_HTT320er_QuadJet_80_60_er2p1_50_45_er2p3',
+'L1_HTT360er_QuadJet_80_60_er2p1_45_40_er2p3':'L1_HTT320er_QuadJet_80_60_er2p1_45_40_er2p3',
 'L1_DoubleMu5_SQ_OS_dR_Max1p6':'L1_SingleMuCosmics', 
 'L1_DoubleMu3er2p0_SQ_OS_dR_Max1p6':'L1_SingleMuCosmics',
 'L1_DoubleMu0er1p5_SQ_OS_dEta_Max1p2':'L1_SingleMuCosmics',
