@@ -11,7 +11,7 @@ import sys, getopt
 
 #Input the necessary Information
 
-pathName = 'HLT_QuadPFJet70_50_40_35_PFBTagParticleNet_2BTagSum0p65_v3'
+pathName = 'HLT_QuadPFJet70_50_40_35_PFBTagParticleNet_2BTagSum0p65_v3'  # the name should include the correct version number.
 
 lumiTarget = 2.0  # Target Lumi
 
@@ -166,17 +166,11 @@ for path1 in Paths_to_check:
         overlap = set(triggerEvents[path1]).intersection(set(triggerEvents[path2]))
         overlap_fraction = 400*len(overlap)/len(triggerEvents[path1])
         overlap_fractions[(path1, path2)] = overlap_fraction
-#        overlap_counts[(path1, path2)] = len(overlap)
 
-
-
-
-
-#overlap_counts = len(overlap)
 top_overlaps = sorted(overlap_fractions.items(), key=lambda x: x[1], reverse=True)[:10]
 print("Top ten overlap fractions:")
 for (path1, path2), overlap_fraction in top_overlaps:
-    print("Overlap fraction between {} and {}: {} ".format(path1, path2, overlap_fraction))
+    print("Overlap fraction between {} and {}: {} ".format(path1, path2,'{:.1%}'.format(0.01*round(overlap_fraction,1))))
 # Set up output file name and open file for writing
 output_file = "overlap_fractions.txt"
 with open(output_file, "w") as f:
@@ -193,4 +187,4 @@ with open('overlap_{}.csv'.format(pathName), mode='w', newline='') as file:
     writer.writerow(['Target path', 'Path2','Overlap (Hz)','Overlap Fraction (%)'])
     for paths, overlap in sorted_fractions:
         path1, path2 = paths
-        writer.writerow([path1, path2, round(sf*counts*overlap*0.01,2), round(overlap, 1)])
+        writer.writerow([path1, path2, round(sf*counts*overlap*0.01,2), '{:.1%}'.format(0.01*round(overlap, 1))])
