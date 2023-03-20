@@ -1,3 +1,5 @@
+# python3 check_overlaps.py
+
 import ROOT
 from DataFormats.FWLite import Handle, Events
 import math
