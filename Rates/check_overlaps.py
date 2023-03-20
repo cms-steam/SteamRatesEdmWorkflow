@@ -23,7 +23,7 @@ hltPS = 464
 
 maxEvents = -1 #maxEvents to process
 
-folder = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/savarghe/PU60Fill" #directory with hlt.root files
+folder = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/savarghe/Dataset_Study-2023" #directory with hlt.root files
 
 files = []
 for f in os.listdir(folder):
