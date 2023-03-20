@@ -190,7 +190,7 @@ sorted_fractions = sorted(overlap_fractions.items(), key=lambda x: x[1], reverse
 # Write the results to a CSV file
 with open('overlap_{}.csv'.format(pathName), mode='w', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(['Target path', 'Path2','Overlap(Hz)','Overlap Fraction (%)'])
+    writer.writerow(['Target path', 'Path2','Overlap (Hz)','Overlap Fraction (%)'])
     for paths, overlap in sorted_fractions:
         path1, path2 = paths
         writer.writerow([path1, path2, round(sf*counts*overlap*0.01,2), round(overlap, 1)])
