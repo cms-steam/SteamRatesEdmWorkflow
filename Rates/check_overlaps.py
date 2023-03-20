@@ -19,7 +19,7 @@ jsonFile = '/afs/cern.ch/work/s/savarghe/public/Run3Rates/json_362616.txt'
 
 hltPS = 464
 
-maxEvents = 100000 #maxEvents to process
+maxEvents = -1 #maxEvents to process
 
 folder = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/savarghe/PU60Fill" #directory with hlt.root files
 
