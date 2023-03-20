@@ -1,4 +1,4 @@
-# python3 check_overlaps.py
+# python3 check_overlaps.py . It will print out the results in an output filename called overlap_{pathName).csv
 
 import ROOT
 from DataFormats.FWLite import Handle, Events
