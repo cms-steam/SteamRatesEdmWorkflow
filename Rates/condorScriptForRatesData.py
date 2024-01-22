@@ -113,8 +113,8 @@ condor_str += "error = $Fp(filename)counts.stderr\n"
 condor_str += "log = $Fp(filename)counts.log\n"
 condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
 # Adding the requirements line                                                                                                            
-requirements = "(OpSysAndVer =?= \"CentOS7\")"
-condor_str += f"requirements = {requirements}\n"
+#requirements = "(OpSysAndVer =?= \"CentOS7\")"
+#condor_str += f"requirements = {requirements}\n"
 condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
 condor_name = MYDIR+"/condor_cluster.sub"
 condor_file = open(condor_name, "w")
