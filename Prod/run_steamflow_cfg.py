@@ -10,7 +10,7 @@ columnL1PS=1           # choose the tighter column ( 0 <=> tightest )
 outputName="hlt.root"  # output file name
 
 # Input
-from list_cff import inputFileNames
+from list_cff_Run3 import inputFileNames
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(inputFileNames),
     inputCommands = cms.untracked.vstring('keep *')
