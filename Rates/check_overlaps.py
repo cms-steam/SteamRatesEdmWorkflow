@@ -11,19 +11,19 @@ import sys, getopt
 
 #Input the necessary Information
 
-pathName = 'HLT_QuadPFJet70_50_40_35_PFBTagParticleNet_2BTagSum0p65_v3'  # the name should include the correct version number.
+pathName = 'HLT_Photon50EB_TightID_TightIso_v4'  # the name should include the correct version number.
 
-lumiTarget = 2.0  # Target Lumi
+lumiTarget = 2.1  # Target Lumi
 
-lumiIn = 2.057    # Avg Input Lumi
+lumiIn = 2.08    # Avg Input Lumi
 
-jsonFile = '/afs/cern.ch/work/s/savarghe/public/Run3Rates/json_362616.txt' 
+jsonFile = '/afs/cern.ch/work/s/savarghe/public/Run3Rates/json_370293.txt' 
 
-hltPS = 464
+hltPS = 800
 
 maxEvents = -1 #maxEvents to process
 
-folder = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/savarghe/Dataset_Study-2023" #directory with hlt.root files
+folder = "eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/savarghe/Tutorial-24/Photon50" #directory with hlt.root files
 
 files = []
 for f in os.listdir(folder):
@@ -143,9 +143,9 @@ for event in events:
                     if path1 == path2:
                         triggerEvents[path1].append(nLoop)
 
-print(len(triggerEvents[path1])/4)
+print(len(triggerEvents[path1])/24)
 
-counts = len(triggerEvents[path1])/4
+counts = len(triggerEvents[path1])/(24)
 
 print("Number of Lumissections =  " ,nLS)
 
