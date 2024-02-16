@@ -177,8 +177,7 @@ def makeListsOfRawOutputs(files_dir, fig):
     ls_command = runCommand("ls " + total_dir)
     stdout, stderr = ls_command.communicate()
     for line in stdout.splitlines():
-        newline = str(line).replace("b'","")
-        newline = newline.replace("'","")
+        newline = line.decode('ascii')
         file_string = str(total_dir + '/' + newline)
         #print(file_string)
         try:
