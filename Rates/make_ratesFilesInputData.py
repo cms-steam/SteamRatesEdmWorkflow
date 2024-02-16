@@ -27,7 +27,7 @@ while(keepGoing):
         ls_command = runCommand("ls " + dirr)
         stdout, stderr = ls_command.communicate()
         for line in stdout.splitlines():
-            newline = str(line).replace("b","")
+            newline = line.decode('ascii')
             if '.root' in newline:
                 outfile.write('"' + dirr + '/' + newline + '",' + '\n')
             elif "log" in newline:
