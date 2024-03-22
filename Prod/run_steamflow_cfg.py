@@ -20,6 +20,21 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( nEvents )
 )
 
+def customizeForOfflineProcessing(process):
+    # Set ReconnectEachRun and RefreshEachRun to False
+    process.GlobalTag.ReconnectEachRun = cms.untracked.bool(False)
+    process.GlobalTag.RefreshEachRun = cms.untracked.bool(False)
+
+    #remove refreshTime entries
+    for pset in process.GlobalTag.toGet:
+        if hasattr(pset, 'refreshTime'):
+            delattr(pset, 'refreshTime')
+
+    return process
+
+process = customizeForOfflineProcessing(process)
+
+
 # L1 customizations
 from HLTrigger.Configuration.common import *
 import itertools
