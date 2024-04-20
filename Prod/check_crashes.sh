@@ -12,7 +12,7 @@ for job_dir in "$job_directory"/Job_*; do
     if [ -d "$job_dir" ]; then  # Check if it is a directory
         error_file="$job_dir/hlt.stderr"  # Define the path to the error file
         if [ -f "$error_file" ]; then  # Check if the error file exists
-            # Search for the phrases "segmentation violation" or "runtime error"
+            # Search for the phrases "segmentation violation" or "std::runtime_error"
             if grep -qE "segmentation violation|runtime error" "$error_file"; then
                 echo "Error found in $error_file:"
                 grep -E "segmentation violation|runtime error" "$error_file"  # Display the matching lines
