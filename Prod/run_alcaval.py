@@ -6,6 +6,13 @@ import json
 import sys
 import shutil
 
+def remove_existing_job_directories():
+    # Remove any existing directories with Jobs_*
+    for item in os.listdir("."):
+        if os.path.isdir(item) and item.startswith("Jobs_"):
+            shutil.rmtree(item)
+            print(f"Removed existing directory: {item}")
+
 def copy_files_to_directory(config_name):
     # Define the configuration-specific directory
     config_dir = f"Jobs_{config_name}"
@@ -46,12 +53,13 @@ def run_hlt_config(global_tag, config_name, output_base_dir, grun_menu):
     
     # Define output directory for this configuration
     output_dir = os.path.join(output_base_dir, config_name)
-     # Ensure the output directory exists
+    
+    # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
     
-    # Submit jobs with n=1
+    # Submit jobs with n=4
     proxy_path = "/afs/cern.ch/user/s/savarghe/private/x509up_u137185"
-    cms_condor_command = f"./cmsCondorData.py run_steamflow_cfg.py {cmssw_src_dir} {output_dir} -n 1 -q workday -p {proxy_path}"
+    cms_condor_command = f"./cmsCondorData.py run_steamflow_cfg.py {cmssw_src_dir} {output_dir} -n 4 -q workday -p {proxy_path}"
     subprocess.run(cms_condor_command, shell=True, check=True)
     
     submit_command = "./sub_total.jobb"
@@ -77,13 +85,19 @@ def main(config_file):
     # Construct the full output directory path
     output_base_dir = os.path.join(base_output_dir, alca_ticket_number)
     
+    # Ensure the base output directory exists
+    os.makedirs(output_base_dir, exist_ok=True)
+    
+    # Remove any existing Jobs_* directories
+    remove_existing_job_directories()
+    
     # Run for the provided global tags
     run_hlt_config(target_gt, "Tar", output_base_dir, grun_menu)
     run_hlt_config(ref_gt, "Ref", output_base_dir, grun_menu)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python run_jobs.py <config_file.json>")
+        print("Usage: python run_alcaval.py <config_file.json>")
         sys.exit(1)
     
     config_file = sys.argv[1]
