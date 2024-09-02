@@ -1,3 +1,5 @@
+#python3 run_alcaval.py config.json
+
 import os
 import subprocess
 import json
