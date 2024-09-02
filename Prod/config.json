@@ -1,0 +1,6 @@
+{
+    "base_output_dir": "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/AlCa_Val",
+    "target_gt": "140X_dataRun3_HLT_TkAl_BPIX_w35_v3",
+    "ref_gt": "140X_dataRun3_HLT_v3",
+    "grun_menu": "/dev/CMSSW_14_0_0/GRun/V169"
+}
