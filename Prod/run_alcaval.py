@@ -46,6 +46,8 @@ def run_hlt_config(global_tag, config_name, output_base_dir, grun_menu):
     
     # Define output directory for this configuration
     output_dir = os.path.join(output_base_dir, config_name)
+     # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
     
     # Submit jobs with n=4
     proxy_path = "/afs/cern.ch/user/s/savarghe/private/x509up_u137185"
