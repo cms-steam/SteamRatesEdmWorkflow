@@ -57,9 +57,9 @@ def run_hlt_config(global_tag, config_name, output_base_dir, grun_menu):
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
     
-    # Submit jobs with n=4
+    # Submit jobs with n=1
     proxy_path = "/afs/cern.ch/user/s/savarghe/private/x509up_u137185"
-    cms_condor_command = f"./cmsCondorData.py run_steamflow_cfg.py {cmssw_src_dir} {output_dir} -n 4 -q workday -p {proxy_path}"
+    cms_condor_command = f"./cmsCondorData.py run_steamflow_cfg.py {cmssw_src_dir} {output_dir} -n 1 -q workday -p {proxy_path}"
     subprocess.run(cms_condor_command, shell=True, check=True)
     
     submit_command = "./sub_total.jobb"
