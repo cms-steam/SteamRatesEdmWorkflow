@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Directories containing the ROOT files
-TAR_DIR="/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/AlCa_Val/CMSALCA-293-test/Tar"
-REF_DIR="/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/AlCa_Val/CMSALCA-293-test/Ref"
+TAR_DIR="/eos/cms/store/group/tsg/STEAM/AlCa_Val/CMSALCA-293-test/Tar"
+REF_DIR="/eos/cms/store/group/tsg/STEAM/AlCa_Val/CMSALCA-293-test/Ref"
 
 # Loop over each ROOT file in the Tar directory
 for file in "$TAR_DIR"/hlt*.root; do
