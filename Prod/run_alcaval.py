@@ -24,26 +24,33 @@ def copy_files_to_directory(config_name):
         if file.endswith(".py") or file.endswith(".sh"):
             shutil.copy(file, config_dir)
 
-def replace_input_file_list(run_number):
+def replace_input_file_list(config_name, run_number=None):
     # File to modify
-    cfg_file = "run_steamflow_cfg.py"
+    cfg_file = os.path.join(f"Jobs_{config_name}", "run_steamflow_cfg.py")
     
-    # New import line
-    new_import_line = f"from list_cff_Run{run_number} import inputFileNames\n"
+    # Default to list_cff_Run3.py if run_number is not provided
+    if run_number is None:
+        new_import_line = "from list_cff_Run3 import inputFileNames\n"
+    else:
+        new_import_line = f"from list_cff_Run{run_number} import inputFileNames\n"
     
-    # Read the content of the file
-    with open(cfg_file, 'r') as file:
-        lines = file.readlines()
-    
-    # Replace the old import line
-    with open(cfg_file, 'w') as file:
-        for line in lines:
-            if line.startswith("from list_cff_Run"):
-                file.write(new_import_line)
-            else:
-                file.write(line)
+    try:
+        # Read the content of the file
+        with open(cfg_file, 'r') as file:
+            lines = file.readlines()
+        
+        # Replace the old import line
+        with open(cfg_file, 'w') as file:
+            for line in lines:
+                if line.startswith("from list_cff_Run"):
+                    file.write(new_import_line)
+                else:
+                    file.write(line)
 
-    print(f"Replaced the import line in {cfg_file} with list_cff_Run{run_number}.py")
+        print(f"Replaced the import line in {cfg_file} with {new_import_line.strip()}")
+    
+    except FileNotFoundError:
+        print(f"Warning: {cfg_file} not found. Skipping replacement.")
 
 def create_input_file_list(run_number, era_name):
     # Initialize the proxy before querying DAS
@@ -91,10 +98,7 @@ def create_input_file_list(run_number, era_name):
         else:
             print(f"File list created in {output_file}")
 
-    # Replace the input file list import line in run_steamflow_cfg.py
-    replace_input_file_list(run_number)
-
-def run_hlt_config(global_tag, config_name, output_base_dir, grun_menu):
+def run_hlt_config(global_tag, config_name, output_base_dir, grun_menu, run_number=None):
     # Create the configuration-specific directory
     config_dir = f"Jobs_{config_name}"
     os.makedirs(config_dir, exist_ok=True)
@@ -119,6 +123,9 @@ def run_hlt_config(global_tag, config_name, output_base_dir, grun_menu):
     if global_tag not in config_data:
         print(f"Error: The global tag {global_tag} was not properly applied in {config_name}.")
         sys.exit(1)
+    
+    # Replace the input file list import line in the run_steamflow_cfg.py within this directory
+    replace_input_file_list(config_name, run_number)
     
     # Get CMSSW src directory from environment variable
     cmssw_src_dir = os.path.join(os.environ.get('CMSSW_BASE', ''), 'src')
@@ -168,8 +175,8 @@ def main(config_file, run_number=None, era_name=None):
     remove_existing_job_directories()
     
     # Run for the provided global tags
-    run_hlt_config(target_gt, "Tar", output_base_dir, grun_menu)
-    run_hlt_config(ref_gt, "Ref", output_base_dir, grun_menu)
+    run_hlt_config(target_gt, "Tar", output_base_dir, grun_menu, run_number)
+    run_hlt_config(ref_gt, "Ref", output_base_dir, grun_menu, run_number)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run ALCA validation and optionally create input file list.")
