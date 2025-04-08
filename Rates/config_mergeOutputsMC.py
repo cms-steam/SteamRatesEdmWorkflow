@@ -40,9 +40,9 @@ files_dir = "Results/Raw"
 #run the script
 command = ""
 if diffLoc:
-    command = "python prepareMergeOutputsMC.py -t %s -d %s" %(lumi_target, files_dir)
+    command = "python3 prepareMergeOutputsMC.py -t %s -d %s" %(lumi_target, files_dir)
 else:
-    command = "python prepareMergeOutputsMC.py -t %s" %lumi_target
+    command = "python3 prepareMergeOutputsMC.py -t %s" %lumi_target
 
 command += " -m %s" %maps
 

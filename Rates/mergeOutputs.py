@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 '''
                        Merge outputs from jobs send on the batch queue,
                      scale them to the target luminosity, sort the rates
@@ -36,8 +37,8 @@ help_text += '\n(optional) <maps> = "nomaps" (default option, use none of the ma
 help_text += '\n(optional) -f  : Adding this option merges the root files which are used to produce trigger-dataset and dataset-dataset correlation figures. By default root files are NOT merged\n'
 
 if opts.lumiTarget == -1 or (opts.dataMC == "data" and (opts.lumiIn == -1 or opts.hltPS == -1)):
-    print error_text
-    print help_text
+    print(error_text)
+    print(help_text)
     sys.exit(2)    
 
 bUseMaps = False
@@ -51,9 +52,9 @@ elif opts.maps == "somemaps":
 elif opts.maps == "nomaps":
     bUseMaps = False
 else:
-    print "<maps> input '%s' is wrong" %opts.maps
-    print error_text
-    print help_text
+    print("<maps> input '%s' is wrong" %opts.maps)
+    print(error_text)
+    print(help_text)
     sys.exit(2)
 
 files_dir = opts.inDir
@@ -88,7 +89,7 @@ else:
     subDir = "MC/"
     from map_MCdatasets_xs import datasetCrossSectionMap
     dataset = ""
-    for datasetKey in datasetCrossSectionMap.keys():
+    for datasetKey in list(datasetCrossSectionMap.keys()):
         dataset = datasetKey
         if dataset == opts.dataMC:
             xs = datasetCrossSectionMap[datasetKey]
@@ -103,21 +104,21 @@ else:
     #0.01 = converting from picobarns to 10^-34 cm^2
     if n_events != 0: scaleFactor = opts.lumiTarget*(xs*0.01)/n_events
 
-print '\n\n\n'
-print 'this is %s' %opts.dataMC
-print 'files_directory = %s' %files_dir
-print 'lumi_target = %se34 /cm2/s'%opts.lumiTarget
+print('\n\n\n')
+print('this is %s' %opts.dataMC)
+print('files_directory = %s' %files_dir)
+print('lumi_target = %se34 /cm2/s'%opts.lumiTarget)
 if opts.dataMC == "data":
-    print 'lumi_in = %se34 /cm2/s'%opts.lumiIn
-    print 'hlt_PS = %s'%opts.hltPS
+    print('lumi_in = %se34 /cm2/s'%opts.lumiIn)
+    print('hlt_PS = %s'%opts.hltPS)
 else:
-    print 'xs = %s pb'%xs
-print 'scale_factor = %s\n\n\n'%scaleFactor
+    print('xs = %s pb'%xs)
+print('scale_factor = %s\n\n\n'%scaleFactor)
 
 
 if scaleFactor == 0:
-    print 'ERROR: ZERO scale_factor: either this dataset is NOT in the file ../MCDatasets/map_MCdatasets_xs.py, or your trigger counting jobs only gave zero counts'
-    print 'ZERO scale factor, stopping now...'
+    print('ERROR: ZERO scale_factor: either this dataset is NOT in the file ../MCDatasets/map_MCdatasets_xs.py, or your trigger counting jobs only gave zero counts')
+    print('ZERO scale factor, stopping now...')
 else:
     os.system("mkdir Results/%s"%subDir)
     
@@ -170,7 +171,7 @@ else:
                     firstRow = False
                 else:
                     if columnOneIsGroups:
-                        if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
+                        if (not row[0] in list(countsDic.keys())) and len(row[0]) > 1:
                             lfile = file_in
                             countsDic[row[0]] = []
                             groupsDic[row[0]] = row[1]
@@ -181,7 +182,7 @@ else:
                             for i in range(3,len(row)):
                                 countsDic[row[0]][i-3] += int(row[i])
                     else:
-                        if (not row[0] in countsDic.keys()) and len(row[0]) > 1:
+                        if (not row[0] in list(countsDic.keys())) and len(row[0]) > 1:
                             lfile = file_in
                             countsDic[row[0]] = []
                             for i in range(1,len(row)):
@@ -212,7 +213,7 @@ else:
                 mmap = countsDic.copy()
     
                 for dataset in countsDic:
-                    if dataset in datasetStreamMap.keys():
+                    if dataset in list(datasetStreamMap.keys()):
                         if not stream == datasetStreamMap[dataset]:
                             del mmap[dataset]
                     else:
@@ -271,7 +272,7 @@ else:
             kkey = sorted_list[i]
             wkey = kkey
             if "dataset." in key:
-                if kkey in datasetStreamMap.keys():
+                if kkey in list(datasetStreamMap.keys()):
                     mergedFile.write(datasetStreamMap[kkey] + ", ")
                 else:
                     mergedFile.write("nostream, ")
@@ -346,7 +347,7 @@ else:
                     min_dataset = ""
                     for j in range(1,dD_histo.GetNbinsY()+1):
                         dataset = dD_histo.GetYaxis().GetBinLabel(j)
-                        if dataset in datasetStreamMap.keys():
+                        if dataset in list(datasetStreamMap.keys()):
                             if stream != datasetStreamMap[dataset]:
                                 continue
                         else:
@@ -360,7 +361,7 @@ else:
                     processed_datasets.append(min_dataset)
                     if opts.maps == "allmaps":
                         newDataset = min_dataset
-                        if min_dataset in newDatasetMap.keys():
+                        if min_dataset in list(newDatasetMap.keys()):
                             newDataset = newDatasetMap[min_dataset]
                         if newDataset != "" and not (newDataset in sorted_newDataset_list):
                             sorted_newDataset_list.append(newDataset)

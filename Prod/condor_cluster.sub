@@ -1,0 +1,7 @@
+executable = $(filename)
+arguments = $Fp(filename) $(ClusterID) $(ProcId)
+output = $Fp(filename)hlt.stdout
+error = $Fp(filename)hlt.stderr
+log = $Fp(filename)hlt.log
++JobFlavour = "longlunch"
+queue filename matching (/afs/cern.ch/work/s/savarghe/private/RateValidation/CMSSW_12_0_1/src/SteamRatesEdmWorkflow/Prod/Jobs/Job_*/*.sh)

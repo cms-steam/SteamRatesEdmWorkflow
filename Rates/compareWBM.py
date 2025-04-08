@@ -58,12 +58,12 @@ file_out.write('Paths, STEAM L1 PS, STEAM HLT PS, STEAM Counts, STEAM Rates (Hz)
 for i in range(0, len(triggerList)):
     triggerKey = triggerList[i].rstrip("0123456789 ")
     triggerKey2 = triggerKey
-    for key in HLTPS.keys():
+    for key in list(HLTPS.keys()):
       if triggerKey in key:
         triggerKey2 = key
         break
     file_out.write(triggerList[i] + ", " + str(L1PS[triggerKey2][ps_column]) + ", " + str(HLTPS[triggerKey2][ps_column]) + ", " + str(mapSTEAM[triggerKey][0]) + ", " + str(mapSTEAM[triggerKey][1]) + ", ")
-    if not (triggerKey in mapWBM.keys()):
+    if not (triggerKey in list(mapWBM.keys())):
         file_out.write("0, 0, 0, 0, 0, 0, 0, 0, 0\n")
     else:
         file_out.write(str(mapWBM[triggerKey][0]) + ", " + str(mapWBM[triggerKey][1]) + ", " + str(int(mapWBM[triggerKey][2])) + ", " + str(round(mapWBM[triggerKey][3], 2)) + ", ")

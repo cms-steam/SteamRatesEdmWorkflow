@@ -22,7 +22,7 @@ opts, args = parser.parse_args()
 
 
 error_text = '\n\nError: wrong <json>=%s or <CMSSWrel>=%s inputs\n' %(opts.jsonFile, opts.cmsEnv)
-help_text = '\npython batchScriptForRates.py -j <json> -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
+help_text = '\npython3 batchScriptForRates.py -j <json> -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
 help_text += '\n<json> (mandatory argument) = text file with the LS range in json format'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<infilesDir> (optional) = directory where the input root files are located (default = will take whatever is in the filesInput.py file)'
@@ -32,14 +32,14 @@ help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 help_text += '\n<maps> (optional) = "nomaps" (default option) or "somemaps" or "allmaps""\n'
 
 if opts.jsonFile == "nojson" or opts.cmsEnv == "noenv":
-    print error_text
-    print help_text
+    print(error_text)
+    print(help_text)
     sys.exit(2)
 
-print 'json = %s'%opts.jsonFile
-print 'CMSSWrel = %s'%opts.cmsEnv
-print 'file type = %s'%opts.fileType
-print 'job flavour = %s'%opts.jobFlavour
+print('json = %s'%opts.jsonFile)
+print('CMSSWrel = %s'%opts.cmsEnv)
+print('file type = %s'%opts.fileType)
+print('job flavour = %s'%opts.jobFlavour)
 
 
 #make directories for the jobs
@@ -48,7 +48,7 @@ try:
     os.system('mkdir Jobs')
     os.system('mkdir Jobs/sub_raw')
 except:
-    print "err!"
+    print("err!")
     pass
 
 
@@ -58,17 +58,18 @@ sub_total.write("rm Results/Data/Raw/*/*.root\n")
 
 
 if opts.inputFilesDir != "no":
-    print 'Making a copy of the old filesInputData.py : filesInputData_old.py'
+    print('Making a copy of the old filesInputData.py : filesInputData_old.py')
     os.system('cp filesInputData.py filesInputData_old.py')
-    print 'Making a new filesInputData.py with input root files from %s'%opts.inputFilesDir
-    os.system('python make_ratesFilesInputData.py -i %s'%opts.inputFilesDir)
+    print('Making a new filesInputData.py with input root files from %s'%opts.inputFilesDir)
+    os.system('python3 make_ratesFilesInputData.py -i %s'%opts.inputFilesDir)
 else:
-    print 'Taking default input files (from filesInputData.py)'
+
+  print('Taking default input files (from filesInputData.py)')
 from filesInputData import fileInputNames
 
 nJobs = len(fileInputNames) // opts.nPerJob
 if nJobs == 0: nJobs = 1
-print 'files processed per job = %s, total number of jobs = %s'%(opts.nPerJob, nJobs)
+print('files processed per job = %s, total number of jobs = %s'%(opts.nPerJob, nJobs))
 
 i=0
 k=0
@@ -84,8 +85,8 @@ for infile in fileInputNames:
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")
-    tmp_job.write("python triggerCountsFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(i), opts.fileType, opts.maps))
-    tmp_job.write("\npython handleFileTransfer.py -d %s -s %s"%(MYDIR, str(i)))
+    tmp_job.write("python3 triggerCountsFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(i), opts.fileType, opts.maps))
+    tmp_job.write("\npython3 handleFileTransfer.py -d %s -s %s"%(MYDIR, str(i)))
     tmp_job.close()
     tmp_job_dir = MYDIR+'/Jobs/sub_raw/'+tmp_jobname
     os.system("chmod +x %s"%(tmp_job_dir))
@@ -111,6 +112,9 @@ condor_str += "output = $Fp(filename)counts.stdout\n"
 condor_str += "error = $Fp(filename)counts.stderr\n"
 condor_str += "log = $Fp(filename)counts.log\n"
 condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
+# Adding the requirements line                                                                                                            
+#requirements = "(OpSysAndVer =?= \"CentOS7\")"
+#condor_str += f"requirements = {requirements}\n"
 condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
 condor_name = MYDIR+"/condor_cluster.sub"
 condor_file = open(condor_name, "w")

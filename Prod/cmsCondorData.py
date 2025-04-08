@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import os, sys,  imp, re, pprint, string
+import os, sys, re, pprint, string,imp
 from optparse import OptionParser
-
+#import importlib as imp
 # cms specific
 import FWCore.ParameterSet.Config as cms
 
@@ -37,20 +37,20 @@ cfgFileName = str(args[0])
 cmsEnv = str(args[1])
 remoteDir = str(args[2])
 
-print 'config file = %s'%cfgFileName
-print 'CMSSWrel = %s'%cmsEnv
-print 'proxy = %s'%opts.proxyPath
-print 'remote directory = %s'%remoteDir
-print 'job flavour = %s'%opts.jobFlavour
+print ('config file = %s'%cfgFileName)
+print ('CMSSWrel = %s'%cmsEnv)
+print ('proxy = %s'%opts.proxyPath)
+print ('remote directory = %s'%remoteDir)
+# print 'job flavour = %s'%opts.jobFlavour
 
 
-#make directories for the jobs
-try:
-    os.system('rm -rf Jobs')
-    os.system('mkdir Jobs')
-except:
-    print "err!"
-    pass
+# #make directories for the jobs
+# try:
+#     os.system('rm -rf Jobs')
+#     os.system('mkdir Jobs')
+# except:
+#     print "err!"
+#     pass
 
 
 sub_total = open("sub_total.jobb","w")
@@ -71,18 +71,18 @@ nJobs = -1
 try:
     process.source.fileNames
 except:
-    print 'No input file. Exiting.'
+    print ('No input file. Exiting.')
     sys.exit(2)
 else:
-    print "Number of files in the source:",len(process.source.fileNames), ":"
+    print ("Number of files in the source:",len(process.source.fileNames), ":")
     pprint.pprint(process.source.fileNames)
    
     nFiles = len(process.source.fileNames)
-    nJobs = nFiles / opts.nPerJob
+    nJobs = int(nFiles / opts.nPerJob)
     if (nJobs!=0 and (nFiles % opts.nPerJob) > 0) or nJobs==0:
         nJobs = nJobs + 1
       
-    print "number of jobs to be created: ", nJobs
+    print ("number of jobs to be created: ", nJobs)
     
 
 
@@ -95,7 +95,7 @@ for i in range(0, nJobs):
     #print 'total: %d/%d  ;  %.1f %% processed '%(j,my_sum,(100*float(j)/float(my_sum)))
 
     jobDir = MYDIR+'/Jobs/Job_%s/'%str(i)
-    os.system('mkdir %s'%jobDir)
+    os.system('mkdir -p %s'%jobDir)
 
     tmp_jobname="sub_%s.sh"%(str(i))
     tmp_job=open(jobDir+tmp_jobname,'w')
@@ -104,7 +104,7 @@ for i in range(0, nJobs):
         tmp_job.write("export X509_USER_PROXY=$1\n")
         tmp_job.write("voms-proxy-info -all\n")
         tmp_job.write("voms-proxy-info -all -file $1\n")
-    tmp_job.write("ulimit -v 5000000\n")
+    #tmp_job.write("ulimit -v 7000000\n")
     tmp_job.write("cd $TMPDIR\n")
     tmp_job.write("mkdir Job_%s\n"%str(i))
     tmp_job.write("cd Job_%s\n"%str(i))
@@ -119,7 +119,7 @@ for i in range(0, nJobs):
     tmp_job.close()
     os.system("chmod +x %s"%(jobDir+tmp_jobname))
 
-    print "preparing job number %s/%s"%(str(i), nJobs-1)
+    print ("preparing job number %s/%s"%(str(i), nJobs-1))
 
     iFileMin = i*opts.nPerJob
     iFileMax = (i+1)*opts.nPerJob
@@ -142,6 +142,9 @@ condor_str += "output = $Fp(filename)hlt.stdout\n"
 condor_str += "error = $Fp(filename)hlt.stderr\n"
 condor_str += "log = $Fp(filename)hlt.log\n"
 condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
+# Adding the requirements line                                                                                                            
+#requirements = "(OpSysAndVer =?= \"CentOS7\")"
+#condor_str += f"requirements = {requirements}\n"
 condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
 condor_name = MYDIR+"/condor_cluster.sub"
 condor_file = open(condor_name, "w")

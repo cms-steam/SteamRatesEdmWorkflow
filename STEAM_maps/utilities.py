@@ -1,3 +1,4 @@
+from functools import reduce
 def RepresentsFloat(s):
     try: 
         float(s)

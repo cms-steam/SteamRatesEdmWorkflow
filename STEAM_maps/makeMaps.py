@@ -44,8 +44,10 @@ for line in infile:
 
     # Split the line in words
     fields = line.split()
+    print(fields)
+    print(len(fields))
     if len(fields)!=nCol:
-        print "WILL NOT PROCESS LINE (len(fields)!=",nCol,"): ", len(fields), "!=", fields
+        print("WILL NOT PROCESS LINE (len(fields)!=",nCol,"): ", len(fields), "!=", fields)
         continue
 
     # Get path name
@@ -60,7 +62,7 @@ for line in infile:
         if pre in path:
             process=True
     if not process:
-        print "WILL NOT PROCESS LINE (wrong prefix): ", fields
+        print("WILL NOT PROCESS LINE (wrong prefix): ", fields)
         continue
 
     # Fill the maps with 1 entry for this path
@@ -82,7 +84,7 @@ for line in infile:
     # Avoid double entries
     if path in datasetMap:
         nLines2+=1
-        print "PATH ALREADY IN MAP: ", path, datasetMap[path], theDataset
+        print("PATH ALREADY IN MAP: ", path, datasetMap[path], theDataset)
         continue
 
     streamMap[ path]= [theStream]
@@ -128,8 +130,8 @@ for line in infile:
         flatnessMap[path]   = flatness2
 
 # Check number of paths
-print "Looked at #lines=", nLines, nLines2
-print "Number of paths in maps: ", len(streamMap), len(datasetMap), len(groupMap), len(typeMap), len(statusMap), len(targetMap), len(flatnessMap), len(enableMap)
+print("Looked at #lines=", nLines, nLines2)
+print("Number of paths in maps: ", len(streamMap), len(datasetMap), len(groupMap), len(typeMap), len(statusMap), len(targetMap), len(flatnessMap), len(enableMap))
         
 # Write out maps
 outputMaps = open("SteamDB.py", "w")

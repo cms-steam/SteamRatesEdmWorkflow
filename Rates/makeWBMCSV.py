@@ -13,7 +13,7 @@ def minPS(L1table, mmap):
         if "AND" in seed:
             sseed = seed.split(" AND ")
             seed = sseed[0].strip(" ()")
-        if not seed in mmap.keys():
+        if not seed in list(mmap.keys()):
             #print "\n\nWARNING:\n L1 seed '%s' is not in the L1 PS map.\n\n\n" %seed
             continue 
         if (mmap[seed] > 0) and ((min_PS == default_value) or (mmap[seed] < min_PS)):
@@ -34,18 +34,18 @@ parser.add_option("-c","--cookie",dest="cookie",type="str",default="nocookie",he
 opts, args = parser.parse_args()
 
 if (not '-' in opts.LS) or (opts.RUN < 0):
-    print "Error in LS or run number inputs. Try 'python makeWBMCSV.py --help' for help."
+    print("Error in LS or run number inputs. Try 'python makeWBMCSV.py --help' for help.")
     sys.exit(2)
 
 sep_pos = int(opts.LS.find('-'))
 LS_begin = opts.LS[:sep_pos]
 LS_end = opts.LS[sep_pos+1:]
-print "LS=", LS_begin, LS_end
+print("LS=", LS_begin, LS_end)
 
 if opts.cookie == "nocookie":
-    print "\nYou didn't provide a path to your cookies. I'm assuming you have already set up your cookies properly.\nIf the script crashes, please use the --cookie option. Try 'python makeWBMCSV.py --help' for help.\n"
+    print("\nYou didn't provide a path to your cookies. I'm assuming you have already set up your cookies properly.\nIf the script crashes, please use the --cookie option. Try 'python makeWBMCSV.py --help' for help.\n")
 else:
-    print "\nGetting cookies... If this doesn't work, it's probably because you set up a CMS environment ('cmsenv'). If so, try again with a new terminal.\n...\n"
+    print("\nGetting cookies... If this doesn't work, it's probably because you set up a CMS environment ('cmsenv'). If so, try again with a new terminal.\n...\n")
     os.environ["SSO_COOKIE"] = opts.cookie
     os.system("cern-get-sso-cookie --krb -r -u https://cmswbm.cern.ch/cmsdb/servlet -o $SSO_COOKIE")
 
@@ -55,7 +55,7 @@ if '/' in opts.scaleFactor:
     sf = float(division_terms[0])/float(division_terms[1])
 else:
     sf = float(opts.scaleFactor)
-print "Rates will be scaled by your input %s = %s" %(opts.scaleFactor, sf)
+print("Rates will be scaled by your input %s = %s" %(opts.scaleFactor, sf))
 
 
 from cernSSOWebParser2 import parseURLTables
@@ -144,7 +144,7 @@ for i in range(0, len(tables)):
             cleanedstr = L1seeds_list.lstrip(" ")
         elif opts.maps == "fromUser":
             from Menu_HLT import seedMap
-            for key in seedMap.keys():
+            for key in list(seedMap.keys()):
                 if HLTKey in key:
                     cleanedstr = seedMap[key]
         L1seeds = cleanedstr.split(' OR ')
@@ -155,7 +155,7 @@ for i in range(0, len(tables)):
 
 
 if ps_col_L1 != ps_col_HLT:
-    print "!!!!WARNING!!!!\nDifferent PS column at L1 (%s) and HLT (%s)\n!!!!!!!!!!!!!!!\n" %(ps_col_L1, ps_col_HLT)
+    print("!!!!WARNING!!!!\nDifferent PS column at L1 (%s) and HLT (%s)\n!!!!!!!!!!!!!!!\n" %(ps_col_L1, ps_col_HLT))
 ps_out = open('pscolumn.txt', 'w')
 ps_out.write(str(ps_col_L1))
 ps_out.close()
@@ -187,7 +187,7 @@ for i in range(0, len(tables)):
     for j in range(look_in_line+1, len(tables[i])):
         HLTKey = str(tables[i][j][path_column]).rstrip("0123456789 )(")
         HLTKey = HLTKey.strip(" ")
-        if not HLTKey in map_PS.keys(): continue
+        if not HLTKey in list(map_PS.keys()): continue
         count = str(tables[i][j][count_column]).strip(" ")
         count = count.replace(",", "")
         rate = str(tables[i][j][rate_column]).strip(" ")

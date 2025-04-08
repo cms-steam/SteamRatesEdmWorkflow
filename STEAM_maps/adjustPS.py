@@ -3,7 +3,7 @@ from outputMaps import *
 
 #DEBUG=False
 DEBUG   = True
-HLTPSED = False # if HLT PS were applied when predicting rates
+HLTPSED = True # if HLT PS were applied when predicting rates
 DOUNPSL1= False # if want to L1-unprescale
 THRESH  = 0.15  # threshold to consider that the HLT PS changes significantly
 
@@ -35,7 +35,7 @@ for path in streamsMap:
     # read maps
     stream     = streamsMap[path2][0]
     dataset    = datasetMap[path2][0]
-    status     = statusMap[path2][0]
+    #status     = statusMap[path2][0]
     unPS       = psL1TMap[path2][iOnlineL1]
     list_L1TPS = psL1TMap[path2]
     list_HLTPS = psHLTMap[path2][0:nCol+iLumiHLT]
@@ -47,9 +47,9 @@ for path in streamsMap:
     if path2 in predictMap:
         predict    = predictMap[path2]
         if predict==0:
-            print "WARNING: path ",path2," has a null predicted rate"," (",status,")"
+            print("WARNING: path ",path2," has a null predicted rate"," (",status,")")
     else:
-        print "ERROR: no rate predictions for path ",path2," (",status,")"
+        print("ERROR: no rate predictions for path ",path2," (",status,")")
         continue
 
     # in case HLT PS were applied when running the HLT
@@ -57,7 +57,7 @@ for path in streamsMap:
         unPS *= list_HLTPS[ iPrescaleHLT ]
 
     if DEBUG:
-        print "PATH: ",path2,status,'(',target,targetLow,')',predict,unPS
+        print("PATH: ",path2,status,'(',target,targetLow,')',predict,unPS)
 
     # check only prescaled paths
     if not status=="prescaled":
@@ -87,39 +87,39 @@ for path in streamsMap:
         # high lumi columns: default
         theTarget = target 
         if DEBUG: 
-            print '--- iter #'+str(j)
+            print('--- iter #'+str(j))
         # low lumi columns if specific request
         if j>=iLow and targetLow>0: 
             theTarget = targetLow
         if DEBUG: 
-            print '--- theTarget =',theTarget
+            print('--- theTarget =',theTarget)
         #
         lumiSF  = lumi[j] / lumi[iPredictLumi]
         theL1PS = list_L1TPS[ iLumiL1T+j ]
         if DEBUG: 
-            print "lumiSF  = lumi[j] / lumi[iPredictLumi] = ", lumi[j], "/", lumi[iPredictLumi], "=", lumiSF
-            print "theL1PS = list_L1TPS[ iLumiL1T+j ] =", theL1PS
+            print("lumiSF  = lumi[j] / lumi[iPredictLumi] = ", lumi[j], "/", lumi[iPredictLumi], "=", lumiSF)
+            print("theL1PS = list_L1TPS[ iLumiL1T+j ] =", theL1PS)
         #
         if theTarget>0:
             totPS[j] = predictUnPs * lumiSF / theTarget
             if DEBUG:
-                print "totPS[j] = predictUnPs * lumiSF / theTarget = ", predictUnPs, "*", lumiSF, "/", theTarget
+                print("totPS[j] = predictUnPs * lumiSF / theTarget = ", predictUnPs, "*", lumiSF, "/", theTarget)
         #
         if theL1PS!=0:
             hltPS[j] = float(totPS[j]) / float(theL1PS)
             if DEBUG:
-                print "hltPS[j] = float(totPS[j]) / float(theL1PS) = ", float(totPS[j]), "/", float(theL1PS)
+                print("hltPS[j] = float(totPS[j]) / float(theL1PS) = ", float(totPS[j]), "/", float(theL1PS))
             if hltPS[j]>0 and hltPS[j]<1:
                 hltPS[j]=1
                 if DEBUG:
-                    print "hltPS[j]>0 and hltPS[j]<1 => hltPS[j]=", hltPS[j]
+                    print("hltPS[j]>0 and hltPS[j]<1 => hltPS[j]=", hltPS[j])
             else:
                 hltPS[j] = round( hltPS[j] , 0 )
                 if DEBUG:
-                    print "hltPS[j] = round( hltPS[j] , 0 ) = ", hltPS[j]
+                    print("hltPS[j] = round( hltPS[j] , 0 ) = ", hltPS[j])
         #
         if DEBUG:
-            print "DEBUG: j=",j
+            print("DEBUG: j=",j)
         if theL1PS!=0 and list_HLTPS[ iLumiHLT+j ]!=0:
             oldRate[j]    = round( (predictUnPs * lumiSF) / ( theL1PS * list_HLTPS[ iLumiHLT+j ] ) , 2 )
         if theL1PS!=0 and hltPS[j]!=0:
@@ -141,6 +141,6 @@ for path in streamsMap:
     outputfile.write(mySentence+'\n')
 
     #print '\n'+mySentence+'\n'
-    print '\n'+path2+" Targets=("+str(target)+','+str(targetLow)+') Predict='+str(predict)+' L1=['+wordL1PS+'] HLT_old=['+wordHLTPSOld+'] HLT_new=['+wordHLTPSNew+'] Rate_old=['+wordOldRate+'] Rate_new=['+wordNewRate+']\n'
+    print('\n'+path2+" Targets=("+str(target)+','+str(targetLow)+') Predict='+str(predict)+' L1=['+wordL1PS+'] HLT_old=['+wordHLTPSOld+'] HLT_new=['+wordHLTPSNew+'] Rate_old=['+wordOldRate+'] Rate_new=['+wordNewRate+']\n')
 
-print "Treated",nPaths,"prescaled paths"
+print("Treated",nPaths,"prescaled paths")

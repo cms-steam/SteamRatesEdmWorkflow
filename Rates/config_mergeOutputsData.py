@@ -12,14 +12,15 @@ import sys
 '''
 #Write the average instant lumi of the json you ran over
 #Units: 1e34 /cm^2/s
-lumi_in = 2.0
+#lumi_in = 2.106 #PU60
+lumi_in = 2.08 #PU71
 
 #Write the TARGET lumi for which you wish to calculate rates
 #Units: 1e34 /cm^2/s
-lumi_target = 2.0
+lumi_target = 2.1
 
 #Write the HLT prescale used in the json you ran over
-hlt_ps = 1100
+hlt_ps = 800 
 
 #Maps option should be the same one you use to make the batch jobs
 maps = "nomaps"
@@ -27,9 +28,9 @@ maps = "nomaps"
 #maps = "allmaps"
 
 #Do you wish to draw the figures? If you have a slow connection, drawing might take a while
-#This boolean will be set to False if you used the "nomaps" option
+#his boolean will be set to False if you used the "nomaps" option
 #makeFigures = False
-makeFigures = True
+makeFigures = False
 
 #Do you wish to take input files from an unusual location (different from the default one)?
 #If you do, set the following boolean to True
@@ -44,9 +45,9 @@ files_dir = "Results/Data/Raw"
 #run the script
 command = ""
 if diffLoc:
-    command = "python mergeOutputs.py -l %s -t %s -p %s -d %s" %(lumi_in, lumi_target, hlt_ps, files_dir)
+    command = "python3 mergeOutputs.py -l %s -t %s -p %s -d %s" %(lumi_in, lumi_target, hlt_ps, files_dir)
 else:
-    command = "python mergeOutputs.py -l %s -t %s -p %s" %(lumi_in, lumi_target, hlt_ps)
+    command = "python3 mergeOutputs.py -l %s -t %s -p %s" %(lumi_in, lumi_target, hlt_ps)
 
 command += " -m %s" %maps
 
@@ -58,7 +59,7 @@ if makeFigures:
 
 os.system(command)
 if makeFigures: 
-    comm2 = "python Draw.py"
+    comm2 = "python3 Draw.py"
     if maps == "allmaps": comm2 += " -m yes"
     os.system(comm2)
 
