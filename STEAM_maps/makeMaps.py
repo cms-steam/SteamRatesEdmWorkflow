@@ -1,7 +1,7 @@
 import os, time, string, sys, imp, re
 
 # Indices to read input tsv file
-nCol       = 36
+nCol       = 21 # based on 15_0_0 GRun V48 menu
 iPath      = 2
 iGroup     = 3
 iType      = 4
