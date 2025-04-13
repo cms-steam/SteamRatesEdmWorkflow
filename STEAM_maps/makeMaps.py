@@ -1,7 +1,7 @@
 import os, time, string, sys, imp, re
 
 # Indices to read input tsv file
-nCol       = 21 # based on 15_0_0 GRun V48 menu
+#nCol       = 21 # based on 15_0_0 GRun V48 menu
 iPath      = 2
 iGroup     = 3
 iType      = 4
@@ -18,6 +18,11 @@ if len(sys.argv)>1:
     infilename = sys.argv[1]
 
 infile = open(infilename,'r')
+# Read header to infer number of columns
+header_line = infile.readline()
+header_fields = header_line.strip().split()
+nCol = len(header_fields)
+print("Inferred number of columns (nCol):", nCol)
 
 prefixes = ['HLT_','AlCa_','DST_','MC_']
 
