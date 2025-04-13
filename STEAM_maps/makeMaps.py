@@ -78,8 +78,8 @@ for line in infile:
     if (iEnable >= 0): theEnable = str(fields[iEnable])
 
     # Avoid dataset ParkingScoutingMonitor
-    if theDataset=="ParkingScoutingMonitor":
-        continue
+   # if theDataset=="ParkingScoutingMonitor":
+#        continue
 
     # Avoid double entries
     if path in datasetMap:
@@ -134,7 +134,24 @@ print("Looked at #lines=", nLines, nLines2)
 print("Number of paths in maps: ", len(streamMap), len(datasetMap), len(groupMap), len(typeMap), len(statusMap), len(targetMap), len(flatnessMap), len(enableMap))
         
 # Write out maps
-outputMaps = open("SteamDB.py", "w")
+outputMaps = open("Menu_HLT.py", "w")
+
+# Add datasetStreamMap
+datasetStreamMap = {}
+for path in datasetMap:
+    dataset = datasetMap[path][0]
+    stream = streamMap[path][0]
+    if dataset not in datasetStreamMap:
+        datasetStreamMap[dataset] = stream
+    elif datasetStreamMap[dataset] != stream:
+        print(f"WARNING: Dataset {dataset} maps to multiple streams: {datasetStreamMap[dataset]} and {stream}")
+
+outputMaps.write("datasetStreamMap = {\n")
+for dataset in sorted(datasetStreamMap.keys()):
+    outputMaps.write(f"\t'{dataset}': '{datasetStreamMap[dataset]}',\n")
+outputMaps.write("}\n\n")
+
+
 
 outputMaps.write("streamMap = {\n")
 for path in streamMap:
