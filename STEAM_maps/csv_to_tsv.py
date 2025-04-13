@@ -2,14 +2,18 @@ import csv
 import sys
 
 def csv_to_tsv(input_file, output_file):
-    with open(input_file, mode='r', newline='', encoding='utf-8') as infile, \
-         open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
-        
-        reader = csv.reader(infile)
-        writer = csv.writer(outfile, delimiter='\t')
+    with open(input_file, mode='r', encoding='utf-8', newline='') as infile, \
+         open(output_file, mode='w', encoding='utf-8', newline='') as outfile:
+
+        # Read with semicolon as input delimiter
+        reader = csv.reader(infile, delimiter=';')
+        writer = csv.writer(outfile, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
 
         for row in reader:
-            writer.writerow(row)
+            # Strip whitespace around each field and skip empty lines
+            row = [field.strip() for field in row]
+            if any(row):
+                writer.writerow(row)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
