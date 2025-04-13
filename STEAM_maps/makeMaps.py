@@ -1,7 +1,7 @@
 import os, time, string, sys, imp, re
 
 # Indices to read input tsv file
-nCol       = 36
+#nCol       = 21 # based on 15_0_0 GRun V48 menu
 iPath      = 2
 iGroup     = 3
 iType      = 4
@@ -18,6 +18,13 @@ if len(sys.argv)>1:
     infilename = sys.argv[1]
 
 infile = open(infilename,'r')
+# Read header to infer number of columns
+header_line = infile.readline()
+header_fields = header_line.strip().split()
+#header_fields = header_line.strip().split()
+header_fields = header_line.strip().split('\t')
+nCol = len(header_fields)
+print("Inferred number of columns (nCol):", nCol)
 
 prefixes = ['HLT_','AlCa_','DST_','MC_']
 
@@ -78,8 +85,8 @@ for line in infile:
     if (iEnable >= 0): theEnable = str(fields[iEnable])
 
     # Avoid dataset ParkingScoutingMonitor
-    if theDataset=="ParkingScoutingMonitor":
-        continue
+   # if theDataset=="ParkingScoutingMonitor":
+#        continue
 
     # Avoid double entries
     if path in datasetMap:
@@ -134,7 +141,24 @@ print("Looked at #lines=", nLines, nLines2)
 print("Number of paths in maps: ", len(streamMap), len(datasetMap), len(groupMap), len(typeMap), len(statusMap), len(targetMap), len(flatnessMap), len(enableMap))
         
 # Write out maps
-outputMaps = open("SteamDB.py", "w")
+outputMaps = open("Menu_HLT.py", "w")
+
+# Add datasetStreamMap
+datasetStreamMap = {}
+for path in datasetMap:
+    dataset = datasetMap[path][0]
+    stream = streamMap[path][0]
+    if dataset not in datasetStreamMap:
+        datasetStreamMap[dataset] = stream
+    elif datasetStreamMap[dataset] != stream:
+        print(f"WARNING: Dataset {dataset} maps to multiple streams: {datasetStreamMap[dataset]} and {stream}")
+
+outputMaps.write("datasetStreamMap = {\n")
+for dataset in sorted(datasetStreamMap.keys()):
+    outputMaps.write(f"\t'{dataset}': '{datasetStreamMap[dataset]}',\n")
+outputMaps.write("}\n\n")
+
+
 
 outputMaps.write("streamMap = {\n")
 for path in streamMap:
