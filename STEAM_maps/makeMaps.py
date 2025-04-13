@@ -21,6 +21,8 @@ infile = open(infilename,'r')
 # Read header to infer number of columns
 header_line = infile.readline()
 header_fields = header_line.strip().split()
+#header_fields = header_line.strip().split()
+header_fields = header_line.strip().split('\t')
 nCol = len(header_fields)
 print("Inferred number of columns (nCol):", nCol)
 
