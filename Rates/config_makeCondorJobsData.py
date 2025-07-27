@@ -20,10 +20,10 @@ import sys
 #If you already have a list of input files with the proper format, you may not want to remake it
 #Type True if you want to remake them, False otherwise
 makeInputFilesList = True
+
 #Directory where your input root files are located
-#inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/dbeghin/NoCustom"
-#inputFilesDir = "/afs/cern.ch/work/j/jalimena/HLT_saveDisplacedPhotonPath/CMSSW_12_6_0_pre5/src/SteamRatesEdmWorkflow/Prod/PU60"
-inputFilesDir = "/eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STEAM/savarghe/Tutorial-24/Photon50"
+inputFilesDir = "/eos/home-k/kelmorab/STEAM/rates_2025D/new_run_394959"
+
 #Were your input files produced by STEAM? If yes, file_type = "custom"
 #Are these raw data files?
 #If yes, are you running specifically on L1Accept files? Then file_type = "L1Accept"
@@ -34,9 +34,10 @@ file_type = "custom"
 
 #Directory where the top of your CMSSW release is located
 #cmsswDir = "/afs/cern.ch/work/d/dbeghin/Work/Rates/2020NewPF/NoCustom/CMSSW_11_1_0_pre4/src"
-cmsswDir = "/afs/cern.ch/work/s/savarghe/private/Tutorial-24/CMSSW_13_3_0/src"
+cmsswDir = "/afs/cern.ch/work/k/kelmorab/STEAM/forRates/rates_2025D/CMSSW_15_0_10/src/"
+
 #Json file
-json_file = "/afs/cern.ch/work/s/savarghe/public/Run3Rates/json_385127.txt"
+json_file = "/afs/cern.ch/user/k/kelmorab/public/Run3Rates/json_394959.txt"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
