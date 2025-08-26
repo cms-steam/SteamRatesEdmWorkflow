@@ -13,7 +13,7 @@ import sys
 #Write the average instant lumi of the json you ran over
 #Units: 1e34 /cm^2/s
 #lumi_in = 2.106 #PU60
-lumi_in = 2.17 #PU71
+lumi_in = 2.20 #average PU = 63.9
 
 #Write the TARGET lumi for which you wish to calculate rates
 #Units: 1e34 /cm^2/s
