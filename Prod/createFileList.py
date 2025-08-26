@@ -1,17 +1,17 @@
 import os
 
 dataset_list = [
-"/EphemeralHLTPhysics0/Run2025D-v1/RAW",
-"/EphemeralHLTPhysics1/Run2025D-v1/RAW",
-"/EphemeralHLTPhysics2/Run2025D-v1/RAW",
-"/EphemeralHLTPhysics3/Run2025D-v1/RAW",
-"/EphemeralHLTPhysics4/Run2025D-v1/RAW",
-"/EphemeralHLTPhysics5/Run2025D-v1/RAW",
-"/EphemeralHLTPhysics6/Run2025D-v1/RAW",
-"/EphemeralHLTPhysics7/Run2025D-v1/RAW",
+"/EphemeralHLTPhysics0/Run2025E-v1/RAW",
+"/EphemeralHLTPhysics1/Run2025E-v1/RAW",
+"/EphemeralHLTPhysics2/Run2025E-v1/RAW",
+"/EphemeralHLTPhysics3/Run2025E-v1/RAW",
+"/EphemeralHLTPhysics4/Run2025E-v1/RAW",
+"/EphemeralHLTPhysics5/Run2025E-v1/RAW",
+"/EphemeralHLTPhysics6/Run2025E-v1/RAW",
+"/EphemeralHLTPhysics7/Run2025E-v1/RAW",
 ]
 
-run_list = ["394959",]
+run_list = ["396102",]
 
 output_file = "list_cff_Run3.py"
 
