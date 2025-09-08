@@ -210,7 +210,10 @@ condor_str += "output = $Fp(filename)hlt.stdout\n"
 condor_str += "error = $Fp(filename)hlt.stderr\n"
 condor_str += "log = $Fp(filename)hlt.log\n"
 condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
-condor_str += "queue filename matching ("+MYDIR+"/Jobs/*/Job_*/*.sh)"
+if "/eos/user/" in MYDIR or "/eos/home" in MYDIR:
+    condor_str += "queue filename matching (./Jobs/*/Job_*/*.sh)"
+else:
+    condor_str += "queue filename matching ("+MYDIR+"/Jobs/*/Job_*/*.sh)"
 condor_name = MYDIR+"/condor_cluster.sub"
 condor_file = open(condor_name, "w")
 condor_file.write(condor_str)
