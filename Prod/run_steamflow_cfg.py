@@ -20,6 +20,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( nEvents )
 )
 
+# Turn off excessive logging
+process.options.wantSummary = False
+
 def customizeForOfflineProcessing(process):
     # Set ReconnectEachRun and RefreshEachRun to False
     process.GlobalTag.ReconnectEachRun = cms.untracked.bool(False)
