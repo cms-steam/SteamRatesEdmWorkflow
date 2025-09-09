@@ -29,7 +29,7 @@ help_text += '\n<cfgFileName> (mandatory) = name of your configuration file (e.g
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<remoteDir> (mandatory) = directory where the files will be transfered (e.g. on EOS)'
 help_text += '\n<proxyPath> (optional) = location of your voms cms proxy. Note: keep your proxy in a private directory.'
-help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=5)'
+help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=1)'
 help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 
 
