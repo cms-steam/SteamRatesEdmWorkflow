@@ -145,7 +145,10 @@ condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
 # Adding the requirements line                                                                                                            
 #requirements = "(OpSysAndVer =?= \"CentOS7\")"
 #condor_str += f"requirements = {requirements}\n"
-condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
+if "/eos/user/" in MYDIR or "/eos/home" in MYDIR:
+    condor_str += "queue filename matching (./Jobs/Job_*/*.sh)"
+else:
+    condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
 condor_name = MYDIR+"/condor_cluster.sub"
 condor_file = open(condor_name, "w")
 condor_file.write(condor_str)
