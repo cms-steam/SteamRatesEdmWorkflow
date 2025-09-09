@@ -41,7 +41,7 @@ help_text += '\n<cfgFileName> (mandatory) = name of your configuration file (e.g
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<remoteDir> (mandatory) = directory where the files will be transfered (e.g. on EOS)'
 help_text += '\n<proxyPath> (optional) = location of your voms cms proxy. Note: keep your proxy in a private directory.'
-help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=5)'
+help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=1)'
 help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
 
 
@@ -123,6 +123,35 @@ else:
     #print "dataset: ", dataset
     print("(approximate) number of jobs to be created: ", nJobs)
         
+
+
+# create the run_cfg.py 
+
+mainJobDir = MYDIR+'/Jobs'
+os.system('mkdir -p %s'%mainJobDir)
+
+process.source.fileNames = cms.untracked.vstring("INPUTFILES")
+
+tmp_cfgFile = open(mainJobDir+'/run_cfg.py','w')
+tmp_cfgFile.write(process.dumpPython())
+tmp_cfgFile.close()
+
+tmp_cfgFile = open(mainJobDir+'/run_cfg.py','r')
+config_file_lines=list(tmp_cfgFile)
+tmp_cfgFile.close()
+tmp_cfgFile = open(mainJobDir+'/run_cfg.py','w')
+tmp_cfgFile.write("import argparse\n")
+tmp_cfgFile.write("argument_parser = argparse.ArgumentParser()\n")
+tmp_cfgFile.write("argument_parser.add_argument('-i', '--inputFiles', help='Input file name')\n")
+tmp_cfgFile.write("args = argument_parser.parse_args()\n")
+tmp_cfgFile.write("input_file_names = list(args.inputFiles.split(','))\n")
+for line in config_file_lines:
+    if "fileNames = cms.untracked.vstring('INPUTFILES')," in line:
+        line="    fileNames = cms.untracked.vstring(input_file_names),\n"
+    tmp_cfgFile.write(line)
+tmp_cfgFile.close()
+
+
     
 datasetList=[]
 if opts.proxyPath == "noproxy":
@@ -150,31 +179,6 @@ for dataset in datasetList:
     
         jobDir = MYDIR+"/"+datasetJobDir+'/Job_%s/'%str(i)
         os.system('mkdir -p %s'%jobDir)
-    
-        tmp_jobname="sub_%s.sh"%(str(i))
-        tmp_job=open(jobDir+tmp_jobname,'w')
-        tmp_job.write("#!/bin/sh\n")
-        if opts.proxyPath != "noproxy":
-            tmp_job.write("export X509_USER_PROXY=$1\n")
-            tmp_job.write("voms-proxy-info -all\n")
-            tmp_job.write("voms-proxy-info -all -file $1\n")
-        tmp_job.write("ulimit -v 5000000\n")
-        tmp_job.write("cd $TMPDIR\n")
-        tmp_job.write("mkdir Job_%s\n"%str(i))
-        tmp_job.write("cd Job_%s\n"%str(i))
-        tmp_job.write("cd %s\n"%(cmsEnv))
-        tmp_job.write("eval `scramv1 runtime -sh`\n")
-        tmp_job.write("cd -\n")
-        tmp_job.write("cp -f %s* .\n"%(jobDir))
-        tmp_job.write("cmsRun run_cfg.py\n")
-        tmp_job.write("echo 'sending the file back'\n")
-        tmp_job.write("cp hlt.root %s/hlt_%s.root\n"%(datasetRemoteDir, str(i)))
-        tmp_job.write("rm hlt.root\n")
-        tmp_job.close()
-        os.system("chmod +x %s"%(jobDir+tmp_jobname))
-    
-        print("preparing job number %s"%str(jobCount))
-        jobCount += 1
 
         kFileMin = last_kFileMax+i*opts.nPerJob
         kFileMax = last_kFileMax+(i+1)*opts.nPerJob
@@ -191,13 +195,34 @@ for dataset in datasetList:
             keepGoing=False
         if not keepGoing: last_kFileMax = kFileMax
               
-        process.source.fileNames = fullSource.fileNames[kFileMin:kFileMax]
-
-
-        tmp_cfgFile = open(jobDir+'/run_cfg.py','w')
-        tmp_cfgFile.write(process.dumpPython())
-        tmp_cfgFile.close()
+        file_names  = fullSource.fileNames[kFileMin:kFileMax]
+        file_names = ",".join(file_names)
     
+        tmp_jobname="sub_%s.sh"%(str(i))
+        tmp_job=open(jobDir+tmp_jobname,'w')
+        tmp_job.write("#!/bin/sh\n")
+        if opts.proxyPath != "noproxy":
+            tmp_job.write("export X509_USER_PROXY=$1\n")
+            tmp_job.write("voms-proxy-info -all\n")
+            tmp_job.write("voms-proxy-info -all -file $1\n")
+        tmp_job.write("ulimit -v 5000000\n")
+        tmp_job.write("cd $TMPDIR\n")
+        tmp_job.write("mkdir Job_%s\n"%str(i))
+        tmp_job.write("cd Job_%s\n"%str(i))
+        tmp_job.write("cd %s\n"%(cmsEnv))
+        tmp_job.write("eval `scramv1 runtime -sh`\n")
+        tmp_job.write("cd -\n")
+        tmp_job.write("cp -f %s* .\n"%(jobDir))
+        tmp_job.write("cp -f %s/run_cfg.py .\n"%(mainJobDir))
+        tmp_job.write("cmsRun run_cfg.py --inputFiles=%s \n"%(file_names))
+        tmp_job.write("echo 'sending the file back'\n")
+        tmp_job.write("cp hlt.root %s/hlt_%s.root\n"%(datasetRemoteDir, str(i)))
+        tmp_job.write("rm hlt.root\n")
+        tmp_job.close()
+        os.system("chmod +x %s"%(jobDir+tmp_jobname))
+    
+        print("preparing job number %s"%str(jobCount))
+        jobCount += 1
 
 
 condor_str = "executable = $(filename)\n"
