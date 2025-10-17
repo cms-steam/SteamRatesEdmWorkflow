@@ -37,7 +37,7 @@ file_type = "custom"
 cmsswDir = "/afs/cern.ch/work/k/kelmorab/STEAM/forRates/rates_2025D/CMSSW_15_0_10/src/"
 
 #Json file
-json_file = "/afs/cern.ch/user/k/kelmorab/public/Run3Rates/json_394959.txt"
+json_file = "./Json/json_398183.txt"
 
 #Do you wish to use the dataset/group/etc. maps? The maps are unnecessary if you're an HLT developer and you're just testing your new path rate.
 #If you don't want to use any maps, set the variable below to "nomaps"
