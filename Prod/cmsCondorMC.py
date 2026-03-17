@@ -32,6 +32,7 @@ parser=OptionParser()
 parser.add_option("-n",dest="nPerJob",type="int",default=1,help="NUMBER of files processed per job",metavar="NUMBER")
 parser.add_option("-q","--flavour",dest="jobFlavour",type="str",default="workday",help="job FLAVOUR",metavar="FLAVOUR")
 parser.add_option("-p","--proxy",dest="proxyPath",type="str",default="noproxy",help="Proxy path")
+parser.add_option("-s","--suffix",dest="jobsDirSuffix",type="str",default="",help="Suffix of the Jobs directory")
 
 opts, args = parser.parse_args()
 
@@ -42,7 +43,8 @@ help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW rele
 help_text += '\n<remoteDir> (mandatory) = directory where the files will be transfered (e.g. on EOS)'
 help_text += '\n<proxyPath> (optional) = location of your voms cms proxy. Note: keep your proxy in a private directory.'
 help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=1)'
-help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
+help_text += '\n<flavour> (optional) = job flavour (default=workday)'
+help_text += '\n<suffix> (optional) = job directory suffix (default=\"\")\n'
 
 
 cfgFileName = str(args[0])
@@ -55,10 +57,18 @@ print('proxy = %s'%opts.proxyPath)
 print('remote directory = %s'%remoteDir)
 print('job flavour = %s'%opts.jobFlavour)
 
+jobsDirSuffix = ""
+if opts.jobsDirSuffix:
+		jobsDirSuffix = f"_{opts.jobsDirSuffix}"
+		print (f'Jobs directory suffix = {jobsDirSuffix}')
+
 #make directories for the jobs
+
+jobsDir = 'Jobs'+jobsDirSuffix
+
 try:
-    os.system('rm -rf Jobs')
-    os.system('mkdir Jobs')
+    os.system(f'rm -rf {jobsDir}')
+    os.system(f'mkdir {jobsDir}')
 except:
     print("err!")
     pass
@@ -127,7 +137,7 @@ else:
 
 # create the run_cfg.py 
 
-mainJobDir = MYDIR+'/Jobs'
+mainJobDir = MYDIR+'/'+jobsDir
 os.system('mkdir -p %s'%mainJobDir)
 
 process.source.fileNames = cms.untracked.vstring("INPUTFILES")
@@ -165,7 +175,7 @@ for dataset in datasetList:
     newdataset = str(dataset).replace("b'","")
     datasetName=newdataset.lstrip("/")
     datasetName=datasetName.replace("/","_")
-    datasetJobDir='Jobs/'+datasetName
+    datasetJobDir=jobsDir'/'+datasetName
     datasetRemoteDir=remoteDir+'/'+datasetName
     os.system('mkdir '+datasetJobDir)
     os.system('mkdir '+datasetRemoteDir)
@@ -236,9 +246,9 @@ condor_str += "error = $Fp(filename)hlt.stderr\n"
 condor_str += "log = $Fp(filename)hlt.log\n"
 condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
 if "/eos/user/" in MYDIR or "/eos/home" in MYDIR:
-    condor_str += "queue filename matching (./Jobs/*/Job_*/*.sh)"
+    condor_str += f"queue filename matching (./{jobsDir}/*/Job_*/*.sh)"
 else:
-    condor_str += "queue filename matching ("+MYDIR+"/Jobs/*/Job_*/*.sh)"
+    condor_str += "queue filename matching ("+MYDIR+f"/{jobsDir}/*/Job_*/*.sh)"
 condor_name = MYDIR+"/condor_cluster.sub"
 condor_file = open(condor_name, "w")
 condor_file.write(condor_str)
