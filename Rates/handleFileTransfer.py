@@ -7,10 +7,19 @@ parser=OptionParser()
 parser.add_option("-d","--directory",dest="dir",type="str",default="nodir",help="working DIRECTORY",metavar="DIRECTORY")
 parser.add_option("-m","--dataset",dest="MCdataset",type="str",default="Data",help="MCdataset string")
 parser.add_option("-s","--finalstring",dest="fstr",type="str",default="nostr",help="final STRING",metavar="STRING")
+parser.add_option("-S","--dirSuffix",dest="dirSuffix",type="str",default="",help="Suffix of the Results directory")
 
 (opts, args) = parser.parse_args()
 
-os.system("mkdir %s/Results"%opts.dir)
+head_dir = opts.dir
+
+dirSuffix = ""
+if opts.dirSuffix
+		dirSuffix = f"_{opts.dirSuffix}"
+
+results_dir = "Results" + dirSuffix
+
+os.system(f"mkdir {head_dir}/{results_dir}")
 MCorData="MC"
 MCorData2="MC/"+opts.MCdataset
 inDir="Jobs/"+opts.MCdataset
@@ -18,16 +27,16 @@ if opts.MCdataset == "Data":
     MCorData = "Data"
     MCorData2 = "Data"
     inDir = "Jobs"
-os.system("mkdir %s/Results/%s"%(opts.dir, MCorData))
+os.system(f"mkdir {head_dir}/{results_dir}/{MCorData}")
 if opts.MCdataset != "Data":
-    os.system("mkdir %s/Results/%s"%(opts.dir, MCorData2))
-rawDir="%s/Results/%s/Raw"%(opts.dir, MCorData2)
-os.system("mkdir %s"%rawDir)
-    
+    os.system(f"mkdir {head_dir}/{results_dir}/{MCorData2}")
+rawDir=f"{head_dir}/{results_dir}/{MCorData2}/Raw"
+os.system(f"mkdir {rawDir}")
+
 for name in mergeNames:
-    os.system("mkdir %s/%s"%(rawDir, mergeNames[name]))
-os.system("mkdir %s/Root"%rawDir)
-os.system("mkdir %s/Global"%rawDir)
+    os.system(f"mkdir {rawDir}/{mergeNames[name]}")
+os.system(f"mkdir {rawDir}/Root")
+os.system(f"mkdir {rawDir}/Global")
 
 
 for filename in list(mergeNames.keys()):
