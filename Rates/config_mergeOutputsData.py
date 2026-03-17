@@ -12,18 +12,21 @@ import sys
 '''
 #Write the average instant lumi of the json you ran over
 #Units: 1e34 /cm^2/s
-lumi_in = 2.18 #average PU = 63.2
+#lumi_in = 2.18 #average PU = 63.2
+lumi_in = 1.05 # for Run 401844 with 1200 bunches and PU = 64.8
 # lumi_in = 0.24 #average PU = 7
 
 #Write the TARGET lumi for which you wish to calculate rates
 #Units: 1e34 /cm^2/s
-lumi_target = 2.1
+#lumi_target = 2.1
+lumi_target = 1.05 # for Run 401844 with 1200 bunches and PU = 64.8
 # lumi_target = 0.24 #average PU = 7
 
 #Write the HLT prescale used in the json you ran over
-hlt_ps = 1760 # Run 398183 EphemeralHLTPhysics 
+#hlt_ps = 1760 # Run 398183 EphemeralHLTPhysics 
 # hlt_ps = 213848  # Run 398183 EphemeralZeroBias (26731*8)
 # hlt_ps = 16518  # Run 398683 SpecialZeroBias (2753*6)
+hlt_ps = 480 # for Run 401844 with 1200 bunches and PU = 64.8
 
 #Maps option should be the same one you use to make the batch jobs
 maps = "nomaps"
