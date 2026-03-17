@@ -23,10 +23,11 @@ lumi_target = 1.05 # for Run 401844 with 1200 bunches and PU = 64.8
 # lumi_target = 0.24 #average PU = 7
 
 #Write the HLT prescale used in the json you ran over
-#hlt_ps = 1760 # Run 398183 EphemeralHLTPhysics 
+# hlt_ps = 1760 # Run 398183 EphemeralHLTPhysics (220*8)
 # hlt_ps = 213848  # Run 398183 EphemeralZeroBias (26731*8)
 # hlt_ps = 16518  # Run 398683 SpecialZeroBias (2753*6)
-hlt_ps = 480 # for Run 401844 with 1200 bunches and PU = 64.8
+# hlt_ps = 160386 # Skims labeled 2025G (6*26731)
+hlt_ps = 480 # for Run 401844 with 1200 bunches and PU = 64.8 (60*8)
 
 #Maps option should be the same one you use to make the batch jobs
 maps = "nomaps"
