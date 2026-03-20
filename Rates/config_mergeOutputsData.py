@@ -12,21 +12,31 @@ import sys
 '''
 #Write the average instant lumi of the json you ran over
 #Units: 1e34 /cm^2/s
-#lumi_in = 2.18 #average PU = 63.2
-lumi_in = 1.05 # for Run 401844 with 1200 bunches and PU = 64.8
-# lumi_in = 0.24 #average PU = 7
+# lumi_in = 2.19 #average PU = 63.7
+#lumi_in = 1.05 # for Run 401844 with 1200 bunches and PU = 64.8
+# lumi_in = 0.24 #Run 398683 SpecialZeroBias PU=7 
+# lumi_in = 0.058 # for Run 401868 with PU=5
+# lumi_in = 0.011 # for Run 401871 with PU=1
+lumi_in = 2.2 # Run 402069
 
 #Write the TARGET lumi for which you wish to calculate rates
 #Units: 1e34 /cm^2/s
-#lumi_target = 2.1
-lumi_target = 1.05 # for Run 401844 with 1200 bunches and PU = 64.8
-# lumi_target = 0.24 #average PU = 7
+lumi_target = 2.2 
+#lumi_target = 1.05 # for Run 401844 with 1200 bunches and PU = 64.8
+# lumi_target = 0.24 #Run 398683 SpecialZeroBias PU=7
+# lumi_target = 0.058 # for Run 401868 with PU=5
+# lumi_target = 0.011 # for Run 401871 with PU=1
+
 
 #Write the HLT prescale used in the json you ran over
-#hlt_ps = 1760 # Run 398183 EphemeralHLTPhysics 
+# hlt_ps = 1760 # Run 398183 EphemeralHLTPhysics (220*8)
 # hlt_ps = 213848  # Run 398183 EphemeralZeroBias (26731*8)
-# hlt_ps = 16518  # Run 398683 SpecialZeroBias (2753*6)
-hlt_ps = 480 # for Run 401844 with 1200 bunches and PU = 64.8
+# hlt_ps = 16518  # Run 398683 SpecialZeroBias PU=7 (2753*6)
+#hlt_ps = 160386 # Skims labeled 2025G (6*26731)
+#hlt_ps = 103832 # for Run 401844 ZeroBias skim with 1200 bunches and PU = 64.8 (60*8)
+# hlt_ps = 8312 # for Run 401868 with PU=5
+# hlt_ps = 3328 #  for Run 401871 with PU=1 ( 104 * 1 * 32)
+hlt_ps = 165174  # Run 402069 (2448b PU=64) (27529*6)
 
 #Maps option should be the same one you use to make the batch jobs
 maps = "nomaps"
