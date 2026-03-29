@@ -17,19 +17,21 @@ parser.add_option("-f","--filetype",dest="fileType",type="str",default="custom",
 parser.add_option("-n",dest="nPerJob",type="int",default=5,help="NUMBER of files processed per job",metavar="NUMBER")
 parser.add_option("-q","--flavour",dest="jobFlavour",type="str",default="workday",help="job FLAVOUR",metavar="FLAVOUR")
 parser.add_option("-m","--maps",dest="maps",type="str",default="nomaps",help="ARG='nomaps' (default option, don't use maps to get dataste/groups/etc. rates), 'somemaps' (get dataset/groups/etc. rates but with no study of dataset merging), 'allmaps' (get dataset/groups/etc. rates and also study dataset merging)",metavar="ARG")
+parser.add_option("-s","--suffix",dest="dirSuffix",type="str",default="",help="Suffix of the Jobs and Results directories")
 
 opts, args = parser.parse_args()
 
 
 error_text = '\n\nError: wrong <json>=%s or <CMSSWrel>=%s inputs\n' %(opts.jsonFile, opts.cmsEnv)
-help_text = '\npython3 batchScriptForRates.py -j <json> -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
+help_text  = '\npython3 condorScriptForRatesData.py -j <json> -e <CMSSWrel> -i <infilesDir> -f <filetype> -n <nPerJob> -q <jobFlavour> -m <merging>'
 help_text += '\n<json> (mandatory argument) = text file with the LS range in json format'
 help_text += '\n<CMSSWrel> (mandatory) = directory where the top of a CMSSW release is located'
 help_text += '\n<infilesDir> (optional) = directory where the input root files are located (default = will take whatever is in the filesInput.py file)'
 help_text += '\n<filetype> (optional) = "custom" (default option) or "RAW"'
 help_text += '\n<nPerJob> (optional) = number of files processed per batch job (default=5)'
-help_text += '\n<flavour> (optional) = job flavour (default=workday)\n'
-help_text += '\n<maps> (optional) = "nomaps" (default option) or "somemaps" or "allmaps""\n'
+help_text += '\n<flavour> (optional) = job flavour (default=workday)'
+help_text += '\n<maps> (optional) = "nomaps" (default option) or "somemaps" or "allmaps"'
+help_text += '\n<suffix> (optional) = suffix for the Jobs and Results directories (default=\"\")\n'
 
 if opts.jsonFile == "nojson" or opts.cmsEnv == "noenv":
     print(error_text)
@@ -41,20 +43,27 @@ print('CMSSWrel = %s'%opts.cmsEnv)
 print('file type = %s'%opts.fileType)
 print('job flavour = %s'%opts.jobFlavour)
 
+dirSuffix = ""
+if opts.dirSuffix
+		dirSuffix = f"_{opts.dirSuffix}"
+		print (f'Jobs and Results directories suffix = _{dirSuffix}')
+
+jobsDir = 'Jobs' + dirSuffix
 
 #make directories for the jobs
 try:
-    os.system('rm -rf Jobs')
-    os.system('mkdir Jobs')
-    os.system('mkdir Jobs/sub_raw')
+    os.system(f'rm -rf {jobsDir}')
+    os.system(f'mkdir {jobsDir}')
+    os.system(f'mkdir {jobsDir}/sub_raw')
 except:
     print("err!")
     pass
 
+resultsDir = "Results" + dirSuffix
 
 sub_total = open("sub_total.jobb","w")
-sub_total.write("rm Results/Data/Raw/*/*.csv\n")
-sub_total.write("rm Results/Data/Raw/*/*.root\n")
+sub_total.write(f"rm {resultsDir}/Data/Raw/*/*.csv\n")
+sub_total.write(f"rm {resultsDir}/Data/Raw/*/*.root\n")
 
 
 if opts.inputFilesDir != "no":
@@ -80,15 +89,15 @@ for infile in fileInputNames:
     #print 'total: %d/%d  ;  %.1f %% processed '%(j,my_sum,(100*float(j)/float(my_sum)))
 
     tmp_jobname="sub_%s.sh"%(str(i))
-    tmp_job=open(MYDIR+'/Jobs/sub_raw/'+tmp_jobname,'w')
+    tmp_job=open(MYDIR+f'/{jobsDir}/sub_raw/'+tmp_jobname,'w')
     tmp_job.write("cd %s\n"%(MYDIR))
     tmp_job.write("cd %s\n"%(opts.cmsEnv))
     tmp_job.write("eval `scramv1 runtime -sh`\n")
     tmp_job.write("cd -\n")
     tmp_job.write("python3 triggerCountsFromTriggerResults.py -i %s -j %s -s %s -f %s -m %s\n"%(infile, opts.jsonFile, str(i), opts.fileType, opts.maps))
-    tmp_job.write("\npython3 handleFileTransfer.py -d %s -s %s"%(MYDIR, str(i)))
+    tmp_job.write(f"\npython3 handleFileTransfer.py -d {MYDIR} -s {i} -S {dirSuffix}")
     tmp_job.close()
-    tmp_job_dir = MYDIR+'/Jobs/sub_raw/'+tmp_jobname
+    tmp_job_dir = MYDIR+f'/{jobsDir}/sub_raw/'+tmp_jobname
     os.system("chmod +x %s"%(tmp_job_dir))
 
 
@@ -97,7 +106,7 @@ for infile in fileInputNames:
     if k==loop_mark or i==len(fileInputNames)-1:
         k=0
         Tjobsname = "sub_%s.sh"%i
-        Tjob_dir = '%s/Jobs/Job_%s/'%(MYDIR, str(i))
+        Tjob_dir = f'%s/{jobsDir}/Job_%s/'%(MYDIR, str(i))
         os.system("mkdir %s"%Tjob_dir)
         Tjob = open(Tjob_dir+Tjobsname,"w")
         Tjob.write("%s"%(tmp_text))
@@ -116,9 +125,9 @@ condor_str += '+JobFlavour = "%s"\n'%opts.jobFlavour
 #requirements = "(OpSysAndVer =?= \"CentOS7\")"
 #condor_str += f"requirements = {requirements}\n"
 if "/eos/user/" in MYDIR or "/eos/home" in MYDIR:
-    condor_str += "queue filename matching (./Jobs/Job_*/*.sh)"
+    condor_str += f"queue filename matching (./{jobsDir}/Job_*/*.sh)"
 else:
-    condor_str += "queue filename matching ("+MYDIR+"/Jobs/Job_*/*.sh)"
+    condor_str += f"queue filename matching ("+MYDIR+"/{jobsDir}/Job_*/*.sh)"
 condor_name = MYDIR+"/condor_cluster.sub"
 condor_file = open(condor_name, "w")
 condor_file.write(condor_str)
