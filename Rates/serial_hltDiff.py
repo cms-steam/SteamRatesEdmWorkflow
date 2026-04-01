@@ -101,7 +101,7 @@ def getHltDiff_CsvStyle(old_dir, new_dir, files_to_process):
                         result_dict[trigger_name]['Accepted NEW']+=int(row[2])
                         result_dict[trigger_name]['Gained']+=int(row[3])
                         result_dict[trigger_name]['Lost']+=int(row[4])
-        if ifile>=0: break
+    #    if ifile>=0: break
     return fields, result_dict
 
 
