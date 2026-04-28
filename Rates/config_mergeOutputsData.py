@@ -17,7 +17,8 @@ import sys
 # lumi_in = 0.24 #Run 398683 SpecialZeroBias PU=7 
 #lumi_in = 0.058 # for Run 401868 with PU=5
 # lumi_in = 0.011 # for Run 401871 with PU=1
-lumi_in = 2.19 # for Run 302360 with PU=63.9
+#lumi_in = 2.19 # for Run 302360 with PU=63.9
+lumi_in = 0.172 # for Run 403182 with PU=5
 
 #Write the TARGET lumi for which you wish to calculate rates
 #Units: 1e34 /cm^2/s
@@ -26,7 +27,8 @@ lumi_in = 2.19 # for Run 302360 with PU=63.9
 # lumi_target = 0.24 #Run 398683 SpecialZeroBias PU=7
 # lumi_target = 0.058 # for Run 401868 with PU=5
 # lumi_target = 0.011 # for Run 401871 with PU=1
-lumi_target = 2.19 # for Run 302360 with PU=63.9
+# lumi_target = 2.19 # for Run 302360 with PU=63.9
+lumi_target = 0.172 # for Run 403182 with PU=5
 
 #Write the HLT prescale used in the json you ran over
 # hlt_ps = 1760 # Run 398183 EphemeralHLTPhysics (220*8)
@@ -36,7 +38,8 @@ lumi_target = 2.19 # for Run 302360 with PU=63.9
 #hlt_ps = 480 # for Run 401844 with 1200 bunches and PU = 64.8 (60*8)
 #hlt_ps = 8312 # for Run 401868 with PU=5
 # hlt_ps = 3328 # for Run 401871 with PU=1 ( 104 * 1 * 32)
-hlt_ps = 480 # for EphemeralHLTPhysics of Run 302360 with PU=63.9  (1 * 60 * 8)
+# hlt_ps = 480 # for EphemeralHLTPhysics of Run 302360 with PU=63.9  (1 * 60 * 8)
+hlt_ps = 50 # for HLTPhysics of Run 403182 with PU=5  (1 * 50 * 1)
 
 #Maps option should be the same one you use to make the batch jobs
 maps = "nomaps"
