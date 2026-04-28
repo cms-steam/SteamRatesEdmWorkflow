@@ -39,7 +39,7 @@ lumi_target = 0.172 # for Run 403182 with PU=5
 #hlt_ps = 8312 # for Run 401868 with PU=5
 # hlt_ps = 3328 # for Run 401871 with PU=1 ( 104 * 1 * 32)
 # hlt_ps = 480 # for EphemeralHLTPhysics of Run 302360 with PU=63.9  (1 * 60 * 8)
-hlt_ps = 50 # for HLTPhysics of Run 403182 with PU=5  (1 * 50 * 1)
+hlt_ps = 5350 # for HLTPhysics of Run 403182 with PU=5  (1 * 50 * 107) # the 107 is the hidden additional PS for HLTPhysics
 
 #Maps option should be the same one you use to make the batch jobs
 maps = "nomaps"
