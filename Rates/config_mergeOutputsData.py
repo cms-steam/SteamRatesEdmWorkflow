@@ -18,7 +18,8 @@ import sys
 #lumi_in = 0.058 # for Run 401868 with PU=5
 # lumi_in = 0.011 # for Run 401871 with PU=1
 #lumi_in = 2.19 # for Run 302360 with PU=63.9
-lumi_in = 0.172 # for Run 403182 with PU=5
+# lumi_in = 0.172 # for Run 403182 with PU=5
+lumi_in = 2.2 # for Run 403663 with PU=63.9
 
 #Write the TARGET lumi for which you wish to calculate rates
 #Units: 1e34 /cm^2/s
@@ -28,7 +29,8 @@ lumi_in = 0.172 # for Run 403182 with PU=5
 # lumi_target = 0.058 # for Run 401868 with PU=5
 # lumi_target = 0.011 # for Run 401871 with PU=1
 # lumi_target = 2.19 # for Run 302360 with PU=63.9
-lumi_target = 0.172 # for Run 403182 with PU=5
+#lumi_target = 0.172 # for Run 403182 with PU=5
+lumi_target = 2.2 # for Run 403663 with PU=63.9
 
 #Write the HLT prescale used in the json you ran over
 # hlt_ps = 1760 # Run 398183 EphemeralHLTPhysics (220*8)
@@ -39,7 +41,9 @@ lumi_target = 0.172 # for Run 403182 with PU=5
 #hlt_ps = 8312 # for Run 401868 with PU=5
 # hlt_ps = 3328 # for Run 401871 with PU=1 ( 104 * 1 * 32)
 # hlt_ps = 480 # for EphemeralHLTPhysics of Run 302360 with PU=63.9  (1 * 60 * 8)
-hlt_ps = 5350 # for HLTPhysics of Run 403182 with PU=5  (1 * 50 * 107) # the 107 is the hidden additional PS for HLTPhysics
+# hlt_ps = 5350 # for HLTPhysics of Run 403182 with PU=5  (1 * 50 * 107) # the 107 is the hidden additional PS for HLTPhysics
+hlt_ps = 1760  # for EphemeralHLTPhysics of Run 403663 with PU=63.9  (1 * 220 * 8)
+
 
 #Maps option should be the same one you use to make the batch jobs
 maps = "nomaps"
