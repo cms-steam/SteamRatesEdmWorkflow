@@ -54,6 +54,11 @@ n = 1
 #Job flavour
 #flavour = "microcentury"
 flavour = "espresso"
+
+# Jobs and Rates directories suffix
+# Change this if you want to run multiple rates tests in parallel with different settings
+dirSuffix = ""
+
 '''
 --------------------------OPTIONS TO BE FILLED OUT-----------------------------------------
 '''
@@ -68,6 +73,9 @@ else:
 
 if isUnusual:
     command += " -n %s -q %s" %(n, flavour)
+
+if dirSuffix:
+		command += f" -s _{dirSuffix}"
 
 command += " -m %s" %maps
 os.system(command)
