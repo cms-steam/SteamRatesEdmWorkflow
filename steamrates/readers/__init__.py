@@ -23,15 +23,17 @@ def detect_format(path):
     raise ValueError(f"{path}: cannot determine the ntuple format")
 
 
-def make_reader(fmt, process=None, weight_branch=None, bits_include=DEFAULT_BITS_INCLUDE,
+def make_reader(fmt, process=None, l1_process=None, weight_branch=None, bits_include=DEFAULT_BITS_INCLUDE,
                 bits_exclude=DEFAULT_BITS_EXCLUDE, chunk_size=200_000):
     if fmt == "edm":
         if weight_branch:
             raise ValueError("EDM TriggerResults ntuples have no weight branch")
+        if l1_process:
+            raise ValueError("EDM TriggerResults ntuples have no L1 bits")
         return EdmReader(process=process, chunk_size=chunk_size)
     if fmt == "nano":
-        return NanoReader(bits_include=bits_include, bits_exclude=bits_exclude,
-                          weight_branch=weight_branch, process=process, chunk_size=chunk_size)
+        return NanoReader(bits_include=bits_include, bits_exclude=bits_exclude, weight_branch=weight_branch,
+                          process=process, l1_process=l1_process, chunk_size=chunk_size)
     raise ValueError(f"unknown format {fmt!r}; choose from {FORMATS}")
 
 

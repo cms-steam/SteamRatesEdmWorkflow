@@ -130,8 +130,9 @@ def build_parser():
     p.add_argument("-o", "--output", required=True, help="output partial-result ROOT file")
     p.add_argument("--format", choices=("auto",) + FORMATS, default="auto",
                    help="ntuple format (default: detect from the first file)")
-    p.add_argument("--process", help="process name of the trigger results (EDM: e.g. MYHLT or HLT; "
-                                     "default: the only one present)")
+    p.add_argument("--process", help="process of the HLT results (EDM: e.g. MYHLT; NanoAOD: process of the "
+                                     "HLT-path bits, e.g. HLT2 in re-HLT ntuples; default: the only one present)")
+    p.add_argument("--l1-process", help="NanoAOD: process of the L1 bits (default: the only one present)")
     p.add_argument("--sample", default="default",
                    help="label of the sample (lumi sections are counted per sample at merge time)")
     p.add_argument("--lumi-json", help="certified-lumi JSON; events outside it are skipped (data only)")
@@ -156,7 +157,7 @@ def main(argv=None):
     inputs = collect_inputs(args.inputs, args.input_list)
     fmt = detect_format(inputs[0]) if args.format == "auto" else args.format
     mask = LumiMask.from_file(args.lumi_json) if args.lumi_json else None
-    reader = make_reader(fmt, process=args.process, weight_branch=args.weight_branch,
+    reader = make_reader(fmt, process=args.process, l1_process=args.l1_process, weight_branch=args.weight_branch,
                          bits_include=args.bits_include, bits_exclude=args.bits_exclude,
                          chunk_size=args.chunk_size)
 
@@ -223,6 +224,8 @@ def main(argv=None):
         "sample": args.sample,
         "format": fmt,
         "process": menu.process if menu else args.process,
+        # NanoAOD: process the HLT-path bits and the L1 bits were taken from (see readers/nano.py)
+        "bit_processes": getattr(reader, "selected_processes", None),
         "menu": menu.to_dict() if menu else None,
         "lumi_mask": mask.to_dict() if mask else None,
         "weight_branch": args.weight_branch,

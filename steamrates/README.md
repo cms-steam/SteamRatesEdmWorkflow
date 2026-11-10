@@ -40,11 +40,22 @@ python3 -m steamrates.summary partial_*.root --pure-reference '^HLT_' --top 30 -
 
 `python3 -m steamrates.count --help` lists all options:
 - `--format edm|nano` (auto-detected by default);
-- `--process` (EDM, e.g. `MYHLT`, if a file holds several TriggerResults);
-- `--bits-include` / `--bits-exclude` (NanoAOD branch selection);
+- `--process`: the process of the HLT results. Needed when a file has HLT results of several
+  processes: EDM files with several TriggerResults (e.g. `MYHLT`), or re-HLT NanoAOD with
+  `HLT` and `HLT2` bits;
+- `--l1-process` (NanoAOD, for files with L1 bits of several processes);
+- `--bits-include` / `--bits-exclude` (NanoAOD branch selection; by default `Flag_*` and the
+  always-true cmsDriver step paths such as `L1simulation_step` are excluded);
 - `--chunk-size`;
 - `--max-events`;
 - `--allow-duplicate-events`.
+
+NanoAOD files hold the trigger bits of **every process** that ran paths, and the branch title names
+the process (`Trigger/flag bit (process: HLT2)`). When two processes have a path of the same name,
+one of the branches gets a `_p<process>` suffix. The reader takes the HLT-path bits of one process
+and the L1 bits of one process (in Run-3 PromptReco: `HLT` and `RECO`) and removes the suffix. If
+there is a choice to make and no option is given, it stops with a list of the processes. The chosen
+processes are stored in the partial's metadata (`bit_processes`).
 
 Safety features:
 - **Duplicate input files are refused**, also when the same file appears under two names (for
@@ -106,3 +117,9 @@ was spread over.
   sections; `HLT_IsoMu24` has 2138 counts. These match the earlier independent check.
 - **VBF H→μμ NANOAODSIM with `genWeight`:** the summed weights equal `genEventSumw`, and the
   per-path weighted sums match a direct numpy calculation.
+- **Phase-2 TTbar re-HLT ntuples** (first version of the common format, 2026-11-10; 90 files,
+  9000 events, HLT bits of the processes `HLT` and `HLT2`): with `--process HLT2` and with
+  `--process HLT`, the total and pure counts of all bits (34 and 31) match a direct numpy
+  calculation. After the change to multi-process selection, Run 403663 NanoAOD and 402360 EDM give
+  the same counts as before. The only difference is that the always-true `L1Reco_step` is no longer
+  in the table.
