@@ -1,0 +1,108 @@
+# steamrates: counting step
+
+New implementation of the counting step (step 2) of the STEAM rate workflow. It lives next to the
+legacy scripts in `Rates/` until it has replaced them.
+
+Status (2026-11-09): **counting** is implemented and validated. Merging into rates (normalization,
+datasets/streams/groups, JSON output for the website), plotting and job submission come next.
+
+## Idea
+
+A counting job doesn't compute rates. For every event it reads the trigger bits (HLT paths and, if
+the ntuple has them, L1 seeds) and stores each **distinct combination of fired bits** once, with the
+number of events (MC: sum of weights and sum of squared weights). All rate-like numbers are sums
+over these rows and are computed at merge time:
+- path, dataset, stream and group rates;
+- pure rates;
+- overlaps;
+- prescaled rates.
+
+Changing a map or a prescale therefore never requires re-reading the ntuples. The docstring of
+`patterns.py` has a worked example.
+
+## Usage
+
+Run from the repository root inside a CMSSW environment (`cmsenv`). Only uproot, awkward and
+numpy are needed; PyROOT/FWLite are not used.
+
+```bash
+# STEAM step-1 ntuples (EDM files with TriggerResults of the re-run HLT)
+python3 -m steamrates.count --lumi-json Rates/Json/json_<run>.txt --sample EphemeralHLTPhysics \
+    --input-list files_0.txt -o partial_0.root
+
+# NanoAOD data / MC (MC: per-event weights from genWeight)
+python3 -m steamrates.count --lumi-json golden.json --sample HLTPhysics -o p.root /eos/cms/store/.../*.root
+python3 -m steamrates.count --weight-branch genWeight --sample VBFHToMuMu -o vbf.root --input-list vbf.txt
+
+# Look at / add up partial results (raw counts; no normalization yet)
+python3 -m steamrates.summary partial_*.root --pure-reference '^HLT_' --top 30 --csv counts.csv
+```
+
+`python3 -m steamrates.count --help` lists all options:
+- `--format edm|nano` (auto-detected by default);
+- `--process` (EDM, e.g. `MYHLT`, if a file holds several TriggerResults);
+- `--bits-include` / `--bits-exclude` (NanoAOD branch selection);
+- `--chunk-size`;
+- `--max-events`;
+- `--allow-duplicate-events`.
+
+Safety features:
+- **Duplicate input files are refused**, also when the same file appears under two names (for
+  example `/eos/cms/store/...` and `root://.../store/...`).
+- **Repeated events are an error by default.** A repeated (run, lumi, event) usually means
+  overlapping inputs.
+- **The output is written atomically.** It goes to a temporary file next to `-o` and is then
+  renamed, and nothing else is written. Jobs of different measurements can run in parallel in the
+  same directory.
+
+## Package layout
+
+| module | content |
+|---|---|
+| `count.py` | command line: input files → one partial result |
+| `summary.py` | command line: inspect / add up partial results |
+| `readers/edm.py` | `edm::TriggerResults` + event IDs decoded from raw bytes (byte layouts documented in the module) |
+| `readers/nano.py` | NanoAOD flat `HLT_*`/`L1_*`/... bool branches, `genWeight`, LuminosityBlocks/Runs trees |
+| `readers/base.py` | reader interface (`EventChunk`, `FileInfo`) |
+| `rootbytes.py` | helpers to decode ROOT-serialized bytes |
+| `menu.py` | HLT menu from the file's `ParameterSets` tree: path names, datasets, streams, prescales |
+| `lumimask.py` | vectorized lumi-JSON selection |
+| `patterns.py` | `PatternTable`: the combination table (build, add, remap menus, CSR form, per-bit totals, pure counts) |
+| `partial.py` | partial-result file format (read/write) and `merge_partials` |
+
+## Partial-result file
+
+The file is written by uproot with zstd compression. It contains three objects.
+
+**`metadata`**: a TObjString holding a JSON document with:
+- the bit names;
+- the sample label;
+- the menu (name, datasets, streams, prescale table);
+- the lumi mask;
+- the inputs, with event counts per file;
+- totals and MC sums (`genEventSumw`, ...);
+- the command line, host, version and runtime.
+
+**`patterns`**: a TTree with one entry per distinct combination, with branches:
+- `fired`: the indices of the fired bits;
+- `count`, `sumw`, `sumw2`.
+
+**`lumis`**: a TTree with one entry per (run, lumi section), with branches:
+- `n_events`: the number of selected events;
+- `in_file`: whether the lumi section is listed in the input's LuminosityBlocks tree.
+
+Lumi sections are counted per `--sample` at merge time, each (run, lumi) once, however many jobs it
+was spread over.
+
+## Validation (2026-11-09)
+
+- **EDM reader vs FWLite, event by event:** accept bits, path names and run/lumi/event agree. Checked
+  on GRunV51/V59/V62 and two HI menus (1001 and 394 paths).
+- **Run 402360, GRunV59, all 1136 files:** compared with the legacy `nomaps` outputs in
+  `Rates/402360_HLTV1p2`. Events (5,721,135) and the total and pure counts of all 999 paths are
+  identical. Lumi sections: 142 unique (the legacy N_LS = 1136 = 8 EphemeralHLTPhysics datasets
+  × 142). Runtime: 63 s with 8 parallel jobs.
+- **Run 403663 HLTPhysics NanoAOD, lumi sections 400–1700:** 556,746 events and 1301 lumi
+  sections; `HLT_IsoMu24` has 2138 counts. These match the earlier independent check.
+- **VBF H→μμ NANOAODSIM with `genWeight`:** the summed weights equal `genEventSumw`, and the
+  per-path weighted sums match a direct numpy calculation.
