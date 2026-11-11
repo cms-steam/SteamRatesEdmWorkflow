@@ -3,8 +3,31 @@
 New implementation of the counting step (step 2) of the STEAM rate workflow. It lives next to the
 legacy scripts in `Rates/` until it has replaced them.
 
-Status (2026-11-09): **counting** is implemented and validated. Merging into rates (normalization,
-datasets/streams/groups, JSON output for the website), plotting and job submission come next.
+Status (2026-11-11): **counting** is implemented and validated. The sample catalog, measurement
+configs and `prepare` (work dir + job files) are implemented. Running the jobs (locally and on
+HTCondor), merging into normalized rates (JSON output for the website) and plotting come next.
+
+## Measurements in short
+
+1. Pick an input from the **sample catalog** (`sample_catalog/`, maintained by STEAM). It lists the
+   central RAW inputs with everything the normalization needs (prescale, lumi, lumi JSON; MC: cross
+   section or number of bunches), and the ntuples made from them (CMSSW, HLT menu, process). The
+   schema is documented in `catalog.py`.
+   ```bash
+   python3 -m steamrates catalog list
+   python3 -m steamrates catalog show Run2026D_403663_HLTPhysics_PromptNano
+   ```
+2. Write a **measurement config** for one input: catalog ntuples, or your own ntuples plus the
+   catalog RAW entry they were made from. Examples are in `examples/`; `examples/reference.yaml`
+   lists every key with its default.
+3. **Prepare** a work dir: checks the config, expands and de-duplicates the input files, opens them
+   (events, format, runs), checks the trigger bits of the first file, and writes one job file per
+   counting job.
+   ```bash
+   python3 -m steamrates prepare steamrates/examples/rates_403663_PromptNano.yaml -w /eos/user/x/xyz/rates/403663
+   ```
+   Running it again does nothing if nothing changed. After changing settings, `--force` updates
+   the work dir and keeps the partial results of jobs that did not change.
 
 ## Idea
 
@@ -46,7 +69,7 @@ python3 -m steamrates.summary partial_*.root --pure-reference '^HLT_' --top 30 -
 - `--l1-process` (NanoAOD, for files with L1 bits of several processes);
 - `--bits-include` / `--bits-exclude` (NanoAOD branch selection; by default `Flag_*` and the
   always-true cmsDriver step paths such as `L1simulation_step` are excluded);
-- `--chunk-size`;
+- `--chunk-size` (default 50000 events; 200k needed ~2x the memory for the same CPU time);
 - `--max-events`;
 - `--allow-duplicate-events`.
 
@@ -70,6 +93,14 @@ Safety features:
 
 | module | content |
 |---|---|
+| `__main__.py` | `python3 -m steamrates <command>`: prepare, catalog, count, summary |
+| `catalog.py` | sample catalog: RAW inputs and ntuples (schema in the docstring) |
+| `config.py` | measurement config: validation, resolution against the catalog |
+| `prepare.py` | command line: config → work dir with job files |
+| `workdir.py` | work-dir layout, job splitting |
+| `inputs.py` | input specs (globs, list files, LFNs), duplicate removal, per-file checks, `open_root` (xrootd) |
+| `schema.py` | YAML validation helpers (unknown keys, types, `TODO` placeholders) |
+| `provenance.py` | git state of the code and catalog |
 | `count.py` | command line: input files → one partial result |
 | `summary.py` | command line: inspect / add up partial results |
 | `readers/edm.py` | `edm::TriggerResults` + event IDs decoded from raw bytes (byte layouts documented in the module) |
