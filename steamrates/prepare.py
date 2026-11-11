@@ -56,17 +56,42 @@ def count_args(meas, fmt, process, l1_process):
         args += ["--bits-include", c["bits_include"], "--bits-exclude", c["bits_exclude"]]
     if c["allow_duplicate_events"]:
         args.append("--allow-duplicate-events")
+    # definitions of the old-style counters (steamrates.counters), taken from the merge settings
+    m = meas.merge
+    args += ["--pure-reference", m["pure_reference"]]
+    for pattern in m["exclude"]:
+        args += ["--exclude", pattern]
+    for label, pattern in m["totals"].items():
+        args += ["--total", f"{label}={pattern}"]
+    if not m["strip_versions"]:
+        args.append("--no-strip-versions")
+    if not c["table"]:
+        args.append("--no-table")
     return args
 
 
+_KEY_FREE_OPTIONS = {"--chunk-size": 1}                       # option -> number of values
+_COUNTER_OPTIONS = {"--pure-reference": 1, "--exclude": 1, "--total": 1, "--no-strip-versions": 0}
+
+
 def job_key(files, args, lumi_mask):
-    """sha1 of what a job counts. ``--chunk-size`` only changes the memory use, not the result, so
-    it is left out: changing it does not invalidate finished jobs."""
-    args = list(args)
-    if "--chunk-size" in args:
-        i = args.index("--chunk-size")
-        del args[i:i + 2]
-    return hashlib.sha1(json.dumps([files, args, lumi_mask], sort_keys=True).encode()).hexdigest()
+    """sha1 of what a job counts; changing anything else does not invalidate finished jobs.
+
+    Left out: ``--chunk-size`` (memory only) and, if the job builds the combination table, the
+    counter definitions (the table can give every definition at merge time; the counters are a
+    cross-check and are compared only where their definition matches).
+    """
+    drop = dict(_KEY_FREE_OPTIONS)
+    if "--no-table" not in args:
+        drop.update(_COUNTER_OPTIONS)
+    kept, i = [], 0
+    while i < len(args):
+        if args[i] in drop:
+            i += 1 + drop[args[i]]
+            continue
+        kept.append(args[i])
+        i += 1
+    return hashlib.sha1(json.dumps([files, kept, lumi_mask], sort_keys=True).encode()).hexdigest()
 
 
 def snapshot_code(wd):

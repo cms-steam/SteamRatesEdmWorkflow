@@ -59,6 +59,7 @@ COUNTING = {
     "bits_exclude": ((str,), DEFAULT_BITS_EXCLUDE, {}),
     "chunk_size": ((int,), 50_000, _POSITIVE),
     "allow_duplicate_events": ((bool,), False, {}),
+    "table": ((bool,), True, {}),        # false: counters only (count --no-table), for huge samples
 }
 JOBS = {
     "events_per_job": ((int,), 1_000_000, _POSITIVE),

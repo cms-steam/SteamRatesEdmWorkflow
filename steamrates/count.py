@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import json
 import logging
 import os
 import socket
@@ -34,6 +35,7 @@ import time
 import numpy as np
 
 from . import __version__
+from .counters import DEFAULT_PURE_REFERENCE, DEFAULT_TOTALS, BitCounters
 from .inputs import collect_inputs
 from .lumimask import LumiMask
 from .partial import PartialResult
@@ -113,6 +115,19 @@ def build_parser():
     p.add_argument("--max-events", type=int, help="stop after this many events (for tests)")
     p.add_argument("--allow-duplicate-events", action="store_true",
                    help="do not fail if the same (run, lumi, event) appears more than once")
+    g = p.add_argument_group("old-style counters (filled next to the combination table; see steamrates.counters)")
+    g.add_argument("--pure-reference", default=DEFAULT_PURE_REFERENCE,
+                   help="regex of the bits that define pure counts (default: %(default)s)")
+    g.add_argument("--exclude", action="append", default=[], metavar="REGEX",
+                   help="bits left out of the pure reference and the totals (can be repeated)")
+    g.add_argument("--total", action="append", default=[], metavar="LABEL=REGEX",
+                   help="OR total over the bits matching REGEX (can be repeated; default: "
+                        + ", ".join(f"{k}={v}" for k, v in DEFAULT_TOTALS.items()) + ")")
+    g.add_argument("--no-strip-versions", action="store_true",
+                   help="match the patterns against the versioned names (HLT_X_v3) instead of HLT_X")
+    g.add_argument("--no-table", action="store_true",
+                   help="do not build the combination table; only the counters (for very large samples)")
+    p.add_argument("--job-info", help=argparse.SUPPRESS)   # JSON stored as metadata["job"] (steamrates.jobrun)
     p.add_argument("-v", "--verbose", action="store_true")
     return p
 
@@ -129,7 +144,16 @@ def main(argv=None):
                          bits_include=args.bits_include, bits_exclude=args.bits_exclude,
                          chunk_size=args.chunk_size)
 
-    acc = PatternAccumulator()
+    total_regexes = DEFAULT_TOTALS
+    if args.total:
+        try:
+            total_regexes = dict(t.split("=", 1) for t in args.total)
+        except ValueError:
+            raise SystemExit("--total must look like LABEL=REGEX") from None
+    counters = BitCounters(args.pure_reference, args.exclude, total_regexes,
+                           strip_versions=not args.no_strip_versions)
+    sum_w = sum_w2 = 0.0           # over all selected events (the table has these too)
+    acc = None if args.no_table else PatternAccumulator()
     lumis = LumiBook()
     event_ids = []
     file_records = []
@@ -160,7 +184,12 @@ def main(argv=None):
             f_sel += len(chunk)
             if len(chunk) == 0:
                 continue
-            acc.add(chunk.bit_names, chunk.bits, chunk.weights)
+            if acc is not None:
+                acc.add(chunk.bit_names, chunk.bits, chunk.weights)
+            counters.add(chunk.bit_names, chunk.bits, chunk.weights)
+            w = np.ones(len(chunk)) if chunk.weights is None else chunk.weights
+            sum_w += float(w.sum())
+            sum_w2 += float((w * w).sum())
             lumis.add_events(chunk.run, chunk.lumi)
             ids = np.empty(len(chunk), dtype=[("run", "u4"), ("lumi", "u4"), ("event", "u8")])
             ids["run"], ids["lumi"], ids["event"] = chunk.run, chunk.lumi, chunk.event
@@ -182,13 +211,21 @@ def main(argv=None):
             raise SystemExit(msg + "; check the input files or use --allow-duplicate-events")
         log.warning(msg)
 
-    table = acc.result(bit_names_if_empty=menu.trigger_paths if menu else ())
-    totals = dict(table.totals(), n_events_read=n_read, n_events_selected=n_selected)
+    if acc is not None:
+        table = acc.result(bit_names_if_empty=menu.trigger_paths if menu else counters.names)
+        bit_names = table.bit_names
+        totals = dict(table.totals(), n_events_read=n_read, n_events_selected=n_selected)
+    else:
+        table = None
+        bit_names = counters.names or (list(menu.trigger_paths) if menu else [])
+        totals = {"n_events": n_selected, "sumw": sum_w, "sumw2": sum_w2, "n_rows": None,
+                  "n_events_read": n_read, "n_events_selected": n_selected}
     metadata = {
         "steamrates_version": __version__,
         "created": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "host": socket.gethostname(),
-        "command": " ".join([os.path.basename(sys.executable), "-m", "steamrates.count"] + sys.argv[1:]),
+        "command": " ".join([os.path.basename(sys.executable), "-m", "steamrates.count"]
+                            + (sys.argv[1:] if argv is None else list(argv))),
         "sample": args.sample,
         "format": fmt,
         "process": menu.process if menu else args.process,
@@ -201,11 +238,15 @@ def main(argv=None):
         "totals": totals,
         "mc_sums": mc_sums,
         "duplicate_events": n_dup,
+        "counters": counters.definition(),
+        "job": json.loads(args.job_info) if args.job_info else None,
+        "bits": list(bit_names),
         "runtime_s": round(time.time() - t_start, 2),
     }
-    PartialResult(metadata, table, lumis.arrays()).write(args.output)
-    log.info("wrote %s: %d events selected of %d read, %d distinct combinations, %.1f s",
-             args.output, n_selected, n_read, table.n_rows, time.time() - t_start)
+    PartialResult(metadata, table, lumis.arrays(), counters.arrays(bit_names)).write(args.output)
+    log.info("wrote %s: %d events selected of %d read, %s, %.1f s", args.output, n_selected, n_read,
+             f"{table.n_rows} distinct combinations" if table is not None else "counters only (no table)",
+             time.time() - t_start)
     return 0
 
 

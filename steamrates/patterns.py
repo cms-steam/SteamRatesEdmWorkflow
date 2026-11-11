@@ -201,12 +201,14 @@ class PatternTable:
         row_of = np.repeat(np.arange(self.n_rows), np.diff(offsets))
         return np.bincount(indices, weights=self._weights(what)[row_of], minlength=self.n_bits)
 
-    def exclusive_totals(self, reference, what="count"):
+    def exclusive_totals(self, reference, what="count", non_reference="zero"):
         """Per bit: events where the bit fired and *no other* bit of ``reference`` fired.
 
         ``reference`` is a bool array over the bits (e.g. all ``HLT_*`` paths). This is the "pure"
         count of the legacy workflow when ``reference`` selects the paths that define purity.
-        Bits outside ``reference`` get 0.
+        Bits outside ``reference`` get 0 (``non_reference="zero"``, legacy), or the events where
+        they fired and no reference bit fired (``non_reference="exclusive"``, as in
+        :mod:`steamrates.counters`).
         """
         reference = np.asarray(reference, dtype=bool)
         offsets, indices = self.to_csr()
@@ -214,7 +216,19 @@ class PatternTable:
         in_ref = reference[indices]
         n_ref_per_row = np.bincount(row_of, weights=in_ref, minlength=self.n_rows)
         sel = in_ref & (n_ref_per_row[row_of] == 1)
+        if non_reference == "exclusive":
+            sel |= ~in_ref & (n_ref_per_row[row_of] == 0)
+        elif non_reference != "zero":
+            raise ValueError(f"non_reference must be 'zero' or 'exclusive', not {non_reference!r}")
         return np.bincount(indices[sel], weights=self._weights(what)[row_of[sel]], minlength=self.n_bits)
+
+    def any_totals(self, mask, what="count"):
+        """Events (or Σw) in which at least one bit of ``mask`` fired (e.g. the total HLT rate)."""
+        mask = np.asarray(mask, dtype=bool)
+        offsets, indices = self.to_csr()
+        row_of = np.repeat(np.arange(self.n_rows), np.diff(offsets))
+        hit = np.bincount(row_of, weights=mask[indices], minlength=self.n_rows) > 0
+        return float(self._weights(what)[hit].sum())
 
 
 class PatternAccumulator:
