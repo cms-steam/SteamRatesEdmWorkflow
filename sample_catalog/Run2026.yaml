@@ -1,7 +1,7 @@
 # STEAM sample catalog: Run-2026 collision data.
 # The schema is documented in steamrates/catalog.py. Browse with: python3 -m steamrates catalog list
-# Lumi is in units of 1e34 cm^-2 s^-1. "prescale" is the prescale of each of the n_datasets datasets
-# (the legacy hlt_ps); together they record 1 in prescale/n_datasets events.
+# Lumi is in units of 1e34 cm^-2 s^-1. "prescale" is the prescale of the sample as a whole: all its
+# datasets together record 1 in "prescale" events (legacy hlt_ps = prescale x n_datasets).
 
 raw:
   Run2026B_402360_EphemeralHLTPhysics:
@@ -11,9 +11,10 @@ raw:
                /EphemeralHLTPhysics2/Run2026B-v1/RAW, /EphemeralHLTPhysics3/Run2026B-v1/RAW,
                /EphemeralHLTPhysics4/Run2026B-v1/RAW, /EphemeralHLTPhysics5/Run2026B-v1/RAW,
                /EphemeralHLTPhysics6/Run2026B-v1/RAW, /EphemeralHLTPhysics7/Run2026B-v1/RAW]
+    selection_paths: [HLT_EphemeralPhysics]
     inputs: []        # the RAW files are no longer on /eos/cms (checked 2026-11-11)
     lumi_json: json/json_402360.txt
-    normalization: {mode: data, prescale: 480, n_datasets: 8, lumi: 2.2}
+    normalization: {mode: data, prescale: 60, n_datasets: 8, lumi: 2.2}    # legacy hlt_ps 480 = 60 x 8
 
   Run2026D_403663_EphemeralHLTPhysics:
     type: data
@@ -22,14 +23,16 @@ raw:
                /EphemeralHLTPhysics2/Run2026D-v1/RAW, /EphemeralHLTPhysics3/Run2026D-v1/RAW,
                /EphemeralHLTPhysics4/Run2026D-v1/RAW, /EphemeralHLTPhysics5/Run2026D-v1/RAW,
                /EphemeralHLTPhysics6/Run2026D-v1/RAW, /EphemeralHLTPhysics7/Run2026D-v1/RAW]
+    selection_paths: [HLT_EphemeralPhysics]
     inputs: ["/eos/cms/store/data/Run2026D/EphemeralHLTPhysics[0-7]/RAW/v1/000/403/663/00000/*.root"]
     lumi_json: json/json_403663.txt
-    normalization: {mode: data, prescale: 1760, n_datasets: 8, lumi: 2.2}   # 1760 = 220 x 8 (README recipe)
+    normalization: {mode: data, prescale: 220, n_datasets: 8, lumi: 2.2}   # legacy hlt_ps 1760 = 220 x 8
 
   Run2026D_403663_HLTPhysics:
     type: data
     description: HLTPhysics RAW, run 403663 (PU 63.9), LS 400-1700
     datasets: [/HLTPhysics/Run2026D-v1/RAW]
+    selection_paths: [HLT_Physics]
     inputs: [/eos/cms/store/data/Run2026D/HLTPhysics/RAW/v1/000/403/663/00000/*.root]
     lumi_json: json/json_403663.txt
     normalization: {mode: data, prescale: 5350, n_datasets: 1, lumi: 2.2}
@@ -81,3 +84,17 @@ ntuples:
     complete: true
     notes: >-
       Same 2356 lumi sections and 1,004,065 events as the 227 RAW files (checked 2026-11-11).
+
+  Run2026D_403663_EphemeralHLTPhysics_GRunV63:
+    raw: Run2026D_403663_EphemeralHLTPhysics
+    format: edm
+    inputs: [/eos/home-k/kelmorab/STEAM/hackathon/data/403663_ref/hlt_*.root]
+    process: MYHLT
+    cmssw: CMSSW_16_0_6_patch1
+    hlt_menu: /dev/CMSSW_16_0_0/GRun/V63
+    global_tag: 160X_dataRun3_HLT_v1
+    produced_by: STEAM baseline 2026-11 (legacy Prod/ workflow, prescale column 2p0E34+ZeroBias+HLTPhysics)
+    complete: true
+    notes: >-
+      3534 files (the RAW files with lumi sections 399-1702, ~442 per dataset), 13,554,013 events.
+      Each of the 1301 lumi sections in the JSON is in exactly 8 files (one per dataset; checked 2026-11-11).

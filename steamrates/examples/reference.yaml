@@ -33,6 +33,7 @@ counting:                       # options of `steamrates count`
   bits_exclude: '^Flag_|_step$'
   chunk_size: 50000             # events read at once (memory), does not change results
   allow_duplicate_events: false
+  table: true                   # false: only the old-style counters (count --no-table), for huge samples
 
 jobs:
   events_per_job: 1000000       # files are grouped in order up to this many events per job

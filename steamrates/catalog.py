@@ -16,6 +16,7 @@ campaign. IDs are unique across all files. Each file has two optional sections::
         description: free text
         datasets: [/EphemeralHLTPhysics0/Run2026D-v1/RAW, ...]   # documentation (DAS later)
         inputs: [<glob, file or list file>, ...]                # where the RAW files are
+        selection_paths: [HLT_EphemeralPhysics]  # path(s) selecting the events (information)
         lumi_json: json/json_403663.txt     # data: selected lumi sections (relative to this file)
         runs: [403663]                      # data, optional: default = the runs of lumi_json
         normalization: ...                  # see below
@@ -42,9 +43,14 @@ campaign. IDs are unique across all files. Each file has two optional sections::
 
 Normalization (lumi in units of 1e34 cm^-2 s^-1)::
 
-    data:            {mode: data, prescale: 1760, n_datasets: 8, lumi: 2.2}
-        prescale   = prescale of each of the n_datasets datasets (the legacy ``hlt_ps``); the
-                     datasets together record 1 in prescale/n_datasets events
+    data:            {mode: data, prescale: 220, n_datasets: 8, lumi: 2.2}
+        prescale   = prescale of the sample as a whole (L1 x HLT prescale of the path that
+                     selects its events, e.g. HLT_EphemeralPhysics): all its datasets together
+                     record 1 in ``prescale`` events. rate = count x prescale / (N_LS x 23.31 s),
+                     with every lumi section counted once.
+                     (The legacy ``hlt_ps`` was prescale x n_datasets, because the legacy N_LS
+                     counted each lumi section once per dataset.)
+        n_datasets = number of datasets the events are spread over (information only)
         lumi       = average instantaneous luminosity of the selected lumi sections
     MC, σ x L:       {mode: cross_section, xsec_pb: 984.5, filter_eff: 1.0, target_lumi: 7.5}
     MC, per crossing:{mode: bunch_crossing, n_bunches: 2760}   (MinBias/NuGun at fixed pileup)
@@ -83,8 +89,8 @@ NORMALIZATION_KEYS = {
     "bunch_crossing": ("mode", "n_bunches"),
 }
 MODES_FOR_TYPE = {"data": ("data",), "mc": ("cross_section", "bunch_crossing")}
-RAW_KEYS = ("type", "description", "datasets", "inputs", "lumi_json", "runs", "normalization", "production",
-            "notes")
+RAW_KEYS = ("type", "description", "datasets", "selection_paths", "inputs", "lumi_json", "runs", "normalization",
+            "production", "notes")
 NTUPLE_KEYS = ("raw", "format", "inputs", "process", "l1_process", "weight_branch", "cmssw", "hlt_menu",
                "l1_menu", "global_tag", "produced_by", "date", "complete", "lumi_json", "description", "notes")
 NTUPLE_FORMATS = ("edm", "nano")
@@ -134,6 +140,7 @@ class RawEntry:
     normalization: dict
     description: str = ""
     datasets: list = field(default_factory=list)
+    selection_paths: list = field(default_factory=list)
     inputs: list = field(default_factory=list)
     lumi_json: str | None = None        # absolute path
     runs: list | None = None
@@ -158,6 +165,7 @@ class RawEntry:
                                                      f"{where}.normalization"),
                    description=value(d, "description", (str,), where, default=""),
                    datasets=str_list(d, "datasets", where, default=[]),
+                   selection_paths=str_list(d, "selection_paths", where, default=[]),
                    inputs=str_list(d, "inputs", where, default=[]),
                    lumi_json=lumi_json, runs=runs,
                    production=value(d, "production", (dict, type(None)), where, default=None) or {},
@@ -178,7 +186,7 @@ class RawEntry:
 
     def to_dict(self):
         d = {"id": self.id, "type": self.type, "description": self.description, "datasets": self.datasets,
-             "inputs": self.inputs, "lumi_json": self.lumi_json, "runs": self.runs,
+             "selection_paths": self.selection_paths, "inputs": self.inputs, "lumi_json": self.lumi_json, "runs": self.runs,
              "normalization": self.normalization, "production": self.production, "notes": self.notes,
              "source": self.source}
         return {k: v for k, v in d.items() if v not in (None, "", [], {})}
