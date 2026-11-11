@@ -1,0 +1,56 @@
+# Every key of a measurement config, with its default. Only `name` and `input` are required.
+# Unknown keys are an error. Relative paths are relative to this file.
+# Lumi values are in units of 1e34 cm^-2 s^-1.
+
+name: my_measurement            # letters, digits, _ . + -  (also the sample label in the partials)
+catalog: null                   # sample catalog directory; null = sample_catalog/ of the repository
+
+input:                          # exactly one of `ntuples` and `produce`
+  # A) central ntuples: an ID from the sample catalog (python3 -m steamrates catalog list)
+  ntuples: Run2026D_403663_HLTPhysics_PromptNano
+  # B) own ntuples (same keys as a catalog ntuples entry); `raw` is a catalog RAW ID, or a mapping
+  #    with the keys of a catalog RAW entry (then the normalization is not reviewed by STEAM)
+  # ntuples:
+  #   raw: Run2026D_403663_EphemeralHLTPhysics
+  #   inputs: [/eos/user/x/xyz/ntuples/*.root, more_files.txt]   # globs, files, list files
+  #   format: edm                 # edm | nano (default: detected)
+  #   process: MYHLT
+  #   hlt_menu: /dev/CMSSW_16_0_0/GRun/V62
+  #   complete: true              # every RAW file of the counted lumi sections was processed
+  #   lumi_json: null             # or a JSON of the complete lumi sections
+  # C) produce the ntuples from a catalog RAW input first (not implemented yet)
+  # produce: {raw: ..., cmssw_base: ..., hlt_menu: ..., global_tag: ..., l1: ..., output: nano, keep_ntuples: ...}
+
+target_lumi: null               # data: default = the RAW entry's lumi; MC cross_section: default =
+                                # its target_lumi; not allowed for bunch_crossing samples
+
+counting:                       # options of `steamrates count`
+  format: null                  # default: the ntuples entry, else detected from the files
+  process: null                 # default: the ntuples entry, else the only process in the files
+  l1_process: null              # NanoAOD: process of the L1 bits (same defaults)
+  weight_branch: null           # NanoAOD MC: e.g. genWeight (default: the ntuples entry)
+  bits_include: '^(HLT|L1|DST_|Dataset_|AlCa_|MC_|Status_)|Scouting'   # NanoAOD bit branches (regex)
+  bits_exclude: '^Flag_|_step$'
+  chunk_size: 50000             # events read at once (memory), does not change results
+  allow_duplicate_events: false
+
+jobs:
+  events_per_job: 1000000       # files are grouped in order up to this many events per job
+  files_per_job: null           # instead: a fixed number of files per job
+  check_inputs: true            # open every file in `prepare` (events, format, runs); needed for events_per_job
+  check_threads: 8
+
+batch:                          # HTCondor (lxplus)
+  flavour: espresso             # espresso, microcentury, longlunch, workday, tomorrow, testmatch, nextweek
+  request_memory_mb: 2000
+  proxy: auto                   # auto: use the grid proxy if inputs are read via xrootd outside EOS
+  cmssw_base: null              # release for the jobs' environment; null = $CMSSW_BASE
+
+merge:
+  strip_versions: true          # HLT_X_v3 -> HLT_X (merge across menu versions)
+  pure_reference: '^HLT_'       # pure rate of a path = it fired and no other path matching this did
+  exclude: []                   # regexes: paths left out of the totals and the pure reference
+  totals: {HLT: '^HLT_', L1: '^L1_(?!FinalOR|UnprefireableEvent)'}   # label: regex (OR of the matching bits)
+  datasets: menu                # dataset -> paths: from the menu in the ntuples, a YAML file, or null
+  streams: menu                 # stream -> datasets: same
+  overlaps: {datasets: true, streams: true, paths: false}

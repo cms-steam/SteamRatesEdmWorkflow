@@ -1,0 +1,25 @@
+# STEAM sample catalog: Phase-2 MC.
+# The schema is documented in steamrates/catalog.py. Browse with: python3 -m steamrates catalog list
+# target_lumi in units of 1e34 cm^-2 s^-1 (7.5 = ultimate HL-LHC, PU 200).
+# MinBias/NuGun samples at fixed pileup use {mode: bunch_crossing, n_bunches: ...} instead.
+
+raw:
+  Phase2_TTbar_14TeV:
+    type: mc
+    description: 14 TeV Pythia8 ttbar, Phase-2 (GT 150X_mcRun4_realistic_v1), original DIGI-RAW step
+    inputs: []        # TODO: location of the RAW (step-2) files
+    # 984.5 pb = inclusive ttbar at 14 TeV, NNLO+NNLL (Top LHC WG, mt = 172.5 GeV).
+    # Check that the sample is inclusive (no decay or generator filter).
+    normalization: {mode: cross_section, xsec_pb: 984.5, filter_eff: 1.0, target_lumi: 7.5}
+
+ntuples:
+  Phase2_TTbar_14TeV_STEAMtemp_default:
+    raw: Phase2_TTbar_14TeV
+    format: nano
+    inputs: [/eos/cms/store/cmst3/group/tthlep/fernanpe/STEAM_temp_default/*.root]
+    process: HLT2           # the re-run menu; the original HLT bits (process HLT) are also in the files
+    hlt_menu: null          # menu built in python, no ConfDB name
+    global_tag: 200X_mcRun4_realistic_v1
+    produced_by: first common-format test ntuples (L1 + HLT + NanoAOD re-run)
+    complete: true
+    notes: 90 files x 100 events. No genWeight, no L1 seed bits yet.

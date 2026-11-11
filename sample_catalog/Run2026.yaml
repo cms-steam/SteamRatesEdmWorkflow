@@ -1,0 +1,83 @@
+# STEAM sample catalog: Run-2026 collision data.
+# The schema is documented in steamrates/catalog.py. Browse with: python3 -m steamrates catalog list
+# Lumi is in units of 1e34 cm^-2 s^-1. "prescale" is the prescale of each of the n_datasets datasets
+# (the legacy hlt_ps); together they record 1 in prescale/n_datasets events.
+
+raw:
+  Run2026B_402360_EphemeralHLTPhysics:
+    type: data
+    description: EphemeralHLTPhysics0-7 RAW, run 402360, LS 193-334
+    datasets: [/EphemeralHLTPhysics0/Run2026B-v1/RAW, /EphemeralHLTPhysics1/Run2026B-v1/RAW,
+               /EphemeralHLTPhysics2/Run2026B-v1/RAW, /EphemeralHLTPhysics3/Run2026B-v1/RAW,
+               /EphemeralHLTPhysics4/Run2026B-v1/RAW, /EphemeralHLTPhysics5/Run2026B-v1/RAW,
+               /EphemeralHLTPhysics6/Run2026B-v1/RAW, /EphemeralHLTPhysics7/Run2026B-v1/RAW]
+    inputs: []        # the RAW files are no longer on /eos/cms (checked 2026-11-11)
+    lumi_json: json/json_402360.txt
+    normalization: {mode: data, prescale: 480, n_datasets: 8, lumi: 2.2}
+
+  Run2026D_403663_EphemeralHLTPhysics:
+    type: data
+    description: EphemeralHLTPhysics0-7 RAW, run 403663 (PU 63.9), LS 400-1700
+    datasets: [/EphemeralHLTPhysics0/Run2026D-v1/RAW, /EphemeralHLTPhysics1/Run2026D-v1/RAW,
+               /EphemeralHLTPhysics2/Run2026D-v1/RAW, /EphemeralHLTPhysics3/Run2026D-v1/RAW,
+               /EphemeralHLTPhysics4/Run2026D-v1/RAW, /EphemeralHLTPhysics5/Run2026D-v1/RAW,
+               /EphemeralHLTPhysics6/Run2026D-v1/RAW, /EphemeralHLTPhysics7/Run2026D-v1/RAW]
+    inputs: ["/eos/cms/store/data/Run2026D/EphemeralHLTPhysics[0-7]/RAW/v1/000/403/663/00000/*.root"]
+    lumi_json: json/json_403663.txt
+    normalization: {mode: data, prescale: 1760, n_datasets: 8, lumi: 2.2}   # 1760 = 220 x 8 (README recipe)
+
+  Run2026D_403663_HLTPhysics:
+    type: data
+    description: HLTPhysics RAW, run 403663 (PU 63.9), LS 400-1700
+    datasets: [/HLTPhysics/Run2026D-v1/RAW]
+    inputs: [/eos/cms/store/data/Run2026D/HLTPhysics/RAW/v1/000/403/663/00000/*.root]
+    lumi_json: json/json_403663.txt
+    normalization: {mode: data, prescale: 5350, n_datasets: 1, lumi: 2.2}
+
+ntuples:
+  Run2026B_402360_EphemeralHLTPhysics_GRunV51:
+    raw: Run2026B_402360_EphemeralHLTPhysics
+    format: edm
+    inputs: [/eos/home-k/kelmorab/STEAM/rates_2026/402360_GRunV51/hlt_*.root]
+    process: MYHLT
+    hlt_menu: /dev/CMSSW_16_0_0/GRun/V51
+    produced_by: STEAM, legacy Prod/ workflow (1 RAW file per job)
+    complete: true
+    notes: >-
+      1136 files; each of the 142 lumi sections in the JSON is in exactly 8 files (one per dataset).
+      The RAW files are deleted, so this could not be checked against them.
+
+  Run2026B_402360_EphemeralHLTPhysics_GRunV59:
+    raw: Run2026B_402360_EphemeralHLTPhysics
+    format: edm
+    inputs: [/eos/home-k/kelmorab/STEAM/rates_2026/402360_GRunV59/hlt_*.root]
+    process: MYHLT
+    hlt_menu: /dev/CMSSW_16_0_0/GRun/V59
+    produced_by: STEAM, legacy Prod/ workflow (1 RAW file per job)
+    complete: true
+    notes: >-
+      1136 files; each of the 142 lumi sections in the JSON is in exactly 8 files (one per dataset).
+      The RAW files are deleted, so this could not be checked against them.
+
+  Run2026B_402360_EphemeralHLTPhysics_GRunV62:
+    raw: Run2026B_402360_EphemeralHLTPhysics
+    format: edm
+    inputs: [/eos/home-k/kelmorab/STEAM/rates_2026/402360_GRunV62/hlt_*.root]
+    process: MYHLT
+    hlt_menu: /dev/CMSSW_16_0_0/GRun/V62
+    produced_by: STEAM, legacy Prod/ workflow (1 RAW file per job)
+    complete: true
+    notes: >-
+      1136 files; each of the 142 lumi sections in the JSON is in exactly 8 files (one per dataset).
+      The RAW files are deleted, so this could not be checked against them.
+
+  Run2026D_403663_HLTPhysics_PromptNano:
+    raw: Run2026D_403663_HLTPhysics
+    format: nano
+    inputs: [/eos/cms/store/data/Run2026D/HLTPhysics/NANOAOD/PromptReco-v1/000/403/663/00000/*.root]
+    process: HLT
+    hlt_menu: /cdaq/physics/Run2026/2e34/v1.3.0/HLT/V3
+    produced_by: Tier-0 PromptReco (online HLT decisions, no re-run)
+    complete: true
+    notes: >-
+      Same 2356 lumi sections and 1,004,065 events as the 227 RAW files (checked 2026-11-11).

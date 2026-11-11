@@ -1,0 +1,5 @@
+# Online-menu rates from the HLTPhysics PromptReco NanoAOD of run 403663.
+name: rates_403663_PromptNano
+input:
+  ntuples: Run2026D_403663_HLTPhysics_PromptNano
+jobs: {events_per_job: 500000}
