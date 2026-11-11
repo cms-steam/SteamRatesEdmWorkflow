@@ -4,8 +4,9 @@ New implementation of the counting step (step 2) of the STEAM rate workflow. It 
 legacy scripts in `Rates/` until it has replaced them.
 
 Status (2026-11-11): **counting** is implemented and validated. The sample catalog, measurement
-configs and `prepare` (work dir + job files) are implemented. Running the jobs (locally and on
-HTCondor), merging into normalized rates (JSON output for the website) and plotting come next.
+configs, `prepare` (work dir + job files), running the jobs locally (`submit --local`, `run`) and
+`status` are implemented. HTCondor submission, merging into normalized rates (JSON output for the
+website) and plotting come next.
 
 ## Measurements in short
 
@@ -28,6 +29,19 @@ HTCondor), merging into normalized rates (JSON output for the website) and plott
    ```
    Running it again does nothing if nothing changed. After changing settings, `--force` updates
    the work dir and keeps the partial results of jobs that did not change.
+4. **Run the jobs** and check them. Only jobs without a valid partial result run, so after a
+   failure, fix the cause and repeat the command.
+   ```bash
+   python3 -m steamrates submit <workdir> --local -j 8
+   python3 -m steamrates status <workdir>            # done / failed (+ log tail) / invalid / missing
+   python3 -m steamrates run <config> -w <workdir> -j 8   # prepare + submit --local in one go
+   ```
+   Example: the 403663 baseline (3534 EDM files, 13.6M events) takes ~3 min with `-j 8` on lxplus.
+
+Each counting job also fills **old-style per-path counters** in the event loop (count, pure count,
+HLT/L1 totals; `counters.py`). They cross-check the combination table, and with
+`counting: {table: false}` (`count --no-table`) they replace it for very large samples where the
+table would be big (MC with nearly one combination per event).
 
 ## Idea
 
@@ -101,6 +115,11 @@ Safety features:
 | `inputs.py` | input specs (globs, list files, LFNs), duplicate removal, per-file checks, `open_root` (xrootd) |
 | `schema.py` | YAML validation helpers (unknown keys, types, `TODO` placeholders) |
 | `provenance.py` | git state of the code and catalog |
+| `batch.py` | command line `submit`: local executor (HTCondor later) |
+| `jobstatus.py` | command line `status`: done / failed / invalid / missing |
+| `jobrun.py` | runs one job of a work dir (used by the executors) |
+| `run.py` | command line `run`: prepare + submit --local |
+| `counters.py` | old-style per-bit counters (cross-check of the table; fallback with `--no-table`) |
 | `count.py` | command line: input files → one partial result |
 | `summary.py` | command line: inspect / add up partial results |
 | `readers/edm.py` | `edm::TriggerResults` + event IDs decoded from raw bytes (byte layouts documented in the module) |
