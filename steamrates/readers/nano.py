@@ -43,8 +43,8 @@ import re
 from collections import defaultdict
 
 import numpy as np
-import uproot
 
+from ..inputs import open_root
 from ..menu import ParameterSetRegistry
 from .base import EventChunk, FileInfo, Reader
 
@@ -73,7 +73,7 @@ class NanoReader(Reader):
     format = "nano"
 
     def __init__(self, bits_include=DEFAULT_BITS_INCLUDE, bits_exclude=DEFAULT_BITS_EXCLUDE,
-                 weight_branch=None, process=None, l1_process=None, chunk_size=200_000):
+                 weight_branch=None, process=None, l1_process=None, chunk_size=50_000):
         super().__init__(chunk_size)
         self.bits_include = re.compile(bits_include) if bits_include else None
         self.bits_exclude = re.compile(bits_exclude) if bits_exclude else None
@@ -137,7 +137,7 @@ class NanoReader(Reader):
         return [b for b, _ in selected], names, chosen
 
     def open(self, path):
-        self._file = uproot.open(path)
+        self._file = open_root(path)
         self._events = self._file["Events"]
         self._branches, self._names, chosen = self.select_bits(self._events)
         if not self._names:

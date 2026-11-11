@@ -27,7 +27,6 @@ import argparse
 import datetime
 import logging
 import os
-import re
 import socket
 import sys
 import time
@@ -35,45 +34,13 @@ import time
 import numpy as np
 
 from . import __version__
+from .inputs import collect_inputs
 from .lumimask import LumiMask
 from .partial import PartialResult
 from .patterns import PatternAccumulator
 from .readers import DEFAULT_BITS_EXCLUDE, DEFAULT_BITS_INCLUDE, FORMATS, detect_format, make_reader
 
 log = logging.getLogger("steamrates.count")
-
-
-# --------------------------------------------------------------------------------------------------
-# Input files
-# --------------------------------------------------------------------------------------------------
-
-_LFN = re.compile(r"(/store/.*)$")
-
-
-def canonical_name(path):
-    """Key used to detect the same file given twice (e.g. once via xrootd, once via /eos)."""
-    m = _LFN.search(path)
-    return m.group(1) if m else os.path.realpath(path)
-
-
-def collect_inputs(paths, list_files):
-    """Input files from the command line and from list files; refuses duplicates."""
-    inputs = list(paths)
-    for lf in list_files:
-        with open(lf) as f:
-            inputs.extend(line.strip() for line in f if line.strip() and not line.startswith("#"))
-    if not inputs:
-        raise SystemExit("no input files given")
-    seen, dups = {}, []
-    for p in inputs:
-        key = canonical_name(p)
-        if key in seen:
-            dups.append((seen[key], p))
-        seen.setdefault(key, p)
-    if dups:
-        lines = "\n".join(f"  {a}\n  {b}" for a, b in dups[:10])
-        raise SystemExit(f"{len(dups)} input file(s) given more than once, e.g.:\n{lines}")
-    return inputs
 
 
 # --------------------------------------------------------------------------------------------------
@@ -141,7 +108,8 @@ def build_parser():
                    help="NanoAOD: regex selecting trigger-bit branches (default: %(default)s)")
     p.add_argument("--bits-exclude", default=DEFAULT_BITS_EXCLUDE,
                    help="NanoAOD: regex of branches to skip (default: %(default)s)")
-    p.add_argument("--chunk-size", type=int, default=200_000, help="events read at once (default: %(default)s)")
+    p.add_argument("--chunk-size", type=int, default=50_000,
+                   help="events read at once; bounds the memory use (default: %(default)s)")
     p.add_argument("--max-events", type=int, help="stop after this many events (for tests)")
     p.add_argument("--allow-duplicate-events", action="store_true",
                    help="do not fail if the same (run, lumi, event) appears more than once")

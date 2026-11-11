@@ -50,3 +50,33 @@ class LumiMask:
 
     def to_dict(self):
         return {"source": self.source, "sha1": self.sha1, "runs": sorted(self.ranges)}
+
+    def to_json(self):
+        """The ranges in the JSON-file layout ``{"run": [[first, last], ...]}``."""
+        return {str(run): [[a, b] for a, b in rr] for run, rr in sorted(self.ranges.items())}
+
+    @classmethod
+    def from_json(cls, ranges, source=None):
+        """From the JSON-file layout; ``sha1`` is computed from the canonical JSON text."""
+        mask = cls(ranges, source=source)
+        mask.sha1 = hashlib.sha1(json.dumps(mask.to_json(), sort_keys=True).encode()).hexdigest()
+        return mask
+
+    def intersection(self, other):
+        """Mask with the lumi sections that are in both ``self`` and ``other``."""
+        out = {}
+        for run in sorted(set(self.ranges) & set(other.ranges)):
+            pieces = sorted((max(a1, a2), min(b1, b2)) for a1, b1 in self.ranges[run]
+                            for a2, b2 in other.ranges[run] if max(a1, a2) <= min(b1, b2))
+            merged = []
+            for a, b in pieces:                      # merge touching/overlapping ranges
+                if merged and a <= merged[-1][1] + 1:
+                    merged[-1] = (merged[-1][0], max(merged[-1][1], b))
+                else:
+                    merged.append((a, b))
+            if merged:
+                out[run] = merged
+        return LumiMask.from_json(out, source=f"{self.source} & {other.source}")
+
+    def n_lumis(self):
+        return sum(b - a + 1 for rr in self.ranges.values() for a, b in rr)

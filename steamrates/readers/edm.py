@@ -49,11 +49,11 @@ from __future__ import annotations
 import re
 
 import numpy as np
-import uproot
 
+from ..inputs import open_root
 from ..menu import ParameterSetRegistry
-from .base import EventChunk, FileInfo, Reader
 from ..rootbytes import LayoutError, check_class_versions, check_header, read_raw_entries, u2, u4, u8
+from .base import EventChunk, FileInfo, Reader
 
 # Class versions the byte layouts above were written for.
 EXPECTED_CLASS_VERSIONS = {
@@ -146,7 +146,7 @@ class EdmReader(Reader):
 
     format = "edm"
 
-    def __init__(self, process=None, chunk_size=200_000):
+    def __init__(self, process=None, chunk_size=50_000):
         super().__init__(chunk_size)
         self.process = process
         self._file = None
@@ -156,7 +156,7 @@ class EdmReader(Reader):
         self._menu_cache = {}
 
     def open(self, path):
-        self._file = uproot.open(path)
+        self._file = open_root(path)
         check_class_versions(self._file, EXPECTED_CLASS_VERSIONS)
         self._events = self._file["Events"]
         self._tr_key, process = find_trigger_results(self._events, self.process)

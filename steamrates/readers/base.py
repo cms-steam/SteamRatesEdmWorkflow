@@ -56,7 +56,7 @@ class Reader:
 
     format = "?"
 
-    def __init__(self, chunk_size=200_000):
+    def __init__(self, chunk_size=50_000):
         self.chunk_size = int(chunk_size)
 
     def open(self, path):
