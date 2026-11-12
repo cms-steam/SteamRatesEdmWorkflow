@@ -38,6 +38,9 @@ prescale (OnlineMonitor). The rate of a split dataset (``method``):
                          menu's default column (estimate; e.g. Run-3 NanoAOD)
     paths_div_copies     no prescale table either (MC menus): OR of its paths / number of copies
 
+Bandwidth: ``bandwidth_mb_per_s`` = rate x ``event_size_mb``. Event sizes are not known yet: both are
+0 (placeholder until they come from an external source).
+
 A split stream (``method``): ``datasets`` = event by event OR of its datasets' decisions (exact when
 they are exact); ``sum_of_datasets`` = the sum of its datasets' estimates (all copies of one combined
 dataset, which never share an event); ``upper_bound`` = OR of their paths, dataset prescales not
@@ -82,6 +85,11 @@ STREAM_METHODS = {
     "sum_of_datasets": "sum of its datasets' estimates (copies of one combined dataset never share an event)",
     "upper_bound": "OR of the paths of its datasets: dataset prescales not applied"}
 EXACT_DATASET_METHODS = ("dataset_path", "paths")
+# Event sizes are not known yet (later: from an external source, e.g. OMS file size / events per
+# stream). Until then every event size is 0, and so is every bandwidth.
+EVENT_SIZE_MB = 0.0
+BANDWIDTH_NOTE = ("bandwidth_mb_per_s = rate_hz x event_size_mb; event sizes are not known yet, so both are 0 "
+                  "(placeholder)")
 REFERENCE_LABELS = {"standard_parking": "standard+parking paths", "scouting": "scouting paths",
                     "l1": "L1 seeds", "l1_final": "L1 seeds (final)", "l1_beforePrescale": "L1 seeds (beforePrescale)",
                     "l1_beforeBxMaskAndPrescale": "L1 seeds (beforeBxMaskAndPrescale)"}
@@ -99,6 +107,10 @@ def rate_fields(s3, scale, prefix=""):
     """``count``, ``rate_hz``, ``rate_err_hz`` from (count, Σw, Σw²)."""
     return {f"{prefix}count": int(round(s3[0])), f"{prefix}rate_hz": sig(s3[1] * scale),
             f"{prefix}rate_err_hz": sig(math.sqrt(max(s3[2], 0.0)) * scale)}
+
+
+def bandwidth_fields(rate_hz, event_size_mb=EVENT_SIZE_MB):
+    return {"event_size_mb": event_size_mb, "bandwidth_mb_per_s": sig(rate_hz * event_size_mb)}
 
 
 def shared_fields(shared, fired, scale):
@@ -292,14 +304,17 @@ def build_documents(result):
                 "dataset and stream rates and the pure-rate references."}
     if maps.datasets and sums.datasets is not None:
         docs["datasets.json"] = {**head("datasets"), "records": datasets,
-                                 "note": "combined datasets (split copies together); written_rate_hz = sum of "
-                                         "the split datasets (datasets_split.json)"}
+                                 "note": "combined datasets (split copies together); written_rate_hz and "
+                                         "bandwidth_mb_per_s = sums over the split datasets (datasets_split.json)",
+                                 "bandwidth": BANDWIDTH_NOTE}
         docs["streams.json"] = {**head("streams"), "records": streams,
-                                "note": "combined streams (split copies together); written_rate_hz = sum of "
-                                        "the split streams (streams_split.json)"}
-        docs["datasets_split.json"] = {**head("datasets_split"), "methods": DATASET_METHODS,
+                                "note": "combined streams (split copies together); written_rate_hz and "
+                                        "bandwidth_mb_per_s = sums over the split streams (streams_split.json)",
+                                "bandwidth": BANDWIDTH_NOTE}
+        docs["datasets_split.json"] = {**head("datasets_split"), "methods": DATASET_METHODS, "bandwidth": BANDWIDTH_NOTE,
                                        "dataset_prescale_column": maps.prescale_column, "records": datasets_split}
-        docs["streams_split.json"] = {**head("streams_split"), "methods": STREAM_METHODS, "records": streams_split}
+        docs["streams_split.json"] = {**head("streams_split"), "methods": STREAM_METHODS, "bandwidth": BANDWIDTH_NOTE,
+                                      "records": streams_split}
         docs["paths_without_dataset.json"] = {
             **head("paths_without_dataset"), "records": without,
             "note": "HLT paths in no dataset of the menu (Dataset_ paths and L1 bits are not listed). They are "
@@ -318,13 +333,16 @@ def build_documents(result):
     if "datasets.json" in docs:
         common = ["name", "category", "rate_hz", "rate_err_hz", "pure_rate_hz", "pure_rate_err_hz", "count",
                   "pure_count", "pure_reference", "shared_with_standard_parking_rate_hz",
-                  "shared_with_standard_parking_fraction", "written_rate_hz", "n_split", "split", "n_paths"]
+                  "shared_with_standard_parking_fraction", "written_rate_hz", "bandwidth_mb_per_s", "n_split",
+                  "split", "n_paths"]
         csvs["datasets.csv"] = _csv(datasets, common + ["streams", "paths_missing"])
         csvs["streams.csv"] = _csv(streams, common + ["datasets"])
         csvs["datasets_split.csv"] = _csv(datasets_split, ["name", "combined", "category", "rate_hz", "rate_err_hz",
-                                                           "count", "method", "dataset_prescale", "n_paths", "streams"])
+                                                           "count", "event_size_mb", "bandwidth_mb_per_s", "method",
+                                                           "dataset_prescale", "n_paths", "streams"])
         csvs["streams_split.csv"] = _csv(streams_split, ["name", "combined", "category", "rate_hz", "rate_err_hz",
-                                                         "count", "method", "datasets"])
+                                                         "count", "event_size_mb", "bandwidth_mb_per_s", "method",
+                                                         "datasets"])
     return docs, csvs
 
 
@@ -357,6 +375,7 @@ def _dataset_records(result, sums, scale, pure_ref):
                        "streams": maps.dataset_streams[d], "n_paths": len(present),
                        **rate_fields(scaled(sums.datasets_split[j], f), scale), "method": method,
                        "dataset_prescale": ps, "_s3": scaled(sums.datasets_split[j], f)}
+        split_ds[d].update(bandwidth_fields(split_ds[d]["rate_hz"]))
 
     split_st, upper = {}, []
     for k, s in enumerate(maps.streams):
@@ -376,6 +395,7 @@ def _dataset_records(result, sums, scale, pure_ref):
         split_st[s] = {"name": s, "combined": maps.stream_combined[s], "category": maps.stream_category[s],
                        "datasets": maps.streams[s], **rate_fields(s3, scale), "method": method, "_s3": s3,
                        "_exact": exact, "_from_bits": exact and any(split_ds[d]["method"] == "dataset_path" for d in dss)}
+        split_st[s].update(bandwidth_fields(split_st[s]["rate_hz"]))
     if upper:
         result.warnings.append(f"{len(upper)} split stream(s) hold datasets with different paths and a dataset "
                                f"prescale but no Dataset_ bit: their rate is an upper bound (OR of the paths): {upper[:5]}")
@@ -398,6 +418,7 @@ def _dataset_records(result, sums, scale, pure_ref):
         if group == "scouting":
             rec.update(shared_fields(fired["shared_sp"][j], fired["fired"][j], scale))
         rec.update(rate_fields(written(members, recs, exact), scale, "written_"))
+        rec["bandwidth_mb_per_s"] = sig(sum(recs[m]["bandwidth_mb_per_s"] for m in members))
         return rec
 
     datasets, mismatches, checked = [], [], 0

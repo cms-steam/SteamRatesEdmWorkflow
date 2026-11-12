@@ -1,8 +1,5 @@
 # Rates of the re-run GRun V59 menu on EphemeralHLTPhysics of run 402360 (legacy EDM ntuples).
 #   python3 -m steamrates prepare steamrates/examples/rates_402360_GRunV59.yaml -w <workdir>
-# The paths of the legacy Rates/triggerstoexclude.py are excluded by default (config.DEFAULT_EXCLUDE;
-# add more with merge.exclude). Note: the legacy code still counted them in the dataset rates and as
-# "other" paths in the pure rates of the rest.
 name: rates_402360_GRunV59
 input:
   ntuples: Run2026B_402360_EphemeralHLTPhysics_GRunV59

@@ -51,8 +51,10 @@ plotting come next.
      stream) appear twice: `datasets_split`/`streams_split` give what each one writes (from its
      `Dataset_` path, or estimated from the menu's dataset prescale when the ntuples lack that bit);
      `datasets`/`streams` combine them (EGamma = EGamma0 + ... + EGamma5), with pure rates and overlaps.
-   - Excluded paths (`merge.exclude` plus a default list, `config.DEFAULT_EXCLUDE`) keep their own
-     rate but are left out of totals, dataset/stream rates and pure-rate references.
+   - Excluded paths (`merge.exclude`, plus HLT_Physics and HLT_EphemeralPhysics by default) keep their
+     own rate but are left out of totals, dataset/stream rates and pure-rate references.
+   - The dataset and stream tables have a `bandwidth_mb_per_s` column; event sizes are not known yet,
+     so it is 0 for now.
 
    The formats are documented in `results.py`; the normalization in `normalize.py`; categories
    (standard/parking/scouting/other from the stream names), split datasets and the pure rate

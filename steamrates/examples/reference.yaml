@@ -52,7 +52,7 @@ merge:                          # merge settings (steamrates.merge; categories a
   pure_reference: '^HLT_'       # counters filled by the jobs: pure = no other matching path fired;
                                 # merge: the standard paths if the maps have no datasets (Phase-2)
   default_exclude: true         # also exclude the paths of steamrates' default list (config.DEFAULT_EXCLUDE:
-                                # HLT_Physics, HLT_EphemeralPhysics/ZeroBias and the legacy triggerstoexclude list)
+                                # HLT_Physics, HLT_EphemeralPhysics: unbiased events, select the HLTPhysics samples)
   exclude: []                   # more regexes: paths that keep their own rate but are left out of every
                                 # combined quantity (totals, dataset/stream rates, pure references);
                                 # all excluded bits are listed in results/excluded_paths.json

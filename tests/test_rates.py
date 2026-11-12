@@ -63,9 +63,9 @@ def test_maps_without_streams_scouting_by_name():
 
 
 def test_default_exclude_list():
-    bits = ["HLT_Physics", "HLT_PhysicsX", "HLT_EphemeralZeroBias", "HLT_Y"]
+    bits = ["HLT_Physics", "HLT_PhysicsX", "HLT_EphemeralPhysics", "HLT_EphemeralZeroBias", "HLT_Y"]
     m = build_maps(bits, None, dict(SETTINGS, exclude=["^HLT_Y$"]))
-    assert m.excluded_by == {"HLT_Physics": ["^HLT_Physics$"], "HLT_EphemeralZeroBias": ["^HLT_EphemeralZeroBias$"],
+    assert m.excluded_by == {"HLT_Physics": ["^HLT_Physics$"], "HLT_EphemeralPhysics": ["^HLT_EphemeralPhysics$"],
                              "HLT_Y": ["^HLT_Y$"]}
     assert m.exclude_patterns == DEFAULT_EXCLUDE + ["^HLT_Y$"]
     m = build_maps(bits, None, dict(SETTINGS, exclude=["^HLT_Y$"], default_exclude=False))
@@ -246,6 +246,7 @@ def test_split_datasets_estimated_without_dataset_paths():
     assert st_split["ParkingE0"]["rate_hz"] == pytest.approx(ab.sum() / 2)
     assert ds["E"]["written_rate_hz"] == pytest.approx(ab.sum()) and st["ParkingE"]["written_rate_hz"] == pytest.approx(ab.sum())
     assert ds_split["Mon"]["rate_hz"] == pytest.approx(ac.sum() / 3) and ds_split["T"]["method"] == "paths"
+    assert ds_split["E0"]["event_size_mb"] == 0.0 and st["ParkingE"]["bandwidth_mb_per_s"] == 0.0
     assert st_split["Express"]["method"] == "upper_bound" and any("upper bound" in w for w in warnings)
     assert check["result"].startswith("not checked")
     # MC menu (no prescale table): split copies / number of copies; their Dataset_ bits are not used

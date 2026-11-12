@@ -94,29 +94,16 @@ OVERLAPS = {"datasets": True, "streams": True, "paths_datasets": True, "l1_datas
             "paths": True}
 
 # Paths left out of every combined quantity (totals, dataset/stream rates, pure-rate references) in
-# every measurement, unless ``merge.default_exclude: false``; ``merge.exclude`` adds more. They keep
-# their own rate. The list of the legacy workflow (Rates/triggerstoexclude.py), plus HLT_Physics:
-# it selects the HLTPhysics samples, so in their prompt ntuples (online decisions) it fires in every
-# event, and MC menus run it without prescale. The merge lists every excluded bit in
+# every measurement, unless ``merge.default_exclude: false``; ``merge.exclude`` adds more for a
+# measurement. They keep their own rate. Only paths with a reason valid for every sample belong here:
+# HLT_Physics and HLT_EphemeralPhysics take (prescaled) unbiased events. They select the HLTPhysics /
+# EphemeralHLTPhysics samples, so in prompt ntuples (online decisions) they fire in every event, and
+# MC menus run them without prescale. (The legacy Rates/triggerstoexclude.py list only patched the
+# legacy pure-rate count and is not needed here.) The merge lists every excluded bit in
 # results/excluded_paths.json.
 DEFAULT_EXCLUDE = [
     "^HLT_Physics$",
     "^HLT_EphemeralPhysics$",
-    "^HLT_EphemeralZeroBias$",
-    "^HLT_DoubleMu4_LowMass_Displaced$",
-    "^HLT_DoubleMu4_3_LowMass$",
-    "^HLT_L2Mu23NoVtx_2Cha$",
-    "^HLT_Mu3_L1SingleMu5orSingleMu7$",
-    "^HLT_L2Mu23NoVtx_2Cha_CosmicSeed$",
-    "^HLT_ExpressMuons$",
-    "^HLT_PPSMaxTracksPerArm1$",
-    "^HLT_OnlineMonitorGroup$",
-    "^HLT_Mu0_L1DoubleMu$",
-    "^HLT_L3Mu10NoVtx$",
-    "^HLT_L2Mu10NoVtx_2Cha$",
-    "^HLT_L3Mu10NoVtx_DxyMin0p01cm$",
-    "^HLT_L2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm$",
-    "^HLT_HT300_Beamspot$",
 ]
 
 
