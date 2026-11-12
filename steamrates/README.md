@@ -1,12 +1,12 @@
-# steamrates: counting step
+# steamrates: rate measurements from trigger ntuples
 
-New implementation of the counting step (step 2) of the STEAM rate workflow. It lives next to the
-legacy scripts in `Rates/` until it has replaced them.
+New implementation of the counting and merging steps (step 2) of the STEAM rate workflow. It lives
+next to the legacy scripts in `Rates/` until it has replaced them.
 
-Status (2026-11-11): **counting** is implemented and validated. The sample catalog, measurement
-configs, `prepare` (work dir + job files), running the jobs locally (`submit --local`, `run`) and
-`status` are implemented. HTCondor submission, merging into normalized rates (JSON output for the
-website) and plotting come next.
+Status (2026-11-12): **counting** and **merging** (normalized rates, JSON + CSV) are implemented and
+validated. The sample catalog, measurement configs, `prepare` (work dir + job files), running the
+jobs locally (`submit --local`, `run`), `status` and `merge` are implemented. HTCondor submission and
+plotting come next.
 
 ## Measurements in short
 
@@ -34,9 +34,29 @@ website) and plotting come next.
    ```bash
    python3 -m steamrates submit <workdir> --local -j 8
    python3 -m steamrates status <workdir>            # done / failed (+ log tail) / invalid / missing
-   python3 -m steamrates run <config> -w <workdir> -j 8   # prepare + submit --local in one go
+   python3 -m steamrates run <config> -w <workdir> -j 8   # prepare + submit --local + merge
    ```
    Example: the 403663 baseline (3534 EDM files, 13.6M events) takes ~3 min with `-j 8` on lxplus.
+5. **Merge** the partial results into normalized rates (`run` does this at the end):
+   ```bash
+   python3 -m steamrates merge <workdir>                  # -> <workdir>/results/
+   python3 -m steamrates merge <workdir> --allow-missing  # use the finished jobs only (flagged incomplete)
+   ```
+   The merge refuses to run while jobs are missing, if an input file was counted twice, or if a
+   combination table does not reproduce the counters of its event loop. Results:
+   `summary.json` (input, normalization, totals, checks, warnings), `paths_hlt`, `paths_l1`,
+   `datasets`, `streams` (JSON + CSV), `paths_without_dataset.json`, `excluded_paths.json` and the
+   overlap matrices `overlaps_*.json`.
+   - Split datasets and streams (EGamma0-5, written round robin to stay below the bandwidth of a
+     stream) appear twice: `datasets_split`/`streams_split` give what each one writes (from its
+     `Dataset_` path, or estimated from the menu's dataset prescale when the ntuples lack that bit);
+     `datasets`/`streams` combine them (EGamma = EGamma0 + ... + EGamma5), with pure rates and overlaps.
+   - Excluded paths (`merge.exclude` plus a default list, `config.DEFAULT_EXCLUDE`) keep their own
+     rate but are left out of totals, dataset/stream rates and pure-rate references.
+
+   The formats are documented in `results.py`; the normalization in `normalize.py`; categories
+   (standard/parking/scouting/other from the stream names), split datasets and the pure rate
+   definitions in `maps.py`. The 403663 baseline merges in ~20 s with < 300 MB.
 
 Each counting job also fills **old-style per-path counters** in the event loop (count, pure count,
 HLT/L1 totals; `counters.py`). They cross-check the combination table, and with
@@ -107,7 +127,7 @@ Safety features:
 
 | module | content |
 |---|---|
-| `__main__.py` | `python3 -m steamrates <command>`: prepare, catalog, count, summary |
+| `__main__.py` | `python3 -m steamrates <command>`: run, prepare, submit, status, merge, catalog, count, summary |
 | `catalog.py` | sample catalog: RAW inputs and ntuples (schema in the docstring) |
 | `config.py` | measurement config: validation, resolution against the catalog |
 | `prepare.py` | command line: config → work dir with job files |
@@ -122,13 +142,18 @@ Safety features:
 | `counters.py` | old-style per-bit counters (cross-check of the table; fallback with `--no-table`) |
 | `count.py` | command line: input files → one partial result |
 | `summary.py` | command line: inspect / add up partial results |
+| `merge.py` | command line `merge`: partial results -> normalized rates (checks, two passes over the partials) |
+| `normalize.py` | data / MC cross-section / MC bunch-crossing normalization, constants (f_rev, LS length) |
+| `maps.py` | bit kinds, datasets/streams, categories from stream names, pure-rate reference groups |
+| `rates.py` | streaming accumulator: per-path/dataset/stream sums, pure and shared sums, totals, overlaps |
+| `results.py` | output files (JSON, CSV) and the printed summary |
 | `readers/edm.py` | `edm::TriggerResults` + event IDs decoded from raw bytes (byte layouts documented in the module) |
 | `readers/nano.py` | NanoAOD flat `HLT_*`/`L1_*`/... bool branches, `genWeight`, LuminosityBlocks/Runs trees |
 | `readers/base.py` | reader interface (`EventChunk`, `FileInfo`) |
 | `rootbytes.py` | helpers to decode ROOT-serialized bytes |
 | `menu.py` | HLT menu from the file's `ParameterSets` tree: path names, datasets, streams, prescales |
 | `lumimask.py` | vectorized lumi-JSON selection |
-| `patterns.py` | `PatternTable`: the combination table (build, add, remap menus, CSR form, per-bit totals, pure counts) |
+| `patterns.py` | `PatternTable`: the combination table (build, add, remap menus, CSR form in blocks, per-bit totals, pure counts) |
 | `partial.py` | partial-result file format (read/write) and `merge_partials` |
 
 ## Partial-result file

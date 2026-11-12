@@ -77,12 +77,53 @@ BATCH = {
 MERGE = {
     "strip_versions": ((bool,), True, {}),
     "pure_reference": ((str,), "^HLT_", {}),
+    "default_exclude": ((bool,), True, {}),   # also exclude the paths of DEFAULT_EXCLUDE
     "exclude": ((list,), [], {}),
+    "scouting_paths": ((str,), "^DST_.*Scouting", {}),   # scouting paths of menus without streams (Phase-2)
     "totals": ((dict,), {"HLT": "^HLT_", "L1": "^L1_(?!FinalOR|UnprefireableEvent)"}, {}),
     "datasets": ((str, type(None)), "menu", {}),
     "streams": ((str, type(None)), "menu", {}),
-    "overlaps": ((dict,), {"datasets": True, "streams": True, "paths": False}, {}),
+    "overlaps": ((dict,), None, {}),     # default: OVERLAPS
 }
+# Overlap matrices computed by the merge (steamrates.rates.default_overlaps).
+# !!! "paths" (HLT x HLT) is the largest and slowest one. Data: cheap (403663 baseline, 13.5M events:
+# !!! +1.5 s, +44 MB), because events with the same fired paths share one row of the table. MC: every
+# !!! event is its own row, so it costs ~ events x (fired paths per event)^2: about +13 s and +150 MB
+# !!! per 100k events with 100 fired paths each (700-path menu). Switch it off for large MC samples.
+OVERLAPS = {"datasets": True, "streams": True, "paths_datasets": True, "l1_datasets": True, "l1_streams": True,
+            "paths": True}
+
+# Paths left out of every combined quantity (totals, dataset/stream rates, pure-rate references) in
+# every measurement, unless ``merge.default_exclude: false``; ``merge.exclude`` adds more. They keep
+# their own rate. The list of the legacy workflow (Rates/triggerstoexclude.py), plus HLT_Physics:
+# it selects the HLTPhysics samples, so in their prompt ntuples (online decisions) it fires in every
+# event, and MC menus run it without prescale. The merge lists every excluded bit in
+# results/excluded_paths.json.
+DEFAULT_EXCLUDE = [
+    "^HLT_Physics$",
+    "^HLT_EphemeralPhysics$",
+    "^HLT_EphemeralZeroBias$",
+    "^HLT_DoubleMu4_LowMass_Displaced$",
+    "^HLT_DoubleMu4_3_LowMass$",
+    "^HLT_L2Mu23NoVtx_2Cha$",
+    "^HLT_Mu3_L1SingleMu5orSingleMu7$",
+    "^HLT_L2Mu23NoVtx_2Cha_CosmicSeed$",
+    "^HLT_ExpressMuons$",
+    "^HLT_PPSMaxTracksPerArm1$",
+    "^HLT_OnlineMonitorGroup$",
+    "^HLT_Mu0_L1DoubleMu$",
+    "^HLT_L3Mu10NoVtx$",
+    "^HLT_L2Mu10NoVtx_2Cha$",
+    "^HLT_L3Mu10NoVtx_DxyMin0p01cm$",
+    "^HLT_L2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm$",
+    "^HLT_HT300_Beamspot$",
+]
+
+
+def exclude_patterns(merge):
+    """The exclude patterns in effect: DEFAULT_EXCLUDE (unless ``default_exclude`` is false) + ``exclude``."""
+    patterns = (DEFAULT_EXCLUDE if merge.get("default_exclude", True) else []) + list(merge.get("exclude") or [])
+    return list(dict.fromkeys(patterns))
 
 
 def _section(doc, name, spec, where):
@@ -263,6 +304,7 @@ def load_measurement(path, catalog_dir=None):
 
 def _check_merge(merge, base_dir, where):
     check_regex(merge["pure_reference"], f"{where}.pure_reference")
+    check_regex(merge["scouting_paths"], f"{where}.scouting_paths")
     for i, pattern in enumerate(merge["exclude"]):
         if not isinstance(pattern, str):
             raise ConfigError(f"{where}.exclude[{i}]: expected a regular expression, got {pattern!r}")
@@ -271,9 +313,9 @@ def _check_merge(merge, base_dir, where):
         if not isinstance(pattern, str):
             raise ConfigError(f"{where}.totals.{label}: expected a regular expression, got {pattern!r}")
         check_regex(pattern, f"{where}.totals.{label}")
-    check_keys(merge["overlaps"], ("datasets", "streams", "paths"), f"{where}.overlaps")
-    merge["overlaps"] = {k: value(merge["overlaps"], k, (bool,), f"{where}.overlaps", default=d)
-                         for k, d in (("datasets", True), ("streams", True), ("paths", False))}
+    overlaps = merge["overlaps"] or {}
+    check_keys(overlaps, tuple(OVERLAPS), f"{where}.overlaps")
+    merge["overlaps"] = {k: value(overlaps, k, (bool,), f"{where}.overlaps", default=d) for k, d in OVERLAPS.items()}
     for key in ("datasets", "streams"):
         v = merge[key]
         if v not in (None, "menu"):
@@ -282,4 +324,4 @@ def _check_merge(merge, base_dir, where):
                 raise ConfigError(f"{where}.{key}: {merge[key]} does not exist (use 'menu', null or a YAML file)")
 
 
-__all__ = ["Measurement", "load_measurement", "ConfigError"]
+__all__ = ["Measurement", "load_measurement", "ConfigError", "DEFAULT_EXCLUDE", "exclude_patterns"]

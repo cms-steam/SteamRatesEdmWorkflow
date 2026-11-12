@@ -163,3 +163,41 @@ class BitCounters:
                 "strip_versions": self.strip_versions,
                 "totals": {label: {"regex": self.totals_regex[label], "count": int(t[0]), "sumw": float(t[1]),
                                    "sumw2": float(t[2])} for label, t in self._totals.items()}}
+
+    @classmethod
+    def from_definition(cls, definition):
+        """Counters with the definition stored in a partial (``definition()``), not filled."""
+        return cls(definition["pure_reference"], definition["exclude"],
+                   {label: t["regex"] for label, t in definition["totals"].items()},
+                   strip_versions=definition["strip_versions"])
+
+
+def counters_from_table(table, definition):
+    """The counters of ``definition`` (as stored in a partial), computed from a combination table.
+
+    Returns ``(arrays, totals)`` like the partial's ``counters`` tree and ``definition["totals"]``.
+    The merge compares them with the counters filled in the event loop: equal numbers show that
+    the table holds the same events as the plain event loop. Works block by block (bounded memory).
+    """
+    bc = BitCounters.from_definition(definition)
+    names = table.bit_names
+    ref = np.array([bc.is_reference(n) for n in names], dtype=bool)
+    excluded = np.array([bc.is_excluded(n) for n in names], dtype=bool)
+    tot_masks = {label: np.array([bool(rx.search(bc._key(n))) for n in names], dtype=bool) & ~excluded
+                 for label, rx in bc._rx_tot.items()}
+    arrays = {f: np.zeros(len(names)) for f in FIELDS}
+    totals = {label: np.zeros(3) for label in tot_masks}
+    for start, stop, offsets, indices in table.iter_csr():
+        n_rows = stop - start
+        row_of = np.repeat(np.arange(n_rows), np.diff(offsets))
+        weights = {"count": table.count[start:stop], "sumw": table.sumw[start:stop], "sumw2": table.sumw2[start:stop]}
+        in_ref = ref[indices]
+        n_ref = np.bincount(row_of, weights=in_ref, minlength=n_rows)[row_of]
+        pure = np.where(in_ref, n_ref == 1, n_ref == 0)
+        for f, w in weights.items():
+            arrays[f] += np.bincount(indices, weights=w[row_of], minlength=len(names))
+            arrays["pure_" + f] += np.bincount(indices[pure], weights=w[row_of[pure]], minlength=len(names))
+        for label, mask in tot_masks.items():
+            hit = np.bincount(row_of, weights=mask[indices], minlength=n_rows) > 0
+            totals[label] += [weights["count"][hit].sum(), weights["sumw"][hit].sum(), weights["sumw2"][hit].sum()]
+    return arrays, {label: {"count": t[0], "sumw": t[1], "sumw2": t[2]} for label, t in totals.items()}

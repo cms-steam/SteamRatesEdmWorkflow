@@ -1,9 +1,9 @@
-"""run: prepare a work dir and run all its jobs locally (merge follows once implemented).
+"""run: prepare a work dir, run all its jobs locally and merge the results.
 
     python3 -m steamrates run meas.yaml -w WORKDIR [-j 8] [--force] [--catalog DIR]
 
-Equivalent to ``prepare`` followed by ``submit --local``. Running it again only runs the jobs that
-are not done yet.
+Equivalent to ``prepare``, ``submit --local`` and ``merge``. Running it again only runs the jobs
+that are not done yet, and merges again (e.g. after changing merge settings with ``--force``).
 """
 
 from __future__ import annotations
@@ -14,7 +14,9 @@ import sys
 
 from .batch import default_parallel, submit
 from .inputs import InputError
+from .merge import MergeError, merge
 from .prepare import prepare
+from .results import print_summary, write_results
 from .schema import ConfigError
 
 
@@ -35,7 +37,12 @@ def main(argv=None):
     if not all(s == "done" for _, s, _ in states):
         print("Some jobs are not done; fix the problem and repeat the command (only those jobs run again).")
         return 1
-    print("All jobs done. (The merge into rates is not implemented yet.)")
+    try:
+        result = merge(wd.path)
+    except MergeError as e:
+        raise SystemExit(f"error: merge: {e}") from None
+    out_dir = wd.p("results")
+    print_summary(result, write_results(result, out_dir), out_dir)
     return 0
 
 

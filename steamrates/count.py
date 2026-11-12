@@ -199,9 +199,12 @@ def main(argv=None):
         if remaining is not None:
             remaining -= f_read
         # "menu": name of the menu read from this file (NanoAOD: first file only);
-        # "menu_id": EDM only, hash of the path-name list (identical for files of the same menu)
+        # "menu_id": EDM only, hash of the path-name list (identical for files of the same menu);
+        # "mc_sums": this file's genEventSumw etc. (Runs tree). The MC normalization uses them only
+        # if every file has them and was read completely (steamrates.normalize).
         file_records.append({"path": path, "n_events": info.n_events, "n_read": f_read, "n_selected": f_sel,
-                             "menu": info.menu.name if info.menu else None, "menu_id": info.menu_id})
+                             "menu": info.menu.name if info.menu else None, "menu_id": info.menu_id,
+                             "mc_sums": info.mc_sums})
         log.info("%s: %d events read, %d selected", path, f_read, f_sel)
 
     n_dup = count_duplicate_events(event_ids)

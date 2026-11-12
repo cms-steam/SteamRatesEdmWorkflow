@@ -177,17 +177,27 @@ class PatternTable:
 
     # ---- sparse (CSR) view and simple quantities ---------------------------------------------
 
+    def iter_csr(self, block=_BLOCK):
+        """Yield the table in blocks of rows: ``(start, stop, offsets, indices)``.
+
+        ``offsets``/``indices`` are the CSR form of rows ``start:stop`` (offsets start at 0). Used
+        where the whole CSR form would be too large (MC tables with ~200 fired bits per row).
+        """
+        for start in range(0, self.n_rows, block):
+            dense = np.unpackbits(self.keys[start:start + block], axis=1, count=self.n_bits).astype(bool)
+            _, cols = np.nonzero(dense)          # row-major: the bits of each row in increasing order
+            offsets = np.zeros(len(dense) + 1, np.int64)
+            np.cumsum(dense.sum(axis=1), out=offsets[1:])
+            yield start, start + len(dense), offsets, cols.astype(np.int32)
+
     def to_csr(self):
         """Return ``(offsets, indices)``: the fired bits of row ``i`` are ``indices[offsets[i]:offsets[i+1]]``."""
-        n_bits = self.n_bits
-        idx_parts, counts = [], []
-        for start in range(0, self.n_rows, _BLOCK):
-            dense = np.unpackbits(self.keys[start:start + _BLOCK], axis=1, count=n_bits).astype(bool)
-            rows, cols = np.nonzero(dense)
-            idx_parts.append(cols.astype(np.int32))
-            counts.append(dense.sum(axis=1))
+        idx_parts, per_row = [], []
+        for _, _, offsets, indices in self.iter_csr():
+            idx_parts.append(indices)
+            per_row.append(np.diff(offsets))
         indices = np.concatenate(idx_parts) if idx_parts else np.zeros(0, np.int32)
-        per_row = np.concatenate(counts) if counts else np.zeros(0, np.int64)
+        per_row = np.concatenate(per_row) if per_row else np.zeros(0, np.int64)
         offsets = np.zeros(self.n_rows + 1, np.int64)
         np.cumsum(per_row, out=offsets[1:])
         return offsets, indices

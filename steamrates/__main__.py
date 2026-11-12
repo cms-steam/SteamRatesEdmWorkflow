@@ -1,10 +1,11 @@
 """Command-line entry point: ``python3 -m steamrates <command> [options]``.
 
 Commands:
-    run       prepare + submit --local (one command for a local measurement)
+    run       prepare + submit --local + merge (one command for a local measurement)
     prepare   measurement config -> work dir with job files
     submit    run the jobs that are not done yet (--local; --condor later)
     status    done / failed / invalid / missing jobs of a work dir
+    merge     partial results -> normalized rates (JSON + CSV in WORKDIR/results)
     catalog   browse the sample catalog (list, show ID)
     count     count trigger bits of ntuple files -> one partial result (what a job runs)
     summary   inspect / add up partial results (raw counts)
@@ -20,6 +21,7 @@ COMMANDS = {
     "prepare": "steamrates.prepare",
     "submit": "steamrates.batch",
     "status": "steamrates.jobstatus",
+    "merge": "steamrates.merge",
     "catalog": "steamrates.catalog",
     "count": "steamrates.count",
     "summary": "steamrates.summary",

@@ -31,7 +31,7 @@ import sys
 import tarfile
 
 from . import __version__
-from .config import load_measurement
+from .config import exclude_patterns, load_measurement
 from .inputs import InputError, check_files, expand_inputs
 from .provenance import git_state
 from .readers import detect_format, make_reader
@@ -59,7 +59,7 @@ def count_args(meas, fmt, process, l1_process):
     # definitions of the old-style counters (steamrates.counters), taken from the merge settings
     m = meas.merge
     args += ["--pure-reference", m["pure_reference"]]
-    for pattern in m["exclude"]:
+    for pattern in exclude_patterns(m):
         args += ["--exclude", pattern]
     for label, pattern in m["totals"].items():
         args += ["--total", f"{label}={pattern}"]
