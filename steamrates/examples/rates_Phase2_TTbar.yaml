@@ -1,4 +1,5 @@
 # Phase-2 ttbar with the re-run menu (process HLT2), scaled to 7.5e34.
+# MC: for large samples consider merge: {overlaps: {paths: false}} (see reference.yaml).
 name: rates_Phase2_TTbar
 input:
   ntuples: Phase2_TTbar_14TeV_STEAMtemp_default

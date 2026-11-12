@@ -47,11 +47,29 @@ batch:                          # HTCondor (lxplus)
   proxy: auto                   # auto: use the grid proxy if inputs are read via xrootd outside EOS
   cmssw_base: null              # release for the jobs' environment; null = $CMSSW_BASE
 
-merge:
+merge:                          # merge settings (steamrates.merge; categories and pure rates: steamrates.maps)
   strip_versions: true          # HLT_X_v3 -> HLT_X (merge across menu versions)
-  pure_reference: '^HLT_'       # pure rate of a path = it fired and no other path matching this did
-  exclude: []                   # regexes: paths left out of the totals and the pure reference
-  totals: {HLT: '^HLT_', L1: '^L1_(?!FinalOR|UnprefireableEvent)'}   # label: regex (OR of the matching bits)
-  datasets: menu                # dataset -> paths: from the menu in the ntuples, a YAML file, or null
-  streams: menu                 # stream -> datasets: same
-  overlaps: {datasets: true, streams: true, paths: false}
+  pure_reference: '^HLT_'       # counters filled by the jobs: pure = no other matching path fired;
+                                # merge: the standard paths if the maps have no datasets (Phase-2)
+  default_exclude: true         # also exclude the paths of steamrates' default list (config.DEFAULT_EXCLUDE:
+                                # HLT_Physics, HLT_EphemeralPhysics/ZeroBias and the legacy triggerstoexclude list)
+  exclude: []                   # more regexes: paths that keep their own rate but are left out of every
+                                # combined quantity (totals, dataset/stream rates, pure references);
+                                # all excluded bits are listed in results/excluded_paths.json
+  scouting_paths: '^DST_.*Scouting'   # merge: the scouting paths if the maps have no streams (Phase-2)
+  totals: {HLT: '^HLT_', L1: '^L1_(?!FinalOR|UnprefireableEvent)'}   # extra totals, label: regex (OR)
+  datasets: menu                # dataset -> paths: the menu in the ntuples, a YAML file {dataset: [paths]}, or null
+  streams: menu                 # stream -> datasets: same ({stream: [datasets]})
+  overlaps:                     # overlap matrices written by the merge (datasets/streams: the combined ones)
+    datasets: true              # dataset x dataset
+    streams: true               # stream x stream
+    paths_datasets: true        # HLT path x dataset
+    l1_datasets: true           # L1 seed x dataset
+    l1_streams: true            # L1 seed x stream
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # !!! MC SAMPLES: consider `paths: false`. The HLT path x path overlap is cheap for data      !!!
+    # !!! (events with the same fired paths share a row: 13.5M events of 403663 +1.5 s, +44 MB), !!!
+    # !!! but in MC every event is its own row: ~ +13 s and +150 MB per 100k events with 100     !!!
+    # !!! fired paths each, growing with events x (fired paths per event)^2.                      !!!
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    paths: true                 # HLT path x HLT path (the largest)

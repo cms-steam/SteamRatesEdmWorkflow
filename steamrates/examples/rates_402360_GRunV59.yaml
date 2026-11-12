@@ -1,26 +1,8 @@
 # Rates of the re-run GRun V59 menu on EphemeralHLTPhysics of run 402360 (legacy EDM ntuples).
 #   python3 -m steamrates prepare steamrates/examples/rates_402360_GRunV59.yaml -w <workdir>
+# The paths of the legacy Rates/triggerstoexclude.py are excluded by default (config.DEFAULT_EXCLUDE;
+# add more with merge.exclude). Note: the legacy code still counted them in the dataset rates and as
+# "other" paths in the pure rates of the rest.
 name: rates_402360_GRunV59
 input:
   ntuples: Run2026B_402360_EphemeralHLTPhysics_GRunV59
-merge:
-  # The paths of the legacy Rates/triggerstoexclude.py (names without version, as after
-  # strip_versions). Excluded paths are left out of the totals and of the pure-rate reference.
-  # Note: the legacy code still counted them as "other" paths in the pure rates of the rest.
-  exclude:
-    - '^HLT_DoubleMu4_LowMass_Displaced$'
-    - '^HLT_DoubleMu4_3_LowMass$'
-    - '^HLT_L2Mu23NoVtx_2Cha$'
-    - '^HLT_Mu3_L1SingleMu5orSingleMu7$'
-    - '^HLT_L2Mu23NoVtx_2Cha_CosmicSeed$'
-    - '^HLT_EphemeralPhysics$'
-    - '^HLT_EphemeralZeroBias$'
-    - '^HLT_ExpressMuons$'
-    - '^HLT_PPSMaxTracksPerArm1$'
-    - '^HLT_OnlineMonitorGroup$'
-    - '^HLT_Mu0_L1DoubleMu$'
-    - '^HLT_L3Mu10NoVtx$'
-    - '^HLT_L2Mu10NoVtx_2Cha$'
-    - '^HLT_L3Mu10NoVtx_DxyMin0p01cm$'
-    - '^HLT_L2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm$'
-    - '^HLT_HT300_Beamspot$'
