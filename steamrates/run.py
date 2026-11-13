@@ -1,9 +1,11 @@
-"""run: prepare a work dir, run all its jobs locally and merge the results.
+"""run: prepare a work dir, run all its jobs and merge the results.
 
-    python3 -m steamrates run meas.yaml -w WORKDIR [-j 8] [--force] [--catalog DIR]
+    python3 -m steamrates run meas.yaml -w WORKDIR [-j 8 | --condor] [--force] [--catalog DIR]
 
-Equivalent to ``prepare``, ``submit --local`` and ``merge``. Running it again only runs the jobs
-that are not done yet, and merges again (e.g. after changing merge settings with ``--force``).
+Equivalent to ``prepare``, ``submit --local`` (or ``submit --condor --wait``) and ``merge``.
+Running it again only runs the jobs that are not done yet, and merges again (e.g. after changing
+merge settings with ``--force``). With ``--condor`` it waits for the jobs (Ctrl-C stops waiting;
+the jobs keep running, and running the command again continues).
 """
 
 from __future__ import annotations
@@ -12,8 +14,9 @@ import argparse
 import logging
 import sys
 
-from .batch import default_parallel, submit
+from .batch import default_parallel, submit, wait_condor
 from .inputs import InputError
+from .jobstatus import print_status
 from .merge import MergeError, merge
 from .prepare import prepare
 from .results import print_summary, write_results
@@ -25,6 +28,8 @@ def main(argv=None):
     p.add_argument("config", help="measurement config (YAML)")
     p.add_argument("-w", "--workdir", required=True)
     p.add_argument("-j", "--parallel", type=int, help=f"local jobs at a time (default: {default_parallel()})")
+    p.add_argument("--condor", action="store_true", help="run the jobs on HTCondor (lxplus) and wait for them")
+    p.add_argument("--poll", type=int, default=60, help="--condor: seconds between queue checks (default: 60)")
     p.add_argument("--force", action="store_true", help="update a work dir prepared with other settings/inputs")
     p.add_argument("--catalog", help="sample catalog directory")
     args = p.parse_args(argv)
@@ -33,7 +38,10 @@ def main(argv=None):
         wd, _ = prepare(args.config, args.workdir, force=args.force, catalog_dir=args.catalog)
     except (ConfigError, InputError) as e:
         raise SystemExit(f"error: {e}") from None
-    states = submit(wd, local=True, n_parallel=args.parallel)
+    states = submit(wd, local=not args.condor, n_parallel=args.parallel)
+    if args.condor:
+        states = wait_condor(wd, args.poll)
+        print_status(wd, states, tail=3)
     if not all(s == "done" for _, s, _ in states):
         print("Some jobs are not done; fix the problem and repeat the command (only those jobs run again).")
         return 1

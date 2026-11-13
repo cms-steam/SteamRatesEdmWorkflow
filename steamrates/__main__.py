@@ -1,9 +1,9 @@
 """Command-line entry point: ``python3 -m steamrates <command> [options]``.
 
 Commands:
-    run       prepare + submit --local + merge (one command for a local measurement)
+    run       prepare + submit (--local or --condor) + merge, in one command
     prepare   measurement config -> work dir with job files
-    submit    run the jobs that are not done yet (--local; --condor later)
+    submit    run the jobs that are not done yet (--local, or --condor on lxplus)
     status    done / failed / invalid / missing jobs of a work dir
     merge     partial results -> normalized rates (JSON + CSV in WORKDIR/results)
     catalog   browse the sample catalog (list, show ID)

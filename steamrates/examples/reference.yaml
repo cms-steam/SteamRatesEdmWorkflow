@@ -45,7 +45,8 @@ batch:                          # HTCondor (lxplus)
   flavour: espresso             # espresso, microcentury, longlunch, workday, tomorrow, testmatch, nextweek
   request_memory_mb: 2000
   proxy: auto                   # auto: use the grid proxy if inputs are read via xrootd outside EOS
-  cmssw_base: null              # release for the jobs' environment; null = $CMSSW_BASE
+  cmssw_base: null              # release for the jobs' environment; null = $CMSSW_BASE, else the
+                                # CMSSW area that contains this steamrates checkout
 
 merge:                          # merge settings (steamrates.merge; categories and pure rates: steamrates.maps)
   strip_versions: true          # HLT_X_v3 -> HLT_X (merge across menu versions)
