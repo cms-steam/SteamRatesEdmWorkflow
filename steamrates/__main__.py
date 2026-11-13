@@ -6,6 +6,7 @@ Commands:
     submit    run the jobs that are not done yet (--local, or --condor on lxplus)
     status    done / failed / invalid / missing jobs of a work dir
     merge     partial results -> normalized rates (JSON + CSV in WORKDIR/results)
+    plots     tables and figures of the merged results (PNG + PDF in WORKDIR/plots)
     catalog   browse the sample catalog (list, show ID)
     count     count trigger bits of ntuple files -> one partial result (what a job runs)
     summary   inspect / add up partial results (raw counts)
@@ -22,6 +23,7 @@ COMMANDS = {
     "submit": "steamrates.batch",
     "status": "steamrates.jobstatus",
     "merge": "steamrates.merge",
+    "plots": "steamrates.plots",
     "catalog": "steamrates.catalog",
     "count": "steamrates.count",
     "summary": "steamrates.summary",
