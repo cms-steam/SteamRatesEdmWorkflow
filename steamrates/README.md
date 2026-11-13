@@ -3,10 +3,10 @@
 New implementation of the counting and merging steps (step 2) of the STEAM rate workflow. It lives
 next to the legacy scripts in `Rates/` until it has replaced them.
 
-Status (2026-11-12): **counting** and **merging** (normalized rates, JSON + CSV) are implemented and
+Status (2026-11-13): **counting** and **merging** (normalized rates, JSON + CSV) are implemented and
 validated. The sample catalog, measurement configs, `prepare` (work dir + job files), running the
-jobs locally (`submit --local`, `run`), `status` and `merge` are implemented. HTCondor submission and
-plotting come next.
+jobs locally or on HTCondor (`submit --local|--condor`, `run`), `status`, `merge` and `plots`
+(tables and figures) are implemented.
 
 ## Measurements in short
 
@@ -33,10 +33,24 @@ plotting come next.
    failure, fix the cause and repeat the command.
    ```bash
    python3 -m steamrates submit <workdir> --local -j 8
-   python3 -m steamrates status <workdir>            # done / failed (+ log tail) / invalid / missing
+   python3 -m steamrates submit <workdir> --condor        # lxplus HTCondor (EOS work dirs: eossubmit, automatic)
+   python3 -m steamrates status <workdir>            # done / running / queued / held / failed (+ log tail) / invalid / missing
    python3 -m steamrates run <config> -w <workdir> -j 8   # prepare + submit --local + merge
+   python3 -m steamrates run <config> -w <workdir> --condor   # the same on HTCondor (waits for the jobs)
    ```
-   Example: the 403663 baseline (3534 EDM files, 13.6M events) takes ~3 min with `-j 8` on lxplus.
+   Example: the 403663 baseline (3534 EDM files, 13.6M events) takes ~3 min with `-j 8` on lxplus,
+   and about the same on HTCondor (28 jobs, 3.2 min from submission to the last job, incl. queueing).
+
+   **HTCondor** (`condor.py`): one cluster per `submit`, with the config's `batch` settings (job
+   flavour, memory, grid proxy, CMSSW area; default `$CMSSW_BASE` or the release of this checkout).
+   Jobs unpack the work dir's code snapshot, run in a CMSSW environment on the batch node, and bring
+   their outputs back by condor file transfer, to the same places as the local executor, so AFS and
+   EOS work dirs should behave the same (so far tested from EOS work dirs only). A job that fails
+   returns an empty partial (shown as `failed` by `status`, with its log tail) instead of going on
+   hold; jobs that condor stops (memory, time) are `held` with condor's reason, and `submit` removes
+   and resubmits them. `submit` never resubmits jobs that are still queued or running. Files:
+   `condor/` (wrapper, submit files, `submissions.json`), `logs/job_<id>.log`, `logs/condor/`
+   (condor log and stderr).
 5. **Merge** the partial results into normalized rates (`run` does this at the end):
    ```bash
    python3 -m steamrates merge <workdir>                  # -> <workdir>/results/
@@ -60,6 +74,16 @@ plotting come next.
    The formats are documented in `results.py`; the normalization in `normalize.py`; categories
    (standard/parking/scouting/other from the stream names), split datasets and the pure rate
    definitions in `maps.py`. The 403663 baseline merges in ~20 s with < 300 MB.
+6. **Plots**: tables and figures for talks and quick looks, from `<workdir>/results/` only:
+   ```bash
+   python3 -m steamrates plots <workdir> [--top 10] [--path HLT_IsoMu24 --path HLT_Mu50]   # -> <workdir>/plots/
+   ```
+   Top-N tables of HLT paths, L1 seeds, datasets and streams; output rates by category; pure vs
+   shared rate of the datasets; the overlap of scouting with standard + parking; stream x stream and
+   dataset x dataset overlap matrices; for chosen paths, the paths with the largest overlap (bars
+   and matrix). PNG + PDF, and `index.html` with all figures. Items that fire in nearly every event
+   of the sample (e.g. datasets containing HLT_Physics in HLTPhysics data) are left out and named in
+   a footnote. The functions (`Results`, `Overlap`, `fig_*`) can be reused in notebooks.
 
 Each counting job also fills **old-style per-path counters** in the event loop (count, pure count,
 HLT/L1 totals; `counters.py`). They cross-check the combination table, and with
@@ -130,7 +154,7 @@ Safety features:
 
 | module | content |
 |---|---|
-| `__main__.py` | `python3 -m steamrates <command>`: run, prepare, submit, status, merge, catalog, count, summary |
+| `__main__.py` | `python3 -m steamrates <command>`: run, prepare, submit, status, merge, plots, catalog, count, summary |
 | `catalog.py` | sample catalog: RAW inputs and ntuples (schema in the docstring) |
 | `config.py` | measurement config: validation, resolution against the catalog |
 | `prepare.py` | command line: config → work dir with job files |
@@ -138,10 +162,12 @@ Safety features:
 | `inputs.py` | input specs (globs, list files, LFNs), duplicate removal, per-file checks, `open_root` (xrootd) |
 | `schema.py` | YAML validation helpers (unknown keys, types, `TODO` placeholders) |
 | `provenance.py` | git state of the code and catalog |
-| `batch.py` | command line `submit`: local executor (HTCondor later) |
-| `jobstatus.py` | command line `status`: done / failed / invalid / missing |
-| `jobrun.py` | runs one job of a work dir (used by the executors) |
-| `run.py` | command line `run`: prepare + submit --local |
+| `batch.py` | command line `submit`: local executor, HTCondor submission (`condor.py`), waiting for condor jobs |
+| `condor.py` | HTCondor executor: job wrapper, submit files, eossubmit environment, queue states, held jobs |
+| `jobstatus.py` | command line `status`: done / running / queued / held / failed / invalid / missing |
+| `jobrun.py` | runs one job of a work dir (used by the executors; `--attempt` writes the attempt record) |
+| `run.py` | command line `run`: prepare + submit (--local or --condor) + merge |
+| `plots.py` | command line `plots`: tables and figures of the merged results, HTML gallery |
 | `counters.py` | old-style per-bit counters (cross-check of the table; fallback with `--no-table`) |
 | `count.py` | command line: input files → one partial result |
 | `summary.py` | command line: inspect / add up partial results |
@@ -201,3 +227,6 @@ was spread over.
   calculation. After the change to multi-process selection, Run 403663 NanoAOD and 402360 EDM give
   the same counts as before. The only difference is that the always-true `L1Reco_step` is no longer
   in the table.
+- **HTCondor (2026-11-13):** the 403663 baseline (28 jobs) and the Phase-2 TTbar sample (9 jobs),
+  submitted from EOS work dirs (eossubmit): all jobs done, and the merged results (every path,
+  dataset, stream and total) identical to the local runs.
