@@ -9,10 +9,12 @@ JSON (for the website; every file has ``schema`` and ``measurement``)::
                                  e.g. JetMET = JetMET0 + JetMET1): rates, pure rates, written rates
     datasets_split.json,         one record per dataset / stream of the menu (JetMET0, JetMET1, ...):
     streams_split.json           what each one writes (the numbers to control the bandwidth)
-    excluded_paths.json          the bits left out of all combined quantities, with the matching pattern
+    excluded_paths.json          the bits left out of the totals and pure-rate references, with the pattern
     paths_without_dataset.json   paths in no dataset (to review; exclude them with merge.exclude if wanted)
     overlaps_<name>.json         overlap matrices (sparse): datasets, streams, paths_datasets, l1_datasets,
-                                 l1_streams, paths (HLT x HLT); datasets and streams are the combined ones
+                                 l1_streams, paths (HLT x HLT), l1 (L1 x L1), paths_l1 (HLT x L1);
+                                 datasets and streams are the combined ones; l1 and paths_l1 use the
+                                 L1 seeds of one flavour (Phase-2: _final)
 
 CSV (for spreadsheets): ``paths_hlt.csv``, ``paths_l1.csv``, ``datasets.csv``, ``streams.csv``,
 ``datasets_split.csv``, ``streams_split.csv``.
@@ -76,7 +78,8 @@ KNOWN_FILES = ("summary.json", "paths_hlt.json", "paths_l1.json", "datasets.json
                "paths_without_dataset.json", "paths_hlt.csv", "paths_l1.csv", "datasets.csv", "streams.csv",
                "datasets_split.csv", "streams_split.csv",
                "overlaps_datasets.json", "overlaps_streams.json", "overlaps_paths_datasets.json",
-               "overlaps_l1_datasets.json", "overlaps_l1_streams.json", "overlaps_paths.json")
+               "overlaps_l1_datasets.json", "overlaps_l1_streams.json", "overlaps_paths.json",
+               "overlaps_l1.json", "overlaps_paths_l1.json")
 DATASET_METHODS = {
     "dataset_path": "its Dataset_ path in the ntuples (exact: round robin and dataset prescale)",
     "paths": "the OR of its paths (exact unless the dataset prescales single paths in its trigger conditions, "

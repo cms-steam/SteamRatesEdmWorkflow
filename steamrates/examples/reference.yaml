@@ -75,3 +75,6 @@ merge:                          # merge settings (steamrates.merge; categories a
     # !!! the events and the fired paths per event.                                               !!!
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     paths: true                 # HLT path x HLT path (the largest)
+    l1: true                    # L1 seed x L1 seed  } one L1 flavour: _final (Phase-2), or the seeds
+    paths_l1: true              # HLT path x L1 seed } without suffix (Run-3 NanoAOD); MC: ~+40% merge
+                                #                      time each (VBFto2L 1M events), data: negligible

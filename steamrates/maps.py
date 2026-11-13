@@ -214,6 +214,18 @@ class Maps:
     def l1_flavours(self):
         return sorted({l1_flavour(b) for b, k in zip(self.bits, self.kind) if k == "l1" and is_l1_seed(b)})
 
+    def overlap_l1_flavour(self):
+        """The one L1 flavour in the L1 x L1 and HLT x L1 overlaps: "final" if the seeds have flavours
+        (Phase-2 GT bits), else the seeds without suffix (Run-3 NanoAOD: final decisions); another
+        flavour only if neither exists. None if there are no L1 seeds."""
+        flavours = self.l1_flavours()
+        if not flavours:
+            return None
+        for preferred in ("final", ""):
+            if preferred in flavours:
+                return preferred
+        return flavours[0]
+
     def category_mask(self, categories):
         """Non-excluded paths with at least one of ``categories`` (used for totals)."""
         cats = set(categories)

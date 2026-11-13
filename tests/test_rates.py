@@ -26,7 +26,7 @@ MENU = {
 SETTINGS = {"strip_versions": True, "pure_reference": "^HLT_", "exclude": ["^HLT_Excl$"],
             "totals": {"HLT": "^HLT_"}, "datasets": "menu", "streams": "menu",
             "overlaps": {"datasets": True, "streams": True, "paths": True, "paths_datasets": True,
-                         "l1_datasets": True, "l1_streams": True}}
+                         "l1_datasets": True, "l1_streams": True, "l1": True, "paths_l1": True}}
 STRIPPED = [b.rsplit("_v", 1)[0] if "_v" in b else b for b in BITS]
 
 
@@ -163,13 +163,28 @@ def test_accumulator_matches_brute_force(weighted):
     hlt_rx = np.array([b.startswith("HLT_") for b in STRIPPED]) & ~excl
     close(t["regex_HLT"], W[x[:, hlt_rx].any(1)].sum(0))
 
-    # overlaps (all three W columns)
+    # overlaps (all three W columns); L1 x L1 and HLT x L1 with the _final seeds only
     hlt = np.array([k == "hlt" for k in m.kind])
+    l1f = np.array([b.startswith("L1_") and b.endswith("_final") for b in STRIPPED])
+    assert l1f.sum() == 2
+    assert next(o for o in acc.overlaps if o.name == "l1").description == "L1 seed x L1 seed (final)"
     for name, a, b in (("datasets", g_ds, g_ds), ("streams", g_st, g_st), ("paths_datasets", x[:, hlt], g_ds),
-                       ("paths", x[:, hlt], x[:, hlt])):
+                       ("paths", x[:, hlt], x[:, hlt]), ("l1", x[:, l1f], x[:, l1f]), ("paths_l1", x[:, hlt], x[:, l1f])):
         mats = acc.overlap_matrix(name)
         for k in range(3):
             close(mats[k].toarray(), (a.T * W[:, k]) @ b.astype(float))
+
+
+def test_l1_overlap_flavour():
+    run3 = build_maps(["HLT_A", "L1_X", "L1_Y", "L1_FinalOR"], None, SETTINGS)
+    assert run3.overlap_l1_flavour() == ""
+    ovs = {o.name: o for o in default_overlaps(run3, SETTINGS["overlaps"])}
+    assert int(ovs["l1"].rows[1].sum()) == 2 and int(ovs["paths_l1"].cols[1].sum()) == 2   # no L1_FinalOR
+    only_bp = build_maps(["HLT_A", "L1_X_beforePrescale"], None, SETTINGS)
+    assert only_bp.overlap_l1_flavour() == "beforePrescale"
+    edm = build_maps(["HLT_A", "HLT_B"], None, SETTINGS)              # no L1 bits: no L1 matrices
+    assert edm.overlap_l1_flavour() is None
+    assert {o.name for o in default_overlaps(edm, SETTINGS["overlaps"])} == {"paths"}
 
 
 # Split datasets: E0-E3 (same paths, round robin by their Dataset_ paths, 2 per stream), Mon (dataset

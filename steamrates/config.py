@@ -92,8 +92,11 @@ MERGE = {
 # !!! accumulation, ~1.4 s per 100k events) and +30 MB; the time grows with the events and the fired
 # !!! paths per event, the output (up to n_paths^2 entries, 9 MB JSON here) with the paths. Switch it
 # !!! off if a large MC merge is too slow.
+# "l1" (L1 seed x L1 seed) and "paths_l1" (HLT path x L1 seed) use the seeds of one flavour (Phase-2:
+# _final; Run-3 NanoAOD seeds have no suffix). Data: negligible (403663 PromptNano: +0.6 s, +5 MB for
+# both). MC (VBFto2L, 1M events, 466 seeds): each adds ~40% to the accumulation time, +27-51 MB.
 OVERLAPS = {"datasets": True, "streams": True, "paths_datasets": True, "l1_datasets": True, "l1_streams": True,
-            "paths": True}
+            "paths": True, "l1": True, "paths_l1": True}
 
 # Paths left out of the totals and the pure-rate references in every measurement, unless
 # ``merge.default_exclude: false``; ``merge.exclude`` adds more for a measurement. They keep their own

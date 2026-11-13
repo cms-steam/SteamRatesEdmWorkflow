@@ -379,7 +379,7 @@ warnings for paths that fire in almost every event.
 | `paths_hlt.json/.csv` | per HLT path: rate, pure rate, shared with standard+parking, category, datasets, prescale |
 | `paths_l1.json/.csv` | per L1 seed: rate, pure rate |
 | `datasets[_split].json/.csv`, `streams[_split].json/.csv` | combined and split datasets/streams |
-| `overlaps_*.json` | sparse overlap matrices: datasets, streams, paths, paths × datasets, L1 × datasets, L1 × streams |
+| `overlaps_*.json` | sparse overlap matrices: datasets, streams, paths, paths × datasets, L1 × datasets, L1 × streams, L1 × L1, paths × L1 (L1 × L1 and paths × L1: one L1 flavour, `_final` for Phase-2) |
 | `paths_without_dataset.json`, `excluded_paths.json` | lists to review |
 
 Rates have statistical errors (from Σw²). JSON is meant for a future comparison website, CSV for
@@ -469,7 +469,7 @@ triggers, which have no events in HLTPhysics samples).
   ntuples do; not used yet).
 - L1 rates in central NanoAOD are after L1 prescales and masks; unprescaled L1 bits are needed to
   apply other L1 columns. MC menus have no prescales: prescale application at merge time is planned.
-- Planned: L1 × L1 and HLT × L1 overlap matrices, pure rates of paths within their stream, PAG/POG
+- Planned: pure rates of paths within their stream, PAG/POG
   groups, per-LS luminosity/prescale weights, event sizes for bandwidths, the merge as a batch job
   (for a web server), combining several work dirs (e.g. pT-binned MC).
 - HTCondor submission has been tested from EOS work dirs (eossubmit); AFS work dirs are expected to

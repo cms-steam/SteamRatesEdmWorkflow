@@ -114,6 +114,11 @@ def default_overlaps(maps, settings):
     nds, nst = len(maps.combined_datasets), len(maps.combined_streams)
     hlt = maps.mask(lambda i: maps.kind[i] == "hlt")
     l1 = maps.l1_seed_mask()
+    # L1 x L1 and HLT x L1: the seeds of one flavour only (Phase-2 ntuples store every seed as _final
+    # and _beforePrescale; one flavour keeps the matrices at a quarter / half of the size)
+    fl = maps.overlap_l1_flavour()
+    l1_one = maps.l1_seed_mask(fl) if fl is not None else np.zeros(maps.n_bits, bool)
+    fl_note = f" ({fl})" if fl else ""
     all_ds, all_st = np.ones(nds, bool), np.ones(nst, bool)
     candidates = [
         ("datasets", Overlap("datasets", "dataset x dataset", ("datasets", all_ds), ("datasets", all_ds), True), nds),
@@ -123,6 +128,9 @@ def default_overlaps(maps, settings):
         ("l1_datasets", Overlap("l1_datasets", "L1 seed x dataset", ("bits", l1), ("datasets", all_ds)), nds and l1.any()),
         ("l1_streams", Overlap("l1_streams", "L1 seed x stream", ("bits", l1), ("streams", all_st)), nst and l1.any()),
         ("paths", Overlap("paths", "HLT path x HLT path", ("bits", hlt), ("bits", hlt), True), hlt.any()),
+        ("l1", Overlap("l1", "L1 seed x L1 seed" + fl_note, ("bits", l1_one), ("bits", l1_one), True), l1_one.any()),
+        ("paths_l1", Overlap("paths_l1", "HLT path x L1 seed" + fl_note, ("bits", hlt), ("bits", l1_one)),
+         hlt.any() and l1_one.any()),
     ]
     return [ov for key, ov, possible in candidates if settings.get(key) and possible]
 
