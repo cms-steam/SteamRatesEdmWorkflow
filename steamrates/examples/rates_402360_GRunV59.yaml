@@ -1,0 +1,5 @@
+# Rates of the re-run GRun V59 menu on EphemeralHLTPhysics of run 402360 (legacy EDM ntuples).
+#   python3 -m steamrates prepare steamrates/examples/rates_402360_GRunV59.yaml -w <workdir>
+name: rates_402360_GRunV59
+input:
+  ntuples: Run2026B_402360_EphemeralHLTPhysics_GRunV59

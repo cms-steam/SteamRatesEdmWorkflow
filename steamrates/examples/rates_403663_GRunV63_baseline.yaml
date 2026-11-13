@@ -1,0 +1,5 @@
+# The 2026-11 STEAM baseline: GRun V63 re-run on EphemeralHLTPhysics0-7 of run 403663.
+name: rates_403663_GRunV63_baseline
+input:
+  ntuples: Run2026D_403663_EphemeralHLTPhysics_GRunV63
+jobs: {events_per_job: 500000}
