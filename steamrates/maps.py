@@ -60,9 +60,10 @@ group fired:
     L1 seeds                     w.r.t. the other L1 seeds of the same flavour
     everything else              0 (not null: the CSV files are opened in Excel)
 
-Excluded paths (``merge.exclude`` and the default list ``config.DEFAULT_EXCLUDE``) keep their own
-rate but are left out of every combined quantity: totals, dataset and stream rates, pure-rate
-references (their own pure rate is 0).
+Excluded paths (``merge.exclude`` and the default list ``config.DEFAULT_EXCLUDE``: HLT_Physics,
+HLT_EphemeralPhysics) are left out of the totals and of every pure-rate reference; their own pure
+rate is 0. They keep their own rate and stay in the dataset and stream rates (what is written) and in
+the overlaps. The pure rates of datasets and streams are computed without them.
 """
 
 from __future__ import annotations
@@ -261,14 +262,15 @@ class Maps:
         return next((g for g, cats in HLT_REFERENCES.items() if category in cats), None)
 
     # ---- membership matrices -----------------------------------------------------------------------
-    def dataset_members(self):
-        """Bool matrix (bits x split datasets): bit is a (non-excluded) path of the dataset."""
+    def dataset_members(self, with_excluded=True):
+        """Bool matrix (bits x split datasets): bit is a path of the dataset (``with_excluded=False``:
+        only the non-excluded paths, as used for the pure-rate references)."""
         index = {b: i for i, b in enumerate(self.bits)}
         m = np.zeros((self.n_bits, len(self.datasets)), dtype=bool)
         for j, paths in enumerate(self.datasets.values()):
             for p in paths:
                 i = index.get(p)
-                if i is not None and not self.excluded[i]:
+                if i is not None and (with_excluded or not self.excluded[i]):
                     m[i, j] = True
         return m
 

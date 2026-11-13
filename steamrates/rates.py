@@ -20,7 +20,8 @@ A block of rows is a sparse 0/1 matrix ``X`` (rows x bits) plus the W columns (r
                                   if the ntuples have it (round robin, dataset prescale)
     split stream s fired          (split datasets @ M_st)[r, s] > 0
     sums per item                 A.T @ W                    A = X or one of the decision matrices
-    pure sums, reference group g  A.T @ (W * [n_g == 1])     n_g[r] = members of g fired in row r
+    pure sums, reference group g  R.T @ (W * [n_g == 1])     R = the decisions without excluded paths
+                                  (R = X for bits), n_g[r] = members of g in R fired in row r
                                   (only for items whose reference group is g; bits, combined items)
     shared with standard+parking  A.T @ (W * [any standard/parking path fired])
     total over a set of paths     sum of W over rows where at least one of them fired
@@ -136,8 +137,10 @@ class RateAccumulator:
         self.totals = list(totals)
         self.overlaps = list(overlaps)
         nb = maps.n_bits
-        m_ds = maps.dataset_members()                              # bits x split datasets
+        m_ds = maps.dataset_members()                              # bits x split datasets (all paths)
+        m_ds_ref = maps.dataset_members(with_excluded=False)       # ... without excluded paths
         self.has_groups = m_ds.shape[1] > 0
+        self.same_ref = bool((m_ds == m_ds_ref).all())             # no excluded path is in a dataset
         csr = lambda a: sp.csr_matrix(np.asarray(a, dtype=np.float64))   # noqa: E731
         i64 = lambda a: a.astype(np.int64)                                # noqa: E731
         m_st, c_ds, c_st = maps.stream_members(), maps.combination("datasets"), maps.combination("streams")
@@ -145,6 +148,8 @@ class RateAccumulator:
         self.M_st = csr(m_st)                                      # split datasets x split streams
         self.M_cds = csr((i64(m_ds) @ i64(c_ds)) > 0)              # bits x combined datasets
         self.M_cst = csr((i64(m_ds) @ i64(m_st) @ i64(c_st)) > 0)  # bits x combined streams
+        self.M_cds_ref = csr((i64(m_ds_ref) @ i64(c_ds)) > 0)      # the same without excluded paths
+        self.M_cst_ref = csr((i64(m_ds_ref) @ i64(m_st) @ i64(c_st)) > 0)
         dp = maps.dataset_path_bits()                              # Dataset_ bit of each split dataset
         has = dp >= 0
         self.M_dp = sp.csr_matrix((np.ones(int(has.sum())), (dp[has], np.flatnonzero(has))), shape=(nb, len(dp)))
@@ -188,9 +193,13 @@ class RateAccumulator:
     def _add_block(self, x, w):
         self.n_rows += x.shape[0]
         mats = {"bits": x}
+        refs = mats                                   # decisions for the pure-rate references
         if self.has_groups:
             mats["datasets"] = ((x @ self.M_cds) > 0).astype(np.float64).tocsr()
             mats["streams"] = ((x @ self.M_cst) > 0).astype(np.float64).tocsr()
+            if not self.same_ref:
+                refs = {"bits": x, "datasets": ((x @ self.M_cds_ref) > 0).astype(np.float64).tocsr(),
+                        "streams": ((x @ self.M_cst_ref) > 0).astype(np.float64).tocsr()}
             paths_or = ((x @ self.M_ds) > 0).astype(np.float64).tocsr()
             split_ds = (paths_or.multiply(x @ self.M_dp) + paths_or @ self.no_dp).tocsr()
             split_st = ((split_ds @ self.M_st) > 0).astype(np.float64).tocsr()
@@ -204,13 +213,15 @@ class RateAccumulator:
             s["fired"] += at @ w
             s["shared_sp"] += at @ (w * sp_fired[:, None])
             groups = self.item_group[lvl]
+            r = refs[lvl]
+            rt = at if r is a else r.T.tocsr()
             for g, masks in self.references.items():
                 ref = masks[LEVELS.index(lvl)]
                 items = groups == g
                 if not ref.any() or not items.any():
                     continue
-                n_ref = a @ ref.astype(np.float64)
-                s["pure"][items] += (at @ (w * (n_ref == 1)[:, None]))[items]
+                n_ref = r @ ref.astype(np.float64)
+                s["pure"][items] += (rt @ (w * (n_ref == 1)[:, None]))[items]
 
         for t in self.totals:
             sel = np.ones(x.shape[0], dtype=bool)

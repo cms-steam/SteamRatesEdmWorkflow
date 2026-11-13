@@ -17,6 +17,9 @@ JSON (for the website; every file has ``schema`` and ``measurement``)::
 CSV (for spreadsheets): ``paths_hlt.csv``, ``paths_l1.csv``, ``datasets.csv``, ``streams.csv``,
 ``datasets_split.csv``, ``streams_split.csv``.
 
+Excluded paths (``excluded_paths.json``) keep their own rate and stay in the dataset and stream rates
+and overlaps; they are left out of the totals and the pure rates.
+
 Every rate comes with ``count`` (number of events), ``rate_hz`` and ``rate_err_hz`` (statistical, from
 the sum of squared weights). Records are sorted by rate. Pure rates of items without a reference
 group (calibration/monitoring, no dataset, excluded) are 0 with ``pure_reference: "none"``. Scouting
@@ -300,8 +303,8 @@ def build_documents(result):
     docs["excluded_paths.json"] = {
         **head("excluded_paths"), "patterns": maps.exclude_patterns, "default_list": DEFAULT_EXCLUDE, "records": excluded,
         "note": "Bits matched by merge.exclude or by the default list (config.DEFAULT_EXCLUDE; off with "
-                "merge.default_exclude: false). They keep their own rate but are left out of the totals, the "
-                "dataset and stream rates and the pure-rate references."}
+                "merge.default_exclude: false). They are left out of the totals and the pure-rate references "
+                "(own pure rate 0); they keep their own rate and stay in the dataset/stream rates and overlaps."}
     if maps.datasets and sums.datasets is not None:
         docs["datasets.json"] = {**head("datasets"), "records": datasets,
                                  "note": "combined datasets (split copies together); written_rate_hz and "
@@ -370,7 +373,7 @@ def _dataset_records(result, sums, scale, pure_ref):
             method, f = "paths_div_copies", 1.0 / n_copies
         else:
             method, f = "paths", 1.0
-        present = [p for p in maps.datasets[d] if p in bit_index and not maps.excluded[bit_index[p]]]
+        present = [p for p in maps.datasets[d] if p in bit_index]
         split_ds[d] = {"name": d, "combined": c, "category": maps.dataset_category[d],
                        "streams": maps.dataset_streams[d], "n_paths": len(present),
                        **rate_fields(scaled(sums.datasets_split[j], f), scale), "method": method,
@@ -427,9 +430,7 @@ def _dataset_records(result, sums, scale, pure_ref):
         present = [p for p in paths if p in bit_index]
         exact = all(split_ds[d]["method"] in EXACT_DATASET_METHODS for d in members)
         rec = combined_record("datasets", j, c, members, split_ds, exact)
-        rec.update({"streams": maps.combined_dataset_streams(c),
-                    "n_paths": sum(not maps.excluded[bit_index[p]] for p in present),
-                    "paths": [p for p in present if not maps.excluded[bit_index[p]]],
+        rec.update({"streams": maps.combined_dataset_streams(c), "n_paths": len(present), "paths": present,
                     "paths_excluded": [p for p in present if maps.excluded[bit_index[p]]],
                     "paths_missing": [p for p in paths if p not in bit_index]})
         if len(members) > 1 and all(split_ds[d]["method"] == "dataset_path" for d in members):
@@ -587,7 +588,7 @@ def print_summary(result, summary, out_dir, top=10):
     docs_paths = [p for p in json.load(open(os.path.join(out_dir, "paths_hlt.json")))["records"] if p["kind"] == "hlt"]
     lines.append(f"  top {top} HLT paths [Hz]: " + ", ".join(f"{p['name']} {p['rate_hz']:.4g}" for p in docs_paths[:top]))
     excl = summary["excluded_paths"]
-    lines.append(f"  excluded from all combined quantities: {len(excl)} bit(s)"
+    lines.append(f"  excluded from totals and pure rates: {len(excl)} bit(s)"
                  + (f": {', '.join(excl)}" if 0 < len(excl) <= 20 else "") + " (excluded_paths.json)")
     for w in summary["warnings"]:
         lines.append(f"  WARNING: {w}")

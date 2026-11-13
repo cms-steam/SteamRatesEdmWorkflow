@@ -130,22 +130,27 @@ def test_accumulator_matches_brute_force(weighted):
     sp_any = x[:, sp_ref].any(1)
     close(acc.sums["bits"]["shared_sp"], (x & sp_any[:, None]).T.astype(float) @ W)
 
-    # datasets and streams: OR of the non-excluded member paths
+    # datasets and streams: OR of all member paths; pure rates: OR of the non-excluded ones
     ds_names, st_names = list(m.datasets), list(m.streams)
-    g_ds = np.column_stack([x[:, [i for i, b in enumerate(STRIPPED) if b in m.datasets[d] and not excl[i]]].any(1)
-                            for d in ds_names])
-    g_st = np.column_stack([g_ds[:, [ds_names.index(d) for d in m.streams[s]]].any(1) for s in st_names])
+
+    def decisions(keep):
+        g_ds = np.column_stack([x[:, [i for i, b in enumerate(STRIPPED) if b in m.datasets[d] and keep[i]]].any(1)
+                                for d in ds_names])
+        return g_ds, np.column_stack([g_ds[:, [ds_names.index(d) for d in m.streams[s]]].any(1) for s in st_names])
+    g_ds, g_st = decisions(np.ones(len(STRIPPED), bool))
+    r_ds, r_st = decisions(~excl)
+    assert (g_ds != r_ds).any()                            # HLT_Excl is in D1
     close(acc.sums["datasets"]["fired"], g_ds.T.astype(float) @ W)
     close(acc.sums["streams"]["fired"], g_st.T.astype(float) @ W)
-    for names, g, lvl, catmap in ((ds_names, g_ds, "datasets", m.dataset_category),
-                                  (st_names, g_st, "streams", m.stream_category)):
+    for names, g, r, lvl, catmap in ((ds_names, g_ds, r_ds, "datasets", m.dataset_category),
+                                     (st_names, g_st, r_st, "streams", m.stream_category)):
         sp_items = np.array([catmap[n] in ("standard", "parking") for n in names])
         sc_items = np.array([catmap[n] == "scouting" for n in names])
         exp = np.zeros((len(names), 3))
         for j, n in enumerate(names):
             ref = sp_items if sp_items[j] else sc_items if sc_items[j] else None
             if ref is not None:
-                exp[j] = W[g[:, j] & (g[:, ref].sum(1) == 1)].sum(0)
+                exp[j] = W[r[:, j] & (r[:, ref].sum(1) == 1)].sum(0)
         close(acc.sums[lvl]["pure"], exp)
         close(acc.sums[lvl]["shared_sp"], (g & sp_any[:, None]).T.astype(float) @ W)
 
@@ -168,7 +173,8 @@ def test_accumulator_matches_brute_force(weighted):
 
 
 # Split datasets: E0-E3 (same paths, round robin by their Dataset_ paths, 2 per stream), Mon (dataset
-# prescale 3), TestDataRaw/TestDataScouting (same paths, not split), HLT_X excluded.
+# prescale 3), TestDataRaw/TestDataScouting (same paths, not split), HLT_X excluded (stays in the dataset
+# rates, not in the pure rates).
 SPLIT_BITS = ["HLT_A", "HLT_B", "HLT_C", "HLT_X", "Dataset_E0", "Dataset_E1", "Dataset_E2", "Dataset_E3", "Dataset_Mon"]
 SPLIT_MENU = {
     "trigger_paths": SPLIT_BITS,
@@ -207,7 +213,7 @@ def dataset_records(bits, menu, x):
 def test_split_datasets_from_dataset_paths():
     x = split_events(np.random.default_rng(3), 3000)
     a, b, c = x[:, 0], x[:, 1], x[:, 2]
-    ab, ac = a | b, a | c
+    ab, ac = a | b | x[:, 3], a | c                       # HLT_X (excluded) stays in the dataset rates
     m, acc, (ds, st, ds_split, st_split, check, warnings) = dataset_records(SPLIT_BITS, SPLIT_MENU, x)
     assert m.combined_datasets["E"] == ["E0", "E1", "E2", "E3"]
     assert m.combined_streams["ParkingE"] == ["ParkingE0", "ParkingE1"]
@@ -225,8 +231,9 @@ def test_split_datasets_from_dataset_paths():
     assert ds["Mon"]["count"] == ac.sum() and ds_split["Mon"]["count"] == mon.sum() == ds["Mon"]["written_count"]
     assert st_split["Express"]["count"] == (mon | c).sum() and st_split["Express"]["method"] == "datasets"
     assert check["result"] == "ok" and check["checked"] == 2 and not warnings
-    # pure rate of E w.r.t. the combined standard+parking datasets (T and TestDataRaw/Scouting; Mon is other)
-    assert ds["E"]["pure_count"] == (ab & ~c & ~b).sum()
+    # pure rate of E w.r.t. the combined standard+parking datasets (T and TestDataRaw/Scouting; Mon is
+    # other), all without the excluded HLT_X
+    assert ds["E"]["pure_count"] == (a & ~b & ~c).sum() and ds["E"]["paths_excluded"] == ["HLT_X"]
     # overlaps: between combined datasets/streams
     fake = SimpleNamespace(accumulator=acc, maps=m, normalization=SimpleNamespace(scale=1.0))
     for name, item, other, expected in (("datasets", "E", "T", (ab & c).sum()), ("streams", "ParkingE", "PhysicsT", (ab & c).sum())):
@@ -238,7 +245,7 @@ def test_split_datasets_from_dataset_paths():
 
 def test_split_datasets_estimated_without_dataset_paths():
     x = split_events(np.random.default_rng(4), 3000)
-    ab, ac = x[:, 0] | x[:, 1], x[:, 0] | x[:, 2]
+    ab, ac = x[:, 0] | x[:, 1] | x[:, 3], x[:, 0] | x[:, 2]
     # Run-3 NanoAOD: no Dataset_ bits, prescales from the menu
     m, acc, (ds, st, ds_split, st_split, check, warnings) = dataset_records(SPLIT_BITS[:4], SPLIT_MENU, x[:, :4])
     assert ds_split["E0"]["method"] == "paths_div_prescale" and ds_split["E0"]["rate_hz"] == pytest.approx(ab.sum() / 4)

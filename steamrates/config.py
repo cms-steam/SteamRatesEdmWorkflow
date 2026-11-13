@@ -86,16 +86,18 @@ MERGE = {
     "overlaps": ((dict,), None, {}),     # default: OVERLAPS
 }
 # Overlap matrices computed by the merge (steamrates.rates.default_overlaps).
-# !!! "paths" (HLT x HLT) is the largest and slowest one. Data: cheap (403663 baseline, 13.5M events:
-# !!! +1.5 s, +44 MB), because events with the same fired paths share one row of the table. MC: every
-# !!! event is its own row, so it costs ~ events x (fired paths per event)^2: about +13 s and +150 MB
-# !!! per 100k events with 100 fired paths each (700-path menu). Switch it off for large MC samples.
+# !!! "paths" (HLT x HLT) is the largest one. Data: cheap (403663 baseline, 13.5M events: +1.5 s,
+# !!! +44 MB), because events with the same fired paths share one row of the table. MC: (nearly) every
+# !!! event is its own row: VBFto2L, 1M events, 776 paths, 55 fired per event: +14 s (+17% of the
+# !!! accumulation, ~1.4 s per 100k events) and +30 MB; the time grows with the events and the fired
+# !!! paths per event, the output (up to n_paths^2 entries, 9 MB JSON here) with the paths. Switch it
+# !!! off if a large MC merge is too slow.
 OVERLAPS = {"datasets": True, "streams": True, "paths_datasets": True, "l1_datasets": True, "l1_streams": True,
             "paths": True}
 
-# Paths left out of every combined quantity (totals, dataset/stream rates, pure-rate references) in
-# every measurement, unless ``merge.default_exclude: false``; ``merge.exclude`` adds more for a
-# measurement. They keep their own rate. Only paths with a reason valid for every sample belong here:
+# Paths left out of the totals and the pure-rate references in every measurement, unless
+# ``merge.default_exclude: false``; ``merge.exclude`` adds more for a measurement. They keep their own
+# rate and stay in the dataset/stream rates and overlaps. Only paths with a reason valid for every sample belong here:
 # HLT_Physics and HLT_EphemeralPhysics take (prescaled) unbiased events. They select the HLTPhysics /
 # EphemeralHLTPhysics samples, so in prompt ntuples (online decisions) they fire in every event, and
 # MC menus run them without prescale. (The legacy Rates/triggerstoexclude.py list only patched the

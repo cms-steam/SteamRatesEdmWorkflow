@@ -53,8 +53,8 @@ merge:                          # merge settings (steamrates.merge; categories a
                                 # merge: the standard paths if the maps have no datasets (Phase-2)
   default_exclude: true         # also exclude the paths of steamrates' default list (config.DEFAULT_EXCLUDE:
                                 # HLT_Physics, HLT_EphemeralPhysics: unbiased events, select the HLTPhysics samples)
-  exclude: []                   # more regexes: paths that keep their own rate but are left out of every
-                                # combined quantity (totals, dataset/stream rates, pure references);
+  exclude: []                   # more regexes: paths left out of the totals and the pure-rate references
+                                # (they keep their own rate and stay in dataset/stream rates and overlaps);
                                 # all excluded bits are listed in results/excluded_paths.json
   scouting_paths: '^DST_.*Scouting'   # merge: the scouting paths if the maps have no streams (Phase-2)
   totals: {HLT: '^HLT_', L1: '^L1_(?!FinalOR|UnprefireableEvent)'}   # extra totals, label: regex (OR)
@@ -67,9 +67,10 @@ merge:                          # merge settings (steamrates.merge; categories a
     l1_datasets: true           # L1 seed x dataset
     l1_streams: true            # L1 seed x stream
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # !!! MC SAMPLES: consider `paths: false`. The HLT path x path overlap is cheap for data      !!!
-    # !!! (events with the same fired paths share a row: 13.5M events of 403663 +1.5 s, +44 MB), !!!
-    # !!! but in MC every event is its own row: ~ +13 s and +150 MB per 100k events with 100     !!!
-    # !!! fired paths each, growing with events x (fired paths per event)^2.                      !!!
+    # !!! MC SAMPLES: consider `paths: false` for large samples. The HLT path x path overlap is   !!!
+    # !!! cheap for data (events with the same fired paths share a row: 13.5M events of 403663:   !!!
+    # !!! +1.5 s, +44 MB). In MC every event is its own row: VBFto2L, 1M events, 776 paths, 55    !!!
+    # !!! fired per event: +14 s (~1.4 s per 100k events, +17%), +30 MB, 9 MB JSON. It grows with !!!
+    # !!! the events and the fired paths per event.                                               !!!
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     paths: true                 # HLT path x HLT path (the largest)

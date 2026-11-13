@@ -20,9 +20,8 @@ in the ntuples. A dataset (stream) is therefore compared only if its legacy path
 menu's (versions stripped, excluded paths ignored); the others are listed. Counts must be identical.
 
 The legacy count of a dataset is the OR of its paths, also for split datasets (EGamma0 ... EGamma5
-each get the count of all of EGamma), and excluded paths stay in it: it is compared with the count
-of the combined dataset (stream) in ``datasets.json`` (``streams.json``), from a measurement with
-``merge: {default_exclude: false}`` and no ``exclude``.
+each get the count of all of EGamma): it is compared with the count of the combined dataset (stream)
+in ``datasets.json`` (``streams.json``). Excluded paths stay in both.
 """
 
 from __future__ import annotations
@@ -97,9 +96,6 @@ def compare(rates_dir, workdir):
     # each split dataset/stream of the menu -> its combined record (same paths, same legacy count)
     datasets = {d: combined_ds[r["combined"]] for d, r in load("datasets_split.json").items()}
     streams = {s: combined_st[r["combined"]] for s, r in load("streams_split.json").items()}
-    if summary["exclude_patterns"]:
-        print(f"WARNING: the measurement excludes paths ({len(summary['exclude_patterns'])} patterns): legacy keeps "
-              "them in the dataset/stream counts; use merge: {default_exclude: false}")
     old_ds = legacy_sums(rates_dir, jobs, "DatasetPhysics/output.dataset.physics.{i}.csv")
     for k, v in legacy_sums(rates_dir, jobs, "DatasetMisc/output.dataset.misc.{i}.csv").items():
         old_ds.setdefault(k, v)            # a dataset is in one of the two files
